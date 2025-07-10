@@ -1,0 +1,307 @@
+﻿@model ClzProject.ViewModels.SellerProfileViewModel
+
+@{
+    ViewData["Title"] = "Seller Profile";
+}
+
+<head>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --dark-color: #2c3e50;
+            --light-color: #f8f9fa;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        
+
+        .btn-edit {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+
+        .section-title {
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .detail-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 1rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .detail-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            font-size: 1rem;
+        }
+
+        .detail-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        /* Profile Image Section */
+        
+
+        .image-upload-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .btn-upload {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+            .btn-upload:hover {
+                background-color: #2980b9;
+            }
+
+        .image-upload-input {
+            position: absolute;
+            font-size: 100px;
+            opacity: 0;
+            right: 0;
+            top: 0;
+            cursor: pointer;
+        }
+
+        /* Modal Customization */
+        .modal-header.bg-danger {
+            background-color: var(--danger-color) !important;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .profile-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <h2 class="profile-title">
+            <i class="fas fa-user-tie"></i> Seller Profile
+        </h2>
+        <div class="profile-actions">
+            <a asp-controller="Seller" asp-action="SellerEditProfile" class="btn btn-primary btn-edit">
+                <i class="fas fa-edit"></i> Edit Profile
+            </a>
+            <button asp-controller="Seller" asp-action="SellerDltProfile" type="button" class="btn btn-danger btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="fas fa-trash-alt"></i> Delete Account
+            </button>
+        </div>
+    </div>
+
+    <!-- Profile Image Section -->
+    <div class="profile-image-section">
+        <div class="profile-image-container">
+            <img id="profileImagePreview" src="@(string.IsNullOrEmpty(Model.ProfileImagePath) ? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" : Model.ProfileImagePath)"
+                 class="profile-image" alt="Profile Image">
+        </div>
+        <div class="image-upload-btn">
+            <label class="btn-upload">
+                <i class="fas fa-camera me-2"></i> Change Photo
+                <input type="file" id="profileImageInput" class="image-upload-input" accept="image/*">
+            </label>
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-section">
+            <h3 class="section-title">
+                <i class="fas fa-id-card"></i> Personal Information
+            </h3>
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="detail-content">
+                        <span class="detail-label">Full Name</span>
+                        <span class="detail-value">@Model.Name</span>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="detail-content">
+                        <span class="detail-label">Email</span>
+                        <span class="detail-value">@Model.Email</span>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-birthday-cake"></i>
+                    </div>
+                    <div class="detail-content">
+                        <span class="detail-label">Age</span>
+                        <span class="detail-value">@Model.Age</span>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="detail-content">
+                        <span class="detail-label">Location</span>
+                        <span class="detail-value">@Model.Location</span>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="detail-content">
+                        <span class="detail-label">Phone</span>
+                        <span class="detail-value">@Model.Phone</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h3 class="section-title">
+                <i class="fas fa-briefcase"></i> Business Information
+            </h3>
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="detail-content">
+                        <span class="detail-label">Business Name</span>
+                        <span class="detail-value">@Model.BusinessName</span>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div class="detail-content">
+                        <span class="detail-label">Business Type</span>
+                        <span class="detail-value">@Model.BusinessType</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to permanently delete your seller account?</p>
+                <p class="text-danger"><strong>This action cannot be undone and all your data will be lost.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <form asp-controller="Account" asp-action="DeleteProfile" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Delete Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Client-side image preview functionality
+        document.getElementById('profileImageInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profileImagePreview').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+}

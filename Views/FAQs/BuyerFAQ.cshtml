@@ -1,0 +1,75 @@
+﻿@model IEnumerable<ClzProject.Models.FAQ>
+
+@{
+    ViewData["Title"] = "FAQs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-primary"><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h1>
+        
+    </div>
+
+    <div class="accordion" id="faqAccordion">
+        @{
+            int counter = 1;
+        }
+        @foreach (var faq in Model)
+        {
+            <div class="accordion-item mb-2 border-0 shadow-sm">
+                <h2 class="accordion-header" id="heading-@faq.FAQID">
+                    <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapse-@faq.FAQID" aria-expanded="false"
+                            aria-controls="collapse-@faq.FAQID">
+                        <span class="badge bg-primary me-3">@counter</span>
+                        <span class="fw-semibold text-dark">@faq.Question</span>
+                    </button>
+                </h2>
+                <div id="collapse-@faq.FAQID" class="accordion-collapse collapse"
+                     aria-labelledby="heading-@faq.FAQID" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body bg-light rounded-bottom">
+                        <div class="p-3 bg-white rounded">
+                            <p class="mb-0">@faq.Answer</p>
+                        </div>
+                      
+                    </div>
+                </div>
+            </div>
+            counter++;
+        }
+    </div>
+</div>
+
+
+    <style>
+        .accordion-button {
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+            .accordion-button:not(.collapsed) {
+                background-color: #e9f5ff;
+                box-shadow: none;
+            }
+
+            .accordion-button:focus {
+                box-shadow: none;
+                border-color: rgba(13, 110, 253, 0.25);
+            }
+
+        .accordion-item {
+            border-radius: 0.5rem !important;
+            overflow: hidden;
+        }
+
+        .badge {
+            font-size: 0.8rem;
+            min-width: 24px;
+        }
+
+        .btn-group-sm .btn {
+            padding: 0.5rem 0.5rem;
+            font-size: 1rem;
+        }
+    </style>

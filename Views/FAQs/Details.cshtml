@@ -1,0 +1,103 @@
+﻿@model ClzProject.Models.FAQ
+
+@{
+    ViewData["Title"] = "FAQ Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="fas fa-info-circle me-2"></i>FAQ Details</h2>
+        </div>
+        <div class="card-body">
+            <div class="faq-details">
+                <div class="row mb-3">
+                    <div class="col-md-2 fw-bold text-primary">
+                        <i class="fas fa-question me-2"></i>@Html.DisplayNameFor(model => model.Question):
+                    </div>
+                    <div class="col-md-10">
+                        <p class="lead">@Html.DisplayFor(model => model.Question)</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-2 fw-bold text-primary">
+                        <i class="fas fa-comment-dots me-2"></i>@Html.DisplayNameFor(model => model.Answer):
+                    </div>
+                    <div class="col-md-10">
+                        <div class="p-3 bg-light rounded">
+                            @Html.DisplayFor(model => model.Answer)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-2 fw-bold text-muted">
+                        <i class="fas fa-calendar-plus me-2"></i>@Html.DisplayNameFor(model => model.CreatedDate):
+                    </div>
+                    <div class="col-md-10">
+                        @Html.DisplayFor(model => model.CreatedDate)
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2 fw-bold text-muted">
+                        <i class="fas fa-calendar-edit me-2"></i>@Html.DisplayNameFor(model => model.ModifiedDate):
+                    </div>
+                    <div class="col-md-10">
+                        @Html.DisplayFor(model => model.ModifiedDate)
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top">
+                <a asp-action="Edit" asp-route-id="@Model?.FAQID" class="btn btn-warning me-2">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<head>
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+        }
+
+        .faq-details {
+            padding: 1rem;
+        }
+
+        .lead {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            transition: all 0.3s ease;
+        }
+
+            .btn-warning:hover {
+                background-color: #e0a800;
+                border-color: #d39e00;
+                transform: translateY(-2px);
+            }
+
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+    </style>
+</head>
+   

@@ -1,0 +1,120 @@
+﻿@model ClzProject.Models.FAQ
+
+@{
+    ViewData["Title"] = "Create New FAQ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<head>
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .form-floating > label {
+            left: 10px;
+            color: #6c757d;
+        }
+
+        .form-control, .form-select {
+            border-radius: 0.375rem;
+            padding: 0.5rem 1rem;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            transition: all 0.3s ease;
+        }
+
+            .btn-success:hover {
+                background-color: #218838;
+                border-color: #1e7e34;
+                transform: translateY(-2px);
+            }
+    </style>
+</head>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="fas fa-question-circle me-2"></i>Create New FAQ</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row g-3">
+                    <!-- Question Field -->
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input asp-for="Question" class="form-control" placeholder="Enter question" required />
+                            <label asp-for="Question" class="form-label">
+                                <i class="fas fa-question me-2"></i>Question
+                            </label>
+                            <span asp-validation-for="Question" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Answer Field -->
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <textarea asp-for="Answer" class="form-control" placeholder="Enter answer"
+                                      style="height: 150px" required></textarea>
+                            <label asp-for="Answer" class="form-label">
+                                <i class="fas fa-comment-dots me-2"></i>Answer
+                            </label>
+                            <span asp-validation-for="Answer" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="col-12 mt-4">
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="fas fa-save me-2"></i>Create FAQ
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Enable Bootstrap validation
+        (function () {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.needs-validation')
+
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}

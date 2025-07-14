@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using ClzProject.Models;
+using ClzProject.ViewModels;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using UserRoles.Models;
 
@@ -9,7 +11,8 @@ namespace UserRoles.Data
         public AppDbContext(DbContextOptions options) : base(options)
         {
         }
-        public DbSet<ClzProject.ViewModels.SellerAddCategoryViewModel> SellerAddCategoryViewModel { get; set; } = default!;
-        public DbSet<ClzProject.Models.SellerCategory> SellerCategories { get; set; } = default!;
+        public DbSet<SellerAddCategoryViewModel> SellerAddCategoryViewModel { get; set; } = default!;
+        public DbSet<SellerCategory> SellerCategories { get; set; } = default!;
+        public DbSet<FAQ> FAQs { get; set; }
     }
 }

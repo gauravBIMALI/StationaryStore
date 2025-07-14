@@ -1,0 +1,101 @@
+﻿@model IEnumerable<ClzProject.Models.FAQ>
+
+@{
+    ViewData["Title"] = "FAQs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0"><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create New
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th><i class="fas fa-question me-2"></i>Question</th>
+                            <th><i class="fas fa-comment-dots me-2"></i>Answer</th>
+                            <th><i class="fas fa-calendar-plus me-2"></i>Created</th>
+                            @* <th><i class="fas fa-calendar-edit me-2"></i>Modified</th> *@
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="align-middle">@Html.DisplayFor(modelItem => item.Question)</td>
+                                <td class="align-middle">
+                                    <div class="text-truncate" style="max-width: 300px;">
+                                        @Html.DisplayFor(modelItem => item.Answer)
+                                    </div>
+                                </td>
+                                <td class="align-middle">@Html.DisplayFor(modelItem => item.CreatedDate)</td>
+                                @* <td class="align-middle">@Html.DisplayFor(modelItem => item.ModifiedDate)</td> *@
+                                <td class="align-middle">
+                                    <div class="d-flex gap-2">
+                                        <a asp-action="Edit" asp-route-id="@item.FAQID" class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.FAQID" class="btn btn-sm btn-outline-info" title="Details">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.FAQID" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <style>
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .table-light th {
+            border-top: none;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .text-truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.2rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .align-middle {
+            vertical-align: middle !important;
+        }
+    </style>

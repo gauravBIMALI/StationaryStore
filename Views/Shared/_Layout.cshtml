@@ -18,9 +18,12 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
             <div class="container">
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-users-cog me-2"></i>UserRoles
+                
+                <a class="navbar-brand fw-bold" >
+                    <img src="~/Images/StationaryLogo.png" alt="Logo" style="height: 50px;" class="rounded-circle" />
                 </a>
+
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
                         aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -58,6 +61,11 @@
                                             <i class="fas fa-user-plus me-1"></i>Create Seller
                                         </a>
                                     </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="FAQs" asp-action="Index">
+                                            <i class="fas fa-user-plus me-1"></i>FAQs
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         }
@@ -69,6 +77,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Home" asp-action="User">
                                     <i class="fas fa-user me-1"></i>User Portal
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="FAQs" asp-action="BuyerFAQ">
+                                    <i class="fas fa-user me-1"></i>FAQs
                                 </a>
                             </li>
                         }
@@ -86,7 +99,7 @@
                         @if (User.IsInRole("Seller"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Seller" asp-action="AddCategory">
+                                <a class="nav-link" asp-controller="SellerAddCategory" asp-action="Index">
                                     <i class="fas fa-user me-1"></i>Add-Category
                                 </a>
                             </li>

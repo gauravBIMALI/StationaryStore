@@ -38,8 +38,8 @@ namespace UserRoles.Controllers
                     Age = model.Age,
                     BusinessName = model.BusinessName,
                     BusinessType = model.BusinessType,
-                    PhoneNumber = model.Phone
-
+                    PhoneNumber = model.Phone,
+                    EmailConfirmed = true
 
                 };
 
@@ -130,6 +130,8 @@ namespace UserRoles.Controllers
                 NormalizedUserName = model.Email.ToUpper(),
                 Email = model.Email,
                 NormalizedEmail = model.Email.ToUpper()
+                ,
+                EmailConfirmed = true
             };
 
             var result = await userManager.CreateAsync(user, model.Password);

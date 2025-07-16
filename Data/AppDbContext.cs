@@ -14,5 +14,8 @@ namespace UserRoles.Data
         public DbSet<SellerAddCategoryViewModel> SellerAddCategoryViewModel { get; set; } = default!;
         public DbSet<SellerCategory> SellerCategories { get; set; } = default!;
         public DbSet<FAQ> FAQs { get; set; }
+        // Add this line to register the Product table
+        public DbSet<Product> Products { get; set; }
+
     }
 }

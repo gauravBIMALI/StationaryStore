@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using UserRoles.Data;
 using UserRoles.Models;
 
+
 namespace ClzProject.Controllers
 {
     public class SellerController : Controller
@@ -46,18 +47,69 @@ namespace ClzProject.Controllers
                 Location = user.Location,
                 BusinessName = user.BusinessName,
                 BusinessType = user.BusinessType,
-                Phone = user.PhoneNumber
+                Phone = user.PhoneNumber,
+
 
             };
 
             return View(model);
         }
 
-        //AddCategory controller
-        public IActionResult AddCategory()
+        ////AddCategory controller
+        //public IActionResult AddCategory()
+        //{
+        //    List<SellerCategory> list = _context.SellerCategories.ToList();
+        //    return View(list);
+        //}
+        [HttpGet]
+        public IActionResult AddProduct()
         {
-            List<SellerCategory> list = _context.SellerCategories.ToList();
-            return View(list);
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddProduct(SellerAddProductViewModel model, IFormFile ProductImage)
+        {
+            if (ModelState.IsValid)
+            {
+                string imagePath = "";
+
+                if (ProductImage != null && ProductImage.Length > 0)
+                {
+                    var fileName = Path.GetFileName(ProductImage.FileName);
+                    var savePath = Path.Combine("wwwroot/images", fileName);
+                    using (var stream = new FileStream(savePath, FileMode.Create))
+                    {
+                        await ProductImage.CopyToAsync(stream);
+                    }
+
+                    imagePath = "/images/" + fileName;
+                }
+
+                var product = new Product
+                {
+                    ProductName = model.ProductName,
+                    ProductDescription = model.ProductDescription,
+                    ProductPrice = model.ProductPrice,
+                    ProductQuantity = model.ProductQuantity,
+                    SellerCategoryCode = model.SellerCategoryCode,
+                    SellerCategoryType = model.SellerCategoryType,
+                    ProductImagePath = imagePath,
+                    IsApproved = false // waiting for admin approval
+                };
+
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("ProductSubmitted");
+            }
+
+            return View(model);
+        }
+
+        public IActionResult A()
+        {
+            return View();
         }
 
 

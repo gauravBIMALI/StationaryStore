@@ -8,6 +8,8 @@ namespace UserRoles.Models
         [Required, MaxLength(100)]
         public string FullName { get; set; }
 
+        public bool EmailConfirmed { get; set; } = true;
+
         // Seller-specific fields (nullable)
         [MaxLength(100)]
         public string? BusinessName { get; set; }
@@ -19,6 +21,6 @@ namespace UserRoles.Models
         public string? Location { get; set; }
 
         public int? Age { get; set; }
-
+        public string ProfileImage { get; internal set; }
     }
 }

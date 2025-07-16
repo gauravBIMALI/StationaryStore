@@ -52,7 +52,7 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Admin" asp-action="ManageSeller">
+                                        <a class="dropdown-item" asp-controller="Admins" asp-action="Index">
                                             <i class="fas fa-tachometer-alt me-1"></i>Manage Seller
                                         </a>
                                     </li>
@@ -66,6 +66,7 @@
                                             <i class="fas fa-user-plus me-1"></i>FAQs
                                         </a>
                                     </li>
+                                    
                                 </ul>
                             </li>
                         }
@@ -74,16 +75,18 @@
 
                         @if (User.IsInRole("User"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="User">
-                                    <i class="fas fa-user me-1"></i>User Portal
-                                </a>
-                            </li>
+                           
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="FAQs" asp-action="BuyerFAQ">
                                     <i class="fas fa-user me-1"></i>FAQs
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Buyer" asp-action="Profile">
+                                    <i class="fas fa-user me-1"></i>Profile
+                                </a>
+                            </li>
+                            
                         }
 
                         @* Add every Seller accessible nav here *@
@@ -103,7 +106,13 @@
                                     <i class="fas fa-user me-1"></i>Add-Category
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Seller" asp-action="AddProduct">
+                                    <i class="fas fa-user me-1"></i>AddProduct
+                                </a>
+                            </li>
                         }
+
 
 
                     </ul>
@@ -114,25 +123,35 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-shrink-0">
-        <div class="container py-5">
+    <main class="flex-grow-1">
+        <div class="container py-3">
             @RenderBody()
         </div>
     </main>
 
+   
     <!-- Footer -->
-    <footer class="mt-auto bg-light text-muted py-4 border-top">
+    <footer class="mt-auto bg-dark text-light py-4 border-top shadow-sm">
         <div class="container">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start">
-                    &copy; 2025 - Stationary Store, Developed By Gaurav Bimali - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <small>
+                        <i class="fas fa-copyright"></i> 2025 - <strong>Stationary Store</strong>,
+                        Developed by <strong>Gaurav Bimali</strong> |
+                        <a class="text-decoration-none text-info" asp-controller="Home" asp-action="Privacy">
+                            <i class="fas fa-shield-alt"></i> Privacy Policy
+                        </a>
+                    </small>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <small>Powered by ASP.NET Core</small>
+                    <small>
+                        <i class="fas fa-code"></i> Powered by <strong>ASP.NET Core</strong>
+                    </small>
                 </div>
             </div>
         </div>
     </footer>
+
 
     <!-- JavaScript -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

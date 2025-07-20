@@ -18,13 +18,15 @@ namespace ClzProject.Controllers
             this.userManager = userManager;
         }
 
+
+        //this is for buyer edit profile
         public IActionResult EditProfile()
         {
             return View();
         }
 
 
-
+        //this is for buyer dlt profile
         public IActionResult DltProfile()
         {
             return View();

@@ -1,5 +1,5 @@
 ﻿@using Microsoft.IdentityModel.Tokens
-@model ClzProject.ViewModels.BuyerProfileViewModel
+@model ClzProject.ViewModels.AdminProfileViewModel
 
 @{
     ViewData["Title"] = "Buyer Profile";
@@ -12,10 +12,10 @@
             <i class="fas fa-user-tie"></i> Buyer Profile
         </h2>
         <div class="profile-actions">
-            <a asp-controller="Buyer" asp-action="EditProfile" class="btn btn-primary btn-edit">
+            <a asp-controller="Admins" asp-action="EditProfile" class="btn btn-primary btn-edit">
                 <i class="fas fa-edit"></i> Edit Profile
             </a>
-            <button asp-controller="Seller" asp-action="SellerDltProfile" type="button" class="btn btn-danger btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <button asp-controller="Admins" asp-action="DltProfile" type="button" class="btn btn-danger btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal">
                 <i class="fas fa-trash-alt"></i> Delete Account
             </button>
         </div>
@@ -62,11 +62,11 @@
                         <span class="detail-value">@Model.Email</span>
                     </div>
                 </div>
-  
+
             </div>
         </div>
 
-        
+
     </div>
 </div>
 

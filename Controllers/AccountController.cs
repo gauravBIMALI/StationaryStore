@@ -78,10 +78,6 @@ namespace UserRoles.Controllers
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
             return View(model);
         }
-
-
-
-
         [HttpGet]
         public IActionResult Login()
         {
@@ -187,7 +183,6 @@ namespace UserRoles.Controllers
                 return RedirectToAction("ChangePassword", "Account", new { username = user.UserName });
             }
         }
-
         [HttpGet]
         public IActionResult ChangePassword(string username)
         {

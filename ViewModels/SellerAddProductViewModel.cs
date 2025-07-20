@@ -1,41 +1,42 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace ClzProject.ViewModels
 {
     public class SellerAddProductViewModel
     {
-        [Required(ErrorMessage = "Product Name is required.")]
-        [Display(Name = "Product Name")]
+        [Key]
+        public int ProductId { get; set; }
 
+        [Required(ErrorMessage = "Product name is required.")]
+        [Display(Name = "Product Name")]
+        [StringLength(100, ErrorMessage = "Product name cannot exceed 100 characters.")]
         public string ProductName { get; set; } = null!;
 
-        [Required(ErrorMessage = "Product Description is required.")]
+        [Required(ErrorMessage = "Product description is required.")]
         [Display(Name = "Product Description")]
-        [StringLength(550, ErrorMessage = "Description cannot exceed 550 characters.")]
-
+        [StringLength(500, ErrorMessage = "Product description cannot exceed 500 characters.")]
         public string ProductDescription { get; set; } = null!;
 
-        [Required(ErrorMessage = "Product Price is required.")]
+        [Required(ErrorMessage = "Product price is required.")]
         [Display(Name = "Product Price")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero.")]
-
+        [Range(0.01, double.MaxValue, ErrorMessage = "Product price must be greater than 0.")]
         public decimal ProductPrice { get; set; }
-        [Required(ErrorMessage = "Product Quantity is required.")]
-        [Display(Name = "Product Quantity")]
-        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
 
-        public int ProductQuantity { get; set; }
-
-        [Required(ErrorMessage = "Category Type is required.")]
-        [Display(Name = "Category Type")]
-
-        public string SellerCategoryType { get; set; } = null!;
-
-
-        public string SellerCategoryCode { get; set; } = null!;
         [Display(Name = "Product Image")]
-        [DataType(DataType.Upload)]
-        [FileExtensions(Extensions = "jpg,jpeg,png,gif", ErrorMessage = "Please upload a valid image file (jpg, jpeg, png, gif).")]
-        public IFormFile? ProductImage { get; set; }
+        public string? ProductImage { get; set; }
+
+        [Required(ErrorMessage = "Category is required.")]
+        [Display(Name = "Category")]
+        public int SellerCategoryId { get; set; }
+
+        // Navigation property to access category details
+        [ForeignKey("SellerCategoryId")]
+        public virtual SellerAddCategoryViewModel? Category { get; set; }
+
+        // For dropdown in create view
+        [NotMapped]
+        public SelectList? CategoryList { get; set; }
     }
 
 }

@@ -16,6 +16,7 @@ namespace UserRoles.Data
         public DbSet<FAQ> FAQs { get; set; }
         // Add this line to register the Product table
         public DbSet<Product> Products { get; set; }
+        public DbSet<ClzProject.ViewModels.SellerAddProductViewModel> SellerAddProductViewModel { get; set; } = default!;
 
     }
 }

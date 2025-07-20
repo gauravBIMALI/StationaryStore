@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using ClzProject.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserRoles.Data;
@@ -23,6 +24,93 @@ namespace ClzProject.Controllers
             _context = context;
         }
 
+
+        //This is for admin profile create
+        public async Task<IActionResult> Profile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var model = new AdminProfileViewModel
+            {
+                Name = user.FullName,
+                Email = user.Email
+            };
+
+            return View(model);
+        }
+
+        //this is for edit profile
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var model = new AdminProfileViewModel
+            {
+                Name = user.FullName,
+                Email = user.Email
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(AdminProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Update the fields
+            user.FullName = model.Name;
+            user.Email = model.Email;
+            user.UserName = model.Email;
+
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                TempData["Success"] = "Profile updated successfully!";
+                return RedirectToAction("Profile");
+            }
+
+            // If update fails, add errors to ModelState
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
+        }
+
+
+
+        //this is for dlt profile
+        public IActionResult DltProfile()
+        {
+            return View();
+        }
+
         public async Task<IActionResult> Index()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -44,7 +132,7 @@ namespace ClzProject.Controllers
                     EmailConfirmed = user.EmailConfirmed
                 };
 
-                // Fix for CS8601: Ensure null checks before assignment
+
                 if (role == "Seller")
                 {
                     userViewModel.BusinessName = user.BusinessName ?? string.Empty; // Default to empty string if null
@@ -57,45 +145,5 @@ namespace ClzProject.Controllers
             return View(userViewModels);
         }
 
-        public async Task<IActionResult> Details(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var role = roles.FirstOrDefault() ?? "User";
-
-            var viewModel = new AdminUserViewModel
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                UserName = user.UserName,
-                Email = user.Email,
-                Role = role,
-                //RegistrationDate = user.RegistrationDate,
-                EmailConfirmed = user.EmailConfirmed,
-                PhoneNumber = user.PhoneNumber
-            };
-
-            if (role == "Seller")
-            {
-                viewModel.BusinessName = user.BusinessName;
-            }
-
-            return View(viewModel);
-        }
-        public IActionResult Demo()
-        {
-            return View();
-        }
-        // Add other actions (Details, Edit, Delete) as needed
     }
 }

@@ -1,10 +1,8 @@
 ﻿@using Microsoft.IdentityModel.Tokens
 @model ClzProject.ViewModels.BuyerProfileViewModel
-
 @{
     ViewData["Title"] = "Buyer Profile";
 }
-
 
 <div class="profile-container">
     <div class="profile-header">
@@ -15,7 +13,9 @@
             <a asp-controller="Buyer" asp-action="EditProfile" class="btn btn-primary btn-edit">
                 <i class="fas fa-edit"></i> Edit Profile
             </a>
-            <button asp-controller="Seller" asp-action="SellerDltProfile" type="button" class="btn btn-danger btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal">
+
+            <!-- Delete Button triggers the Modal -->
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                 <i class="fas fa-trash-alt"></i> Delete Account
             </button>
         </div>
@@ -27,7 +27,7 @@
              src="@(string.IsNullOrEmpty(Model.ProfileImageBase64) ? "/images/blank.png" : $"data:image/jpeg;base64,{Model.ProfileImageBase64}")"
              class="profile-image rounded-circle"
              style="height: 150px; width:150px;"
-             alt="Profile Image" /> 
+             alt="Profile Image" />
     </div>
 
     <div class="profile-content">
@@ -55,15 +55,12 @@
                         <span class="detail-value">@Model.Email</span>
                     </div>
                 </div>
-  
             </div>
         </div>
-
-        
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- ✅ Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -74,14 +71,16 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to permanently delete your seller account?</p>
-                <p class="text-danger"><strong>This action cannot be undone and all your data will be lost.</strong></p>
+                <p>Are you sure you want to permanently delete your <strong>buyer</strong> account?</p>
+                <p class="text-danger"><strong>This action cannot be undone.</strong></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times"></i> Cancel
                 </button>
-                <form asp-controller="Account" asp-action="DeleteProfile" method="post">
+
+                <!-- ✅ Final Delete Form -->
+                <form asp-controller="Buyer" asp-action="DltProfile" method="post">
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash-alt"></i> Delete Account
                     </button>
@@ -93,16 +92,20 @@
 
 @section Scripts {
     <script>
-        // Client-side image preview functionality
-        document.getElementById('profileImageInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profileImagePreview').src = e.target.result;
+
+        // ✅ Optional: Client-side image preview
+        const input = document.getElementById('profileImageInput');
+        if (input) {
+            input.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        document.getElementById('profileImagePreview').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
                 }
-                reader.readAsDataURL(file);
-            }
-        });
+            });
+        }
     </script>
 }

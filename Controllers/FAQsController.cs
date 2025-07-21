@@ -43,13 +43,11 @@ namespace ClzProject.Controllers
 
             return View(fAQ);
         }
-
         // GET: FAQs/Create
         public IActionResult Create()
         {
             return View();
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -57,13 +55,20 @@ namespace ClzProject.Controllers
         {
             if (ModelState.IsValid)
             {
-                fAQ.CreatedDate = DateTime.UtcNow; // Set current date and time
+                fAQ.CreatedDate = DateTime.UtcNow;
                 _context.Add(fAQ);
                 await _context.SaveChangesAsync();
+
+                TempData["ToastMessage"] = "FAQ created successfully!";
+                TempData["ToastType"] = "success";
                 return RedirectToAction(nameof(Index));
             }
+
+            TempData["ToastMessage"] = "Failed to create FAQ. Please check the form.";
+            TempData["ToastType"] = "error";
             return View(fAQ);
         }
+
 
         // GET: FAQs/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -88,6 +93,7 @@ namespace ClzProject.Controllers
         {
             if (id != fAQ.FAQID)
             {
+
                 return NotFound();
             }
 
@@ -95,6 +101,7 @@ namespace ClzProject.Controllers
             {
                 try
                 {
+
                     _context.Update(fAQ);
                     await _context.SaveChangesAsync();
                 }

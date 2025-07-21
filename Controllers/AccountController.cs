@@ -125,8 +125,7 @@ namespace UserRoles.Controllers
                 UserName = model.Email,
                 NormalizedUserName = model.Email.ToUpper(),
                 Email = model.Email,
-                NormalizedEmail = model.Email.ToUpper()
-                ,
+                NormalizedEmail = model.Email.ToUpper(),
                 EmailConfirmed = true
             };
 

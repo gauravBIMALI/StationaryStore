@@ -15,9 +15,7 @@
             <a asp-controller="Admins" asp-action="EditProfile" class="btn btn-primary btn-edit">
                 <i class="fas fa-edit"></i> Edit Profile
             </a>
-            <button asp-controller="Admins" asp-action="DltProfile" type="button" class="btn btn-danger btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                <i class="fas fa-trash-alt"></i> Delete Account
-            </button>
+            
         </div>
     </div>
 
@@ -60,35 +58,6 @@
             </div>
         </div>
 
-
-    </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="deleteModalLabel">
-                    <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to permanently delete your seller account?</p>
-                <p class="text-danger"><strong>This action cannot be undone and all your data will be lost.</strong></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-                <form asp-controller="Account" asp-action="DeleteProfile" method="post">
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash-alt"></i> Delete Account
-                    </button>
-                </form>
-            </div>
-        </div>
     </div>
 </div>
 

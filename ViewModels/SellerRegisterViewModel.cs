@@ -7,12 +7,12 @@ namespace UserRoles.ViewModels
         [Required(ErrorMessage = "Full name is required")]
         [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters")]
         [Display(Name = "Full Name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
         [Display(Name = "Email Address")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [Range(18, 100, ErrorMessage = "Age must be between 18 and 100")]
         [Display(Name = "Age")]
@@ -20,7 +20,7 @@ namespace UserRoles.ViewModels
 
         [Required(ErrorMessage = "Location is required")]
         [StringLength(100, ErrorMessage = "Location cannot exceed 100 characters")]
-        public string Location { get; set; }
+        public string? Location { get; set; }
 
         [Required(ErrorMessage = "Business name is required")]
         [StringLength(100, ErrorMessage = "Business name cannot exceed 100 characters")]

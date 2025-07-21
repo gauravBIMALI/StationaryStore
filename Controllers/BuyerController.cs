@@ -28,6 +28,7 @@ namespace ClzProject.Controllers
             var model = new BuyerProfileViewModel
             {
                 Name = user.FullName,
+
                 Email = user.Email,
                 ProfileImageBase64 = user.ProfileImage // Base64 string from database
             };
@@ -49,6 +50,7 @@ namespace ClzProject.Controllers
             {
                 Name = user.FullName,
                 Email = user.Email,
+
                 ProfileImageBase64 = user.ProfileImage
             };
 
@@ -120,9 +122,30 @@ namespace ClzProject.Controllers
         }
 
         // Delete Profile Action
-        public IActionResult DltProfile()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DltProfile()
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                await _signInManager.SignOutAsync();
+
+                return RedirectToAction("Login", "Account");
+            }
+
+
+            return RedirectToAction("EditProfile");
         }
+
+
+
+
     }
 }

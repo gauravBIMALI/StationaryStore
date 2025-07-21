@@ -145,12 +145,29 @@ namespace ClzProject.Controllers
 
             return View(model);
         }
-        ////AddCategory controller
-        //public IActionResult AddCategory()
-        //{
-        //    List<SellerCategory> list = _context.SellerCategories.ToList();
-        //    return View(list);
-        //}
+
+        // Delete Profile Action
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DltProfile()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var result = await userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                await signInManager.SignOutAsync();
+
+                return RedirectToAction("Login", "Account");
+            }
+
+
+            return RedirectToAction("EditProfile");
+        }
 
 
     }

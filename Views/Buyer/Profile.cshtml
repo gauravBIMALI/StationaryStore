@@ -24,17 +24,10 @@
     <!-- Profile Image Section -->
     <div class="profile-image-section">
         <img id="profileImagePreview"
-             src="@(string.IsNullOrEmpty(Model.ProfileImagePath) ? "/images/blank.png" : Model.ProfileImagePath)"
+             src="@(string.IsNullOrEmpty(Model.ProfileImageBase64) ? "/images/blank.png" : $"data:image/jpeg;base64,{Model.ProfileImageBase64}")"
              class="profile-image rounded-circle"
-             style="height: 150px; width:150px; "
-             alt="Profile Image" />
-
-        <div class="image-upload-btn">
-            <label class="btn-upload">
-                <i class="fas fa-camera me-2"></i> Change Photo
-                <input type="file" id="profileImageInput" class="image-upload-input" accept="image/*">
-            </label>
-        </div>
+             style="height: 150px; width:150px;"
+             alt="Profile Image" /> 
     </div>
 
     <div class="profile-content">

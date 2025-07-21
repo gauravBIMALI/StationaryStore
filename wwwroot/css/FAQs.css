@@ -1,0 +1,29 @@
+﻿.accordion-button {
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+    .accordion-button:not(.collapsed) {
+        background-color: #e9f5ff;
+        box-shadow: none;
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: rgba(13, 110, 253, 0.25);
+    }
+
+.accordion-item {
+    border-radius: 0.5rem !important;
+    overflow: hidden;
+}
+
+.badge {
+    font-size: 0.8rem;
+    min-width: 24px;
+}
+
+.btn-group-sm .btn {
+    padding: 0.5rem 0.5rem;
+    font-size: 1rem;
+}

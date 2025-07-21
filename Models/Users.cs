@@ -6,7 +6,7 @@ namespace UserRoles.Models
     public class Users : IdentityUser
     {
         [Required, MaxLength(100)]
-        public string FullName { get; set; }
+        public string? FullName { get; set; }
 
         public bool EmailConfirmed { get; set; } = true;
 
@@ -21,6 +21,6 @@ namespace UserRoles.Models
         public string? Location { get; set; }
 
         public int? Age { get; set; }
-        public string ProfileImage { get; internal set; }
+        public string? ProfileImage { get; set; }
     }
 }

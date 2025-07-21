@@ -12,6 +12,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/FAQs.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/UserRoles.styles.css" asp-append-version="true" />
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -107,6 +108,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Seller" asp-action="Profile">
                                     <i class="fas fa-user me-1"></i>Profile
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="FAQs" asp-action="SellerFAQ">
+                                    <i class="fas fa-user me-1"></i>FAQs
                                 </a>
                             </li>
                         }

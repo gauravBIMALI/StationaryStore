@@ -15,4 +15,6 @@ public class AdminUserViewModel
 
     public string UserType => Role == "Seller" ? "Seller" :
                            Role == "Admin" ? "Admin" : "Buyer";
+
+    public string? ProfileImageBase64 { get; internal set; }
 }

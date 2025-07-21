@@ -50,9 +50,7 @@ namespace ClzProject.Controllers
             return View();
         }
 
-        // POST: FAQs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FAQID,Question,Answer,CreatedDate,ModifiedDate")] FAQ fAQ)
@@ -83,9 +81,7 @@ namespace ClzProject.Controllers
             return View(fAQ);
         }
 
-        // POST: FAQs/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("FAQID,Question,Answer,CreatedDate,ModifiedDate")] FAQ fAQ)
@@ -155,5 +151,13 @@ namespace ClzProject.Controllers
         {
             return _context.FAQs.Any(e => e.FAQID == id);
         }
+
+        public IActionResult SellerFAQ()
+        {
+            // This action can be used to display FAQs specifically for sellers
+            var faqs = _context.FAQs.ToList();
+            return View(faqs);
+        }
+
     }
 }

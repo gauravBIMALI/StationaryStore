@@ -13,16 +13,21 @@ namespace ClzProject.ViewModels
         [Display(Name = "Full Name")]
         [DataType(DataType.Text)]
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
+
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
         [Display(Name = "Email Address")]
 
-        public string Email { get; set; }
-        public string ProfileImagePath { get; set; }
+        public string? Email { get; set; }
+
+        [Display(Name = "Profile Image (Base64)")]
+        public string? ProfileImageBase64 { get; set; }  // This will store the Base64 string
+
+        public string? ProfileImagePath { get; set; }
         [Display(Name = "Upload Profile Image")]
         // This handles the upload
-        public IFormFile ProfileImage { get; set; }
+        public IFormFile? ProfileImage { get; set; }
 
     }
 }

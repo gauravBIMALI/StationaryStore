@@ -6,7 +6,7 @@ public class AdminUserViewModel
     public string UserName { get; set; }
     public string Email { get; set; }
     public string Role { get; set; }
-    public DateTime? RegistrationDate { get; set; }
+    //public DateTime? RegistrationDate { get; set; }
     public bool EmailConfirmed { get; set; }
 
     // Seller-specific properties (if applicable)
@@ -16,5 +16,5 @@ public class AdminUserViewModel
     public string UserType => Role == "Seller" ? "Seller" :
                            Role == "Admin" ? "Admin" : "Buyer";
 
-    public string? ProfileImageBase64 { get; internal set; }
+    public string? ProfileImageBase64 { get; set; }
 }

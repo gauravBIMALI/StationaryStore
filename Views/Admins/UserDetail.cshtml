@@ -1,0 +1,57 @@
+﻿@model ClzProject.ViewModels.AdminUserDetailViewModel
+
+@{
+    ViewData["Title"] = "User Detail";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm rounded">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">User Details</h4>
+        </div>
+        <div class="card-body">
+
+            @if (!string.IsNullOrEmpty(Model.ProfileImageBase64))
+            {
+                <div class="text-center mb-3">
+                    <img src="data:image/png;base64,@Model.ProfileImageBase64" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px;" alt="Profile Image" />
+                </div>
+            }
+
+            <dl class="row">
+                <dt class="col-sm-3">Full Name:</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+
+                <dt class="col-sm-3">Email:</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                
+
+                <dt class="col-sm-3">Role:</dt>
+                <dd class="col-sm-9">@Model.Role</dd>
+
+                @if (Model.Role == "Seller")
+                {
+                    <dt class="col-sm-3">Phone:</dt>
+                    <dd class="col-sm-9">@Model.Phone</dd>
+
+                    <dt class="col-sm-3">Business Name:</dt>
+                    <dd class="col-sm-9">@Model.BusinessName</dd>
+
+                    <dt class="col-sm-3">Business Type:</dt>
+                    <dd class="col-sm-9">@Model.BusinessType</dd>
+
+                    <dt class="col-sm-3">Location:</dt>
+                    <dd class="col-sm-9">@Model.Location</dd>
+
+                    <dt class="col-sm-3">Age:</dt>
+                    <dd class="col-sm-9">@Model.Age</dd>
+                }
+
+              
+            </dl>
+
+            <a asp-action="Index" class="btn btn-secondary mt-3">Back to User List</a>
+        </div>
+    </div>
+</div>

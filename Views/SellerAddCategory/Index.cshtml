@@ -2,7 +2,8 @@
 
 @{
     ViewData["Title"] = "Add Category";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    int sn = 1;
+
 }
 
 <div class="container mt-4">
@@ -18,6 +19,7 @@
 
             <thead class="table-dark">
                 <tr>
+                <th>S.N.</th>
                     <th>@Html.DisplayNameFor(model => model.SellerCategoryCode)</th>
                     <th>@Html.DisplayNameFor(model => model.SellerCategoryType)</th>
                     <th class="text-center">Actions</th>
@@ -27,6 +29,7 @@
                 @foreach (var item in Model)
                 {
                     <tr>
+                    <td>@sn</td>
                         <td>@Html.DisplayFor(modelItem => item.SellerCategoryCode)</td>
                         <td>@Html.DisplayFor(modelItem => item.SellerCategoryType)</td>
                         <td class="text-center">
@@ -41,6 +44,7 @@
                             </a>
                         </td>
                     </tr>
+                    sn++;
                 }
             </tbody>
         </table>

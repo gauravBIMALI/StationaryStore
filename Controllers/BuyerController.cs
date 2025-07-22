@@ -27,9 +27,9 @@ namespace ClzProject.Controllers
 
             var model = new BuyerProfileViewModel
             {
-                Name = user.FullName,
+                Name = user.FullName ?? string.Empty,
 
-                Email = user.Email,
+                Email = user.Email ?? string.Empty,
                 ProfileImageBase64 = user.ProfileImage // Base64 string from database
             };
 
@@ -48,8 +48,8 @@ namespace ClzProject.Controllers
 
             var model = new BuyerProfileViewModel
             {
-                Name = user.FullName,
-                Email = user.Email,
+                Name = user.FullName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
 
                 ProfileImageBase64 = user.ProfileImage
             };

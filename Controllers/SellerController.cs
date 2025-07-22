@@ -37,10 +37,10 @@ namespace ClzProject.Controllers
                 Name = user.FullName,
                 Email = user.Email ?? string.Empty,
                 Age = (int)user.Age,
-                Location = user.Location,
-                BusinessName = user.BusinessName,
-                BusinessType = user.BusinessType,
-                Phone = user.PhoneNumber,
+                Location = user.Location ?? string.Empty,
+                BusinessName = user.BusinessName ?? string.Empty,
+                BusinessType = user.BusinessType ?? string.Empty,
+                Phone = user.PhoneNumber ?? string.Empty,
                 ProfileImageBase64 = user.ProfileImage
 
             };
@@ -136,10 +136,10 @@ namespace ClzProject.Controllers
                 Name = user.FullName,
                 Email = user.Email,
                 Age = (int)user.Age,
-                Location = user.Location,
-                BusinessName = user.BusinessName,
-                BusinessType = user.BusinessType,
-                Phone = user.PhoneNumber,
+                Location = user.Location ?? string.Empty,
+                BusinessName = user.BusinessName ?? string.Empty,
+                BusinessType = user.BusinessType ?? string.Empty,
+                Phone = user.PhoneNumber ?? string.Empty,
                 ProfileImageBase64 = user.ProfileImage // Base64 string from database
             };
 

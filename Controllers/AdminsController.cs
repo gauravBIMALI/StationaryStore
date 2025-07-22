@@ -37,8 +37,8 @@ namespace ClzProject.Controllers
 
             var model = new AdminProfileViewModel
             {
-                Name = user.FullName,
-                Email = user.Email,
+                Name = user.FullName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
                 ProfileImageBase64 = user.ProfileImage // Base64 string from database
             };
 
@@ -56,8 +56,8 @@ namespace ClzProject.Controllers
 
             var model = new AdminProfileViewModel
             {
-                Name = user.FullName,
-                Email = user.Email,
+                Name = user.FullName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
                 ProfileImageBase64 = user.ProfileImage
             };
 
@@ -129,13 +129,6 @@ namespace ClzProject.Controllers
         }
 
 
-
-        //this is for dlt profile
-        public IActionResult DltProfile()
-        {
-            return View();
-        }
-
         public async Task<IActionResult> Index()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -149,9 +142,9 @@ namespace ClzProject.Controllers
                 var userViewModel = new AdminUserViewModel
                 {
                     Id = user.Id,
-                    FullName = user.FullName,
-                    UserName = user.UserName,
-                    Email = user.Email,
+                    FullName = user.FullName ?? string.Empty,
+                    UserName = user.UserName ?? string.Empty,
+                    Email = user.Email ?? string.Empty,
                     Role = role,
                     //RegistrationDate = user.RegistrationDate,
                     EmailConfirmed = user.EmailConfirmed
@@ -169,6 +162,50 @@ namespace ClzProject.Controllers
 
             return View(userViewModels);
         }
+
+        //this Code is for manageUser Action buttons
+        public async Task<IActionResult> UserDetail(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? "User";
+
+            var viewModel = new AdminUserDetailViewModel
+            {
+                Name = user.FullName,
+                Email = user.Email,
+                Role = role,
+                ProfileImageBase64 = user.ProfileImage,
+
+                Age = user.Age,
+                Location = user.Location ?? string.Empty, // Default to empty string if null
+                Phone = user.PhoneNumber ?? string.Empty,
+                BusinessName = user.BusinessName ?? string.Empty,
+                BusinessType = user.BusinessType ?? string.Empty
+            };
+
+            if (role == "Seller")
+            {
+                viewModel.Phone = user.PhoneNumber ?? string.Empty;
+                viewModel.BusinessName = user.BusinessName ?? string.Empty;
+                viewModel.BusinessType = user.BusinessType ?? string.Empty;
+                viewModel.Location = user.Location ?? string.Empty;
+                viewModel.Age = user.Age;
+            }
+
+            return View("UserDetail", viewModel);
+        }
+        //this code is for Disabling user by admin
+        public IActionResult UserDisable()
+        {
+            return View();
+        }
+
 
     }
 }

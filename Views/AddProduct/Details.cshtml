@@ -1,0 +1,21 @@
+﻿@* @model ClzProject.Models.Product
+
+<h2>Product Details</h2>
+
+<table class="table">
+    <tr><th>Name</th><td>@Model.ProductName</td></tr>
+    <tr><th>Description</th><td>@Model.ProductDescription</td></tr>
+    <tr><th>Category</th><td>@Model.CategoryType</td></tr>
+    <tr>
+        <th>Image</th>
+        <td>
+            @if (!string.IsNullOrEmpty(Model.Image))
+            {
+                <img src="data:image/png;base64,@Model.Image" width="150" />
+            }
+        </td>
+    </tr>
+</table>
+
+<a asp-action="Edit" asp-route-id="@Model.ProductID" class="btn btn-primary">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Back to List</a> *@

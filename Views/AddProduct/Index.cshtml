@@ -1,0 +1,39 @@
+﻿@model IEnumerable<ClzProject.Models.Product>
+
+@{
+    ViewData["Title"] = "Product List";
+}
+
+<h2>Product List</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="fw-bold text-primary">📂 Seller Categories</h2>
+    <a asp-action="Create" class="btn btn-success">
+        ➕ Create New
+    </a>
+</div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Description</th>
+            <th>Image</th>
+            <th>Category</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.ProductDescription</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ProductImage))
+                    {
+                        <img src="data:image/png;base64,@item.ProductImage" style="height: 100px;" />
+                    }
+                </td>
+                <td>@item.Category?.CategoryType</td>
+            </tr>
+        }
+    </tbody>
+</table>

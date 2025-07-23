@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
 namespace ClzProject.ViewModels
 {
+    [Table("Product")] // Database table name
     public class SellerAddProductViewModel
     {
         [Key]
@@ -23,20 +25,19 @@ namespace ClzProject.ViewModels
         [Range(0.01, double.MaxValue, ErrorMessage = "Product price must be greater than 0.")]
         public decimal ProductPrice { get; set; }
 
-        [Display(Name = "Product Image")]
-        public string? ProductImage { get; set; }
+        [Display(Name = "Product Image (Base64)")]
+        public string? ProductImage { get; set; } // Stored in DB as Base64
+
+        [NotMapped]
+        [Display(Name = "Upload Product Image")]
+        public IFormFile? ProductImageFile { get; set; } // For file upload
 
         [Required(ErrorMessage = "Category is required.")]
         [Display(Name = "Category")]
         public int SellerCategoryId { get; set; }
 
-        // Navigation property to access category details
-        [ForeignKey("SellerCategoryId")]
-        public virtual SellerAddCategoryViewModel? Category { get; set; }
-
-        // For dropdown in create view
+        // For dropdown selection in the Create/Edit view
         [NotMapped]
-        public SelectList? CategoryList { get; set; }
+        public IEnumerable<SelectListItem>? CategoryList { get; set; }
     }
-
 }

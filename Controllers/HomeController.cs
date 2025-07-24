@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using UserRoles.Data;
 using UserRoles.Models;
 
 namespace UserRoles.Controllers
@@ -10,20 +11,25 @@ namespace UserRoles.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<Users> _userManager;
+        private readonly AppDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+
+
+        public HomeController(ILogger<HomeController> logger, AppDbContext context, UserManager<Users> userManager)
         {
+            _userManager = userManager;
             _logger = logger;
-
+            _context = context;
         }
 
-        //welcomemsg
+
 
 
         public IActionResult Index()
         {
             return View();
         }
+
 
         [Authorize]
         public IActionResult Privacy()

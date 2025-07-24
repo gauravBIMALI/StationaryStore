@@ -21,5 +21,6 @@ namespace UserRoles.Data
         public DbSet<Category> Category { get; set; } = default!;
         public DbSet<Product> Product { get; set; } = default!;
 
+
     }
 }

@@ -1,4 +1,4 @@
-﻿using ClzProject.ViewModels;
+﻿using ClzProject.Models;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

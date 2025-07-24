@@ -5,6 +5,7 @@ using UserRoles.Models;
 
 namespace ClzProject.Controllers
 {
+    //[Authorize(Roles = "Buyer")]
     public class BuyerController : Controller
     {
         private readonly SignInManager<Users> _signInManager;

@@ -1,10 +1,12 @@
 ﻿using ClzProject.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserRoles.Data;
 
 namespace ClzProject.Controllers
 {
+
     public class FAQsController : Controller
     {
         private readonly AppDbContext _context;
@@ -14,18 +16,15 @@ namespace ClzProject.Controllers
             _context = context;
         }
 
-        //For Buyer
-        public async Task<IActionResult> BuyerFAQ()
-        {
-            var faqs = await _context.FAQs.ToListAsync();
-            return View(faqs);
-        }
+
+        [Authorize(Roles = "Admin")]
         // GET: FAQs
         public async Task<IActionResult> Index()
         {
             return View(await _context.FAQs.ToListAsync());
         }
 
+        [Authorize(Roles = "Admin")]
         // GET: FAQs/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -43,6 +42,8 @@ namespace ClzProject.Controllers
 
             return View(fAQ);
         }
+
+        [Authorize(Roles = "Admin")]
         // GET: FAQs/Create
         public IActionResult Create()
         {
@@ -69,7 +70,7 @@ namespace ClzProject.Controllers
             return View(fAQ);
         }
 
-
+        [Authorize(Roles = "Admin")]
         // GET: FAQs/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -120,7 +121,7 @@ namespace ClzProject.Controllers
             }
             return View(fAQ);
         }
-
+        [Authorize(Roles = "Admin")]
         // GET: FAQs/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -159,10 +160,20 @@ namespace ClzProject.Controllers
             return _context.FAQs.Any(e => e.FAQID == id);
         }
 
+
+        //THIS IS FOR SELLER
+        [Authorize(Roles = "Seller")]
         public IActionResult SellerFAQ()
         {
             // This action can be used to display FAQs specifically for sellers
             var faqs = _context.FAQs.ToList();
+            return View(faqs);
+        }
+        //[Authorize(Roles = "Buyer")]
+        //For Buyer
+        public async Task<IActionResult> BuyerFAQ()
+        {
+            var faqs = await _context.FAQs.ToListAsync();
             return View(faqs);
         }
 

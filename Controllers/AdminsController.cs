@@ -1,5 +1,6 @@
 ﻿
 using ClzProject.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ namespace ClzProject.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "Admin")]
 
         //This is for admin profile create
         public async Task<IActionResult> Profile()
@@ -44,6 +46,8 @@ namespace ClzProject.Controllers
 
             return View(model);
         }
+
+        [Authorize(Roles = "Admin")]
         //This is for edit profile
         [HttpGet]
         public async Task<IActionResult> EditProfile()
@@ -128,7 +132,7 @@ namespace ClzProject.Controllers
             return View(model);
         }
 
-
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -164,6 +168,7 @@ namespace ClzProject.Controllers
         }
 
         //this Code is for manageUser Action buttons
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UserDetail(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -200,6 +205,7 @@ namespace ClzProject.Controllers
 
             return View("UserDetail", viewModel);
         }
+        [Authorize(Roles = "Admin")]
         //this code is for Disabling user by admin
         public IActionResult UserDisable()
         {

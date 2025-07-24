@@ -1,13 +1,14 @@
 ﻿using ClzProject.Models;
-using ClzProject.ViewModels;
-
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UserRoles.Data;
 
-namespace ClzProject.Controllers
+namespace Day30Challenges.Controllers
 {
+    [Authorize(Roles = "Seller")]
+
     public class AddProductController : Controller
     {
         private readonly AppDbContext _context;
@@ -17,70 +18,147 @@ namespace ClzProject.Controllers
             _context = context;
         }
 
-        // GET: AddProduct/Create
-        public async Task<IActionResult> Create()
+        // GET: AddProduct/Index
+        public async Task<IActionResult> Index()
         {
-            var categories = await _context.Category
-                .Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.CategoryType
-                }).ToListAsync();
+            var products = await _context.Product.ToListAsync();
+            return View(products);
+        }
 
-            var model = new ProductViewModel
-            {
-                CategoryList = categories
-            };
-
-            return View(model);
+        // GET: AddProduct/Create
+        public IActionResult Create()
+        {
+            ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType");
+            return View();
         }
 
         // POST: AddProduct/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ProductViewModel model)
+        public async Task<IActionResult> Create(Product product, IFormFile imageFile)
         {
             if (ModelState.IsValid)
             {
-                if (model.ProductImageFile != null)
+                // Set timestamps
+                product.CreatedAt = DateTime.Now;
+                product.UpdatedAt = DateTime.Now;
+
+                // Handle image
+                if (imageFile != null && imageFile.Length > 0)
                 {
-                    using var ms = new MemoryStream();
-                    await model.ProductImageFile.CopyToAsync(ms);
-                    model.ProductImage = Convert.ToBase64String(ms.ToArray());
+                    using (var ms = new MemoryStream())
+                    {
+                        await imageFile.CopyToAsync(ms);
+                        byte[] imageBytes = ms.ToArray();
+                        product.Image = Convert.ToBase64String(imageBytes);
+                    }
                 }
 
-                var product = new Product
-                {
-                    ProductName = model.ProductName,
-                    ProductDescription = model.ProductDescription,
-                    ProductImage = model.ProductImage,
-                    CategoryId = model.CategoryId
-                };
-
-                _context.Add(product);
+                _context.Product.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-            // If model invalid, re-populate dropdown
-            model.CategoryList = await _context.Category
-                .Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.CategoryType
-                }).ToListAsync();
-
-            return View(model);
+            ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType");
+            return View(product);
         }
 
-        // GET: AddProduct/Index
-        public async Task<IActionResult> Index()
+        // GET: AddProduct/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            var products = await _context.Product
-                .Include(p => p.Category)
-                .ToListAsync();
+            if (id == null) return NotFound();
 
-            return View(products);
+            var product = await _context.Product.FirstOrDefaultAsync(m => m.ProductID == id);
+            if (product == null) return NotFound();
+
+            return View(product);
+        }
+
+        // GET: AddProduct/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var product = await _context.Product.FindAsync(id);
+            if (product == null) return NotFound();
+
+            ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType", product.CategoryType);
+            return View(product);
+        }
+
+        // POST: AddProduct/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Product product, IFormFile? imageFile)
+        {
+            if (id != product.ProductID) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingProduct = await _context.Product.AsNoTracking().FirstOrDefaultAsync(p => p.ProductID == id);
+
+                    if (existingProduct == null) return NotFound();
+
+                    // Update timestamp
+                    product.CreatedAt = existingProduct.CreatedAt; // Preserve original creation date
+                    product.UpdatedAt = DateTime.Now;
+
+                    // Handle image update
+                    if (imageFile != null && imageFile.Length > 0)
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            await imageFile.CopyToAsync(ms);
+                            product.Image = Convert.ToBase64String(ms.ToArray());
+                        }
+                    }
+                    else
+                    {
+                        product.Image = existingProduct.Image;
+                    }
+
+                    _context.Update(product);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.Product.Any(e => e.ProductID == id)) return NotFound();
+                    throw;
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType", product.CategoryType);
+            return View(product);
+        }
+
+        // GET: AddProduct/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var product = await _context.Product.FirstOrDefaultAsync(m => m.ProductID == id);
+            if (product == null) return NotFound();
+
+            return View(product);
+        }
+
+        // POST: AddProduct/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var product = await _context.Product.FindAsync(id);
+            if (product != null)
+            {
+                _context.Product.Remove(product);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

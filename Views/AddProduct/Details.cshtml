@@ -1,21 +1,75 @@
-﻿@* @model ClzProject.Models.Product
+﻿@model ClzProject.Models.Product
 
-<h2>Product Details</h2>
+@{
+    ViewData["Title"] = "Product Details";
+}
 
-<table class="table">
-    <tr><th>Name</th><td>@Model.ProductName</td></tr>
-    <tr><th>Description</th><td>@Model.ProductDescription</td></tr>
-    <tr><th>Category</th><td>@Model.CategoryType</td></tr>
-    <tr>
-        <th>Image</th>
-        <td>
-            @if (!string.IsNullOrEmpty(Model.Image))
-            {
-                <img src="data:image/png;base64,@Model.Image" width="150" />
-            }
-        </td>
-    </tr>
-</table>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow rounded-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Product Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th class="bg-light">Name</th>
+                                <td>@Model.ProductName</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Description</th>
+                                <td>@Model.ProductDescription</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Price</th>
+                                <td>@Model.ProductPrice.ToString("C2")</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Quantity</th>
+                                <td>@Model.ProductQuantity</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Category</th>
+                                <td>@Model.CategoryType</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Image</th>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(Model.Image))
+                                    {
+                                        <img src="data:image/png;base64,@Model.Image" class="img-thumbnail" style="max-width: 200px;" />
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">No image available</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Created At</th>
+                                <td>@Model.CreatedAt.ToString("g")</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Updated At</th>
+                                <td>@Model.UpdatedAt.ToString("g") ?? "Not updated yet"</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-<a asp-action="Edit" asp-route-id="@Model.ProductID" class="btn btn-primary">Edit</a>
-<a asp-action="Index" class="btn btn-secondary">Back to List</a> *@
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Edit" asp-route-id="@Model.ProductID" class="btn btn-primary">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

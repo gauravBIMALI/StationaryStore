@@ -39,5 +39,7 @@ namespace ClzProject.Models
 
         [Required]
         public string CategoryType { get; set; } = string.Empty;
+
+
     }
 }

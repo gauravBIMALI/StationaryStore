@@ -1,4 +1,5 @@
 ﻿using ClzProject.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UserRoles.Data;
@@ -7,6 +8,7 @@ using UserRoles.Models;
 
 namespace ClzProject.Controllers
 {
+    [Authorize(Roles = "Seller")]
     public class SellerController : Controller
     {
         private readonly SignInManager<Users> signInManager;
@@ -36,7 +38,8 @@ namespace ClzProject.Controllers
             {
                 Name = user.FullName,
                 Email = user.Email ?? string.Empty,
-                Age = (int)user.Age,
+                //Age = (int)user.Age,
+                Age = user.Age ?? 0,
                 Location = user.Location ?? string.Empty,
                 BusinessName = user.BusinessName ?? string.Empty,
                 BusinessType = user.BusinessType ?? string.Empty,
@@ -135,12 +138,14 @@ namespace ClzProject.Controllers
             {
                 Name = user.FullName,
                 Email = user.Email,
-                Age = (int)user.Age,
+                //Age = (int)user.Age,
+                Age = user.Age ?? 0,
                 Location = user.Location ?? string.Empty,
                 BusinessName = user.BusinessName ?? string.Empty,
                 BusinessType = user.BusinessType ?? string.Empty,
                 Phone = user.PhoneNumber ?? string.Empty,
-                ProfileImageBase64 = user.ProfileImage // Base64 string from database
+                ProfileImageBase64 = user.ProfileImage
+                // Base64 string from database
             };
 
             return View(model);

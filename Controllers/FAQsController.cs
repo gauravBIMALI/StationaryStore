@@ -170,7 +170,6 @@ namespace ClzProject.Controllers
             return View(faqs);
         }
         //[Authorize(Roles = "Buyer")]
-        //For Buyer
         public async Task<IActionResult> BuyerFAQ()
         {
             var faqs = await _context.FAQs.ToListAsync();

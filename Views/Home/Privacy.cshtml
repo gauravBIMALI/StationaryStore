@@ -1,6 +1,58 @@
 ﻿@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm rounded-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-shield me-2"></i>Privacy Policy</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">
+                        We value your privacy and are committed to protecting your personal information.
+                    </p>
+
+                    <h5>1. Information Collection</h5>
+                    <p>
+                        We collect only necessary data to provide and improve our services. This may include your name,
+                        email address, and any information you voluntarily provide.
+                    </p>
+
+                    <h5>2. Usage of Information</h5>
+                    <p>
+                        Your data is used strictly for communication, improving services, and order processing.
+                        We do not sell or share your information with third-party services.
+                    </p>
+
+                    <h5>3. Cookies</h5>
+                    <p>
+                        This website uses cookies for better user experience and analytics. You can disable cookies in your browser settings.
+                    </p>
+
+                    <h5>4. Data Security</h5>
+                    <p>
+                        We implement standard security practices to safeguard your data. However, no method of transmission is 100% secure.
+                    </p>
+
+                    <h5>5. Your Consent</h5>
+                    <p>
+                        By using our website, you consent to our privacy policy and its terms.
+                    </p>
+
+                    <h5>6. Contact Us</h5>
+                    <p>
+                        If you have any questions about this Privacy Policy, feel free to contact us via the <a asp-controller="Home" asp-action="Contact">Contact</a> page.
+                    </p>
+
+                    <div class="text-end mt-4">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">
+                            <i class="fas fa-home me-1"></i> Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

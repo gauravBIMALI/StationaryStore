@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "FAQs";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    int sn = 1;
 }
 
 <div class="container mt-4">
@@ -19,6 +19,7 @@
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
+                            <th>S.N</th>
                             <th><i class="fas fa-question me-2"></i>Question</th>
                             <th><i class="fas fa-comment-dots me-2"></i>Answer</th>
                             <th><i class="fas fa-calendar-plus me-2"></i>Created</th>
@@ -30,6 +31,7 @@
                         @foreach (var item in Model)
                         {
                             <tr>
+                                <td>@sn</td>
                                 <td class="align-middle">@Html.DisplayFor(modelItem => item.Question)</td>
                                 <td class="align-middle">
                                     <div class="text-truncate" style="max-width: 300px;">
@@ -52,6 +54,7 @@
                                     </div>
                                 </td>
                             </tr>
+                            sn++;
                         }
                     </tbody>
                 </table>

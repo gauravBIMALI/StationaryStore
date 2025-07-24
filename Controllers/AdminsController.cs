@@ -7,10 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using UserRoles.Data;
 using UserRoles.Models;
 
+
 namespace ClzProject.Controllers
 {
-    //[Authorize(Roles = "Admin")]
-    //[Area("Admin")]
+    [Authorize(Roles = "Admin")]
+
     public class AdminsController : Controller
     {
         private readonly UserManager<Users> _userManager;

@@ -234,5 +234,13 @@ namespace UserRoles.Controllers
             await signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
+
+        //ActionDeny msg
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
     }
 }

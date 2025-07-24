@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Category List";
+    int sn = 1;
 }
 
 <div class="container mt-4">
@@ -15,6 +16,7 @@
     <table class="table table-bordered table-striped shadow-sm rounded-3">
         <thead class="table-dark">
             <tr>
+                <th>S.N</th>
                 <th>@Html.DisplayNameFor(model => model.First().CategoryType)</th>
                 <th style="width: 25%">Actions</th>
             </tr>
@@ -23,6 +25,7 @@
             @foreach (var item in Model)
             {
                 <tr>
+                    <td>@sn</td>
                     <td>@item.CategoryType</td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-1">
@@ -39,6 +42,7 @@
                         </form>
                     </td>
                 </tr>
+                sn++;
             }
         </tbody>
     </table>

@@ -1,0 +1,124 @@
+﻿@model ClzProject.ViewModels.ProductDetailsViewModel
+@{
+    ViewData["Title"] = "Product Details - Admin";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Product Details
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Product Image -->
+                        <div class="col-md-4 mb-4">
+                            @if (!string.IsNullOrEmpty(Model.Image))
+                            {
+                                <img src="data:image/jpeg;base64,@Model.Image"
+                                     alt="@Model.ProductName"
+                                     class="img-fluid rounded shadow"
+                                     style="max-height: 300px; width: 100%; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="bg-light d-flex align-items-center justify-content-center rounded shadow"
+                                     style="height: 300px;">
+                                    <i class="fas fa-image fa-4x text-muted"></i>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Product Information -->
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.ProductName):</label>
+                                    <p class="h5">@Model.ProductName</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.ProductPrice):</label>
+                                    <p class="h5 text-success">@Model.ProductPrice.ToString("C")</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.ProductQuantity):</label>
+                                    <p>
+                                        <span class="badge @(Model.ProductQuantity > 0 ? "bg-success" : "bg-danger") fs-6">
+                                            @Model.ProductQuantity units
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.CategoryType):</label>
+                                    <p><span class="badge bg-primary fs-6">@Model.CategoryType</span></p>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.ProductDescription):</label>
+                                    <p class="text-muted">@Model.ProductDescription</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <!-- Seller Information -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-user-tie me-2"></i>Seller Information
+                            </h5>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.SellerName):</label>
+                            <p>@Model.SellerName</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.SellerEmail):</label>
+                            <p>@Model.SellerEmail</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.SellerBusinessName):</label>
+                            <p>@Model.SellerBusinessName</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.SellerPhoneNumber):</label>
+                            <p>@Model.SellerPhoneNumber</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.SellerLocation):</label>
+                            <p>@Model.SellerLocation</p>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <!-- Timestamps -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.CreatedAt):</label>
+                            <p>@Model.CreatedAt.ToString("dd MMMM yyyy, hh:mm tt")</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold text-muted">@Html.DisplayNameFor(m => m.UpdatedAt):</label>
+                            <p>@Model.UpdatedAt.ToString("dd MMMM yyyy, hh:mm tt")</p>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="ListProducts" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Products
+                        </a>
+                        <a asp-action="DeleteProduct" asp-route-id="@Model.ProductID" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i> Delete Product
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -213,9 +213,125 @@ namespace ClzProject.Controllers
             return View();
         }
 
-
         //FOR DISPLAYING SELLER PRODUCTS
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ListProducts()
+        {
+            var products = await _context.Product.ToListAsync();
 
+            // Create a list to hold product with seller info
+            var productList = new List<ProductWithSellerViewModel>();
+
+            foreach (var product in products)
+            {
+                // Get seller information using your Users model
+                var seller = await _userManager.FindByIdAsync(product.SellerId);
+
+                productList.Add(new ProductWithSellerViewModel
+                {
+                    ProductID = product.ProductID,
+                    ProductName = product.ProductName,
+                    ProductDescription = product.ProductDescription,
+                    ProductPrice = product.ProductPrice,
+                    ProductQuantity = product.ProductQuantity,
+                    CategoryType = product.CategoryType,
+                    Image = product.Image,
+                    CreatedAt = product.CreatedAt,
+                    UpdatedAt = product.UpdatedAt,
+                    SellerId = product.SellerId,
+                    SellerName = seller?.FullName ?? "Unknown Seller", // Using FullName from your Users model
+                    SellerEmail = seller?.Email ?? "No Email",
+                    SellerBusinessName = seller?.BusinessName ?? "No Business Name" // Extra seller info
+                });
+            }
+
+            return View(productList);
+        }
+
+        //dlt and details of product
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ProductDetails(int id)
+        {
+            var product = await _context.Product.FirstOrDefaultAsync(p => p.ProductID == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            // Get seller information
+            var seller = await _userManager.FindByIdAsync(product.SellerId);
+
+            var viewModel = new ProductDetailsViewModel
+            {
+                ProductID = product.ProductID,
+                ProductName = product.ProductName,
+                ProductDescription = product.ProductDescription,
+                ProductPrice = product.ProductPrice,
+                ProductQuantity = product.ProductQuantity,
+                CategoryType = product.CategoryType,
+                Image = product.Image,
+                CreatedAt = product.CreatedAt,
+                UpdatedAt = product.UpdatedAt,
+                SellerId = product.SellerId,
+                SellerName = seller?.FullName ?? "Unknown Seller",
+                SellerEmail = seller?.Email ?? "No Email",
+                SellerBusinessName = seller?.BusinessName ?? "No Business Name",
+                SellerPhoneNumber = seller?.PhoneNumber ?? "No Phone",
+                SellerLocation = seller?.Location ?? "No Location"
+            };
+
+            return View(viewModel);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var product = await _context.Product.FirstOrDefaultAsync(p => p.ProductID == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            // Get seller information for confirmation
+            var seller = await _userManager.FindByIdAsync(product.SellerId);
+
+            var viewModel = new ProductDetailsViewModel
+            {
+                ProductID = product.ProductID,
+                ProductName = product.ProductName,
+                ProductDescription = product.ProductDescription,
+                ProductPrice = product.ProductPrice,
+                ProductQuantity = product.ProductQuantity,
+                CategoryType = product.CategoryType,
+                Image = product.Image,
+                CreatedAt = product.CreatedAt,
+                SellerId = product.SellerId,
+                SellerName = seller?.FullName ?? "Unknown Seller",
+                SellerBusinessName = seller?.BusinessName ?? "No Business Name"
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteProductConfirmed(int id)
+        {
+            var product = await _context.Product.FindAsync(id);
+            if (product != null)
+            {
+                _context.Product.Remove(product);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"Product '{product.ProductName}' has been deleted successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Product not found!";
+            }
+
+            return RedirectToAction(nameof(ListProducts));
+        }
 
     }
 }

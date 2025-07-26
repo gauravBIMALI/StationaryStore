@@ -1,0 +1,125 @@
+﻿@model IEnumerable<ClzProject.ViewModels.ProductWithSellerViewModel>
+@{
+    ViewData["Title"] = "All Products - Admin";
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-list me-2"></i>All Products - Admin View
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>@Html.DisplayNameFor(model => model.ProductName)</th>
+                                        <th>@Html.DisplayNameFor(model => model.ProductPrice)</th>
+                                        <th>@Html.DisplayNameFor(model => model.ProductQuantity)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CategoryType)</th>
+                                        <th>@Html.DisplayNameFor(model => model.SellerName)</th>
+                                        <th>@Html.DisplayNameFor(model => model.SellerBusinessName)</th>
+                                        <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(item.Image))
+                                                {
+                                                    <img src="data:image/jpeg;base64,@item.Image"
+                                                         alt="Product Image"
+                                                         class="img-thumbnail"
+                                                         style="width: 60px; height: 60px; object-fit: cover;" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-light d-flex align-items-center justify-content-center"
+                                                         style="width: 60px; height: 60px;">
+                                                        <i class="fas fa-image text-muted"></i>
+                                                    </div>
+                                                }
+                                            </td>
+                                            <td>
+                                                <strong>@Html.DisplayFor(modelItem => item.ProductName)</strong>
+                                                <br />
+                                                <small class="text-muted">
+                                                    @if (item.ProductDescription.Length > 30)
+                                                    {
+                                                        @(item.ProductDescription.Substring(0, 30) + "...")
+                                                    }
+                                                    else
+                                                    {
+                                                        @item.ProductDescription
+                                                    }
+                                                </small>
+                                            </td>
+                                            <td>@Html.DisplayFor(modelItem => item.ProductPrice)</td>
+                                            <td>
+                                                <span class="badge @(item.ProductQuantity > 0 ? "bg-success" : "bg-danger")">
+                                                    @Html.DisplayFor(modelItem => item.ProductQuantity)
+                                                </span>
+                                            </td>
+                                            <td>@Html.DisplayFor(modelItem => item.CategoryType)</td>
+                                            <td>
+                                                <strong>@Html.DisplayFor(modelItem => item.SellerName)</strong>
+                                                <br />
+                                                <small class="text-muted">@Html.DisplayFor(modelItem => item.SellerEmail)</small>
+                                            </td>
+                                            <td>@Html.DisplayFor(modelItem => item.SellerBusinessName)</td>
+                                            <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="ProductDetails" asp-route-id="@item.ProductID"
+                                                       class="btn btn-sm btn-outline-primary" title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="DeleteProduct" asp-route-id="@item.ProductID"
+                                                       class="btn btn-sm btn-outline-danger" title="Delete Product">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No products found</h5>
+                            <p class="text-muted">No sellers have created any products yet.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

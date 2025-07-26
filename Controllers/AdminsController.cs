@@ -214,5 +214,8 @@ namespace ClzProject.Controllers
         }
 
 
+        //FOR DISPLAYING SELLER PRODUCTS
+
+
     }
 }

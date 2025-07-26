@@ -26,20 +26,19 @@ namespace ClzProject.Models
         [Display(Name = "Quantity")]
         [Range(0, int.MaxValue, ErrorMessage = "Quantity must be zero or greater.")]
         public int ProductQuantity { get; set; }
-
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         //[Required]
-
         [Display(Name = "Image ")]
-
-
         public string Image { get; set; } = string.Empty; // Store base64 string
-
         [Required]
         public string CategoryType { get; set; } = string.Empty;
 
+        public string SellerId { get; set; } = string.Empty;
 
+        //public string? SellerId { get; internal set; }
+        // FK to Identity User (Seller)
+        //public string SellerId { get; set; } = string.Empty;
+        //public Users Seller { get; set; }
     }
 }

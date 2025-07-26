@@ -35,6 +35,8 @@ namespace ClzProject.ViewModels
         [Required(ErrorMessage = "Category is required.")]
         [Display(Name = "Category")]
         public int SellerCategoryId { get; set; }
+        //[Required]
+        public string SellerId { get; set; } = string.Empty;
 
         // For dropdown selection in the Create/Edit view
         [NotMapped]

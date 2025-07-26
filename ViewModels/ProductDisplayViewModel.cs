@@ -1,41 +1,21 @@
-﻿using UserRoles.Models;
-
-namespace ClzProject.ViewModels
+﻿namespace ClzProject.ViewModels
 {
     public class ProductDisplayViewModel
     {
-        public int ProductID { get; set; }
+        public int ProductId { get; set; }
 
+        public string Name { get; set; } = string.Empty;
 
-        public string SellerID { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
 
+        public decimal Price { get; set; }
 
-        public string ProductName { get; set; } = string.Empty;
+        public string ImageBase64 { get; set; } = string.Empty; // Base64 image string
 
-        public string ProductDescription { get; set; } = string.Empty;
-
-        public decimal ProductPrice { get; set; }
-
-        public int ProductQuantity { get; set; }
-
-        public string CategoryType { get; set; } = string.Empty;
-
-        public string ImageBase64 { get; set; } = string.Empty;
-
-        public DateTime CreatedAt { get; set; }
-
-        public string SellerId { get; set; } = string.Empty;
-
-        // Navigation Property
-        public Users Seller { get; set; } = new Users();
-
-        // Additional for admin view
+        // Seller Info
         public string SellerName { get; set; } = string.Empty;
-
-        public string SellerEmail { get; set; } = string.Empty;
-
-        // (Later) For buyer side, you may add:
-        // public bool IsAvailable { get; set; }
+        public string BusinessName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
     }
 
 }

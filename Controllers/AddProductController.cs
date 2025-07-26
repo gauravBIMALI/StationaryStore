@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using UserRoles.Data;
 
-namespace Day30Challenges.Controllers
+namespace ClzProject.Controllers
 {
     [Authorize(Roles = "Seller")]
 
@@ -18,10 +19,16 @@ namespace Day30Challenges.Controllers
             _context = context;
         }
 
-        // GET: AddProduct/Index
         public async Task<IActionResult> Index()
         {
-            var products = await _context.Product.ToListAsync();
+            // Get current seller's ID
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Only get products created by this seller
+            var products = await _context.Product
+                .Where(p => p.SellerId == userId)
+                .ToListAsync();
+
             return View(products);
         }
 
@@ -39,11 +46,14 @@ namespace Day30Challenges.Controllers
         {
             if (ModelState.IsValid)
             {
+                // ADD THIS LINE - Get current seller's ID
+                product.SellerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
                 // Set timestamps
                 product.CreatedAt = DateTime.Now;
                 product.UpdatedAt = DateTime.Now;
 
-                // Handle image
+                // Handle image (your existing code)
                 if (imageFile != null && imageFile.Length > 0)
                 {
                     using (var ms = new MemoryStream())
@@ -82,6 +92,13 @@ namespace Day30Challenges.Controllers
             var product = await _context.Product.FindAsync(id);
             if (product == null) return NotFound();
 
+            //seller can only edit their own products
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (product.SellerId != userId)
+            {
+                return Forbid(); // or return NotFound()
+            }
+
             ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType", product.CategoryType);
             return View(product);
         }
@@ -101,7 +118,17 @@ namespace Day30Challenges.Controllers
 
                     if (existingProduct == null) return NotFound();
 
-                    // Update timestamp
+                    //seller can only edit their own products
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (existingProduct.SellerId != userId)
+                    {
+                        return Forbid();
+                    }
+
+                    //Preserve the SellerId
+                    product.SellerId = existingProduct.SellerId;
+
+                    // Update timestamps
                     product.CreatedAt = existingProduct.CreatedAt; // Preserve original creation date
                     product.UpdatedAt = DateTime.Now;
 
@@ -134,7 +161,6 @@ namespace Day30Challenges.Controllers
             ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType", product.CategoryType);
             return View(product);
         }
-
         // GET: AddProduct/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -160,5 +186,6 @@ namespace Day30Challenges.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

@@ -14,19 +14,8 @@ namespace UserRoles.Data
         public DbSet<Category> Category { get; set; } = default!;
         public DbSet<Product> Product { get; set; } = default!;
         public object Products { get; internal set; }
+        public DbSet<ProductDeletionNotification> ProductDeletionNotifications { get; set; }
 
-        //public DbSet<Product> Products { get; set; } = default!;
 
-        //protected override void OnModelCreating(ModelBuilder builder)
-        //{
-        //    base.OnModelCreating(builder);
-
-        //    // Configure FK between Product and Users
-        //    builder.Entity<Product>()
-        //           .HasOne(p => p.Seller)
-        //           .WithMany()
-        //           .HasForeignKey(p => p.SellerId)
-        //           .OnDelete(DeleteBehavior.Restrict);
-        //}
     }
 }

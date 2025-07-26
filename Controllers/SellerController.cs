@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using UserRoles.Data;
 using UserRoles.Models;
 
@@ -15,6 +17,7 @@ namespace ClzProject.Controllers
         private readonly UserManager<Users> userManager;
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _env;
+
         public SellerController(AppDbContext context, SignInManager<Users> signInManager, UserManager<Users> userManager, IWebHostEnvironment env)
         {
             _env = env;
@@ -22,6 +25,7 @@ namespace ClzProject.Controllers
             this.signInManager = signInManager;
             this.userManager = userManager;
         }
+
 
         //This is for edit profile
         [HttpGet]
@@ -174,6 +178,34 @@ namespace ClzProject.Controllers
             return RedirectToAction("EditProfile");
         }
 
+
+        //notification
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> Notifications()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var notifications = await _context.ProductDeletionNotifications
+                .Where(n => n.SellerId == userId)
+                .OrderByDescending(n => n.DeletedAt)
+                .ToListAsync();
+
+            return View(notifications);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> MarkAsRead(int id)
+        {
+            var notification = await _context.ProductDeletionNotifications.FindAsync(id);
+            if (notification != null && notification.SellerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+            {
+                notification.IsRead = true;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Notifications));
+        }
 
     }
 }

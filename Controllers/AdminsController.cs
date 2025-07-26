@@ -1,4 +1,5 @@
 ﻿
+using ClzProject.Models;
 using ClzProject.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserRoles.Data;
 using UserRoles.Models;
-
 
 namespace ClzProject.Controllers
 {
@@ -292,10 +292,10 @@ namespace ClzProject.Controllers
                 return NotFound();
             }
 
-            // Get seller information for confirmation
+            // Get seller information
             var seller = await _userManager.FindByIdAsync(product.SellerId);
 
-            var viewModel = new ProductDetailsViewModel
+            var viewModel = new ProductDeletionViewModel
             {
                 ProductID = product.ProductID,
                 ProductName = product.ProductName,
@@ -307,28 +307,54 @@ namespace ClzProject.Controllers
                 CreatedAt = product.CreatedAt,
                 SellerId = product.SellerId,
                 SellerName = seller?.FullName ?? "Unknown Seller",
-                SellerBusinessName = seller?.BusinessName ?? "No Business Name"
+                SellerBusinessName = seller?.BusinessName ?? "No Business Name",
+                // For admin to enter deletion reason
+                DeletionReason = string.Empty
             };
 
             return View(viewModel);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteProductConfirmed(int id)
+        public async Task<IActionResult> DeleteProductConfirmed(ProductDeletionViewModel model)
         {
-            var product = await _context.Product.FindAsync(id);
-            if (product != null)
+            if (!ModelState.IsValid)
             {
-                _context.Product.Remove(product);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Product '{product.ProductName}' has been deleted successfully!";
+                return View("DeleteProduct", model);
             }
-            else
+
+            var product = await _context.Product.FindAsync(model.ProductID);
+            if (product == null)
             {
                 TempData["ErrorMessage"] = "Product not found!";
+                return RedirectToAction(nameof(ListProducts));
             }
+
+            // Get current admin info
+            var currentAdmin = await _userManager.GetUserAsync(User);
+
+            // Create notification for seller
+            var notification = new ProductDeletionNotification
+            {
+                SellerId = product.SellerId,
+                ProductName = product.ProductName,
+                DeletionReason = model.DeletionReason,
+                AdminName = currentAdmin?.FullName ?? "Admin",
+                DeletedAt = DateTime.Now,
+                IsRead = false
+            };
+
+            // Save notification
+            _context.ProductDeletionNotifications.Add(notification);
+
+            // Delete the product
+            _context.Product.Remove(product);
+
+            // Save all changes
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Product '{product.ProductName}' has been deleted and seller has been notified.";
 
             return RedirectToAction(nameof(ListProducts));
         }

@@ -21,15 +21,45 @@ namespace ClzProject.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Get current seller's ID
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Only get products created by this seller
+            // Load products WITHOUT the Image field to make it fast
             var products = await _context.Product
                 .Where(p => p.SellerId == userId)
+                .Select(p => new Product
+                {
+                    ProductID = p.ProductID,
+                    ProductName = p.ProductName,
+                    ProductPrice = p.ProductPrice,           // Fixed: was Price
+                    ProductDescription = p.ProductDescription, // Fixed: was Description
+                    ProductQuantity = p.ProductQuantity,     // Added missing field
+                    CategoryType = p.CategoryType,
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt,
+                    SellerId = p.SellerId
+                    // Deliberately NOT selecting Image field
+                })
+                .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
             return View(products);
+        }
+
+        // Add this new method for loading images separately
+        [HttpGet]
+        public async Task<IActionResult> GetProductImage(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var image = await _context.Product
+                .Where(p => p.ProductID == id && p.SellerId == userId)
+                .Select(p => p.Image)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrEmpty(image))
+                return NotFound();
+
+            return Json(new { imageBase64 = image });
         }
 
         // GET: AddProduct/Create

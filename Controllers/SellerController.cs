@@ -207,5 +207,10 @@ namespace ClzProject.Controllers
             return RedirectToAction(nameof(Notifications));
         }
 
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
     }
 }

@@ -1,8 +1,314 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<ClzProject.Models.Product>
+@{
+    ViewData["Title"] = "Stationery Store - Home";
+    var categoryName = ViewBag.CategoryName as string;
+    var searchTerm = ViewBag.SearchTerm as string;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hero Section -->
+<div class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">
+            <i class="fas fa-store me-3"></i>Welcome to Our Stationery Store
+        </h1>
+        <p class="lead">Discover quality products from trusted sellers</p>
+
+        <!-- Search Bar in Hero -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-6">
+                <form asp-action="Search" method="get" class="d-flex">
+                    <input type="text" name="searchTerm" class="form-control form-control-lg me-2"
+                           placeholder="Search for products..." value="@searchTerm">
+                    <button type="submit" class="btn btn-light btn-lg">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="container-fluid mt-4">
+    <!-- Results Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            @if (!string.IsNullOrEmpty(categoryName))
+            {
+                <h2 class="text-primary">
+                    <i class="fas fa-tag me-2"></i>@categoryName Products
+                </h2>
+                <p class="text-muted">Showing products in @categoryName category</p>
+            }
+            else if (!string.IsNullOrEmpty(searchTerm))
+            {
+                <h2 class="text-primary">
+                    <i class="fas fa-search me-2"></i>Search Results
+                </h2>
+                <p class="text-muted">Results for "@searchTerm" (@Model.Count() products found)</p>
+            }
+            else
+            {
+                <h2 class="text-primary">
+                    <i class="fas fa-fire me-2"></i>Featured Products
+                </h2>
+                <p class="text-muted">Discover amazing products from our sellers (@Model.Count() products available)</p>
+            }
+        </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body py-3">
+                    <h6 class="card-title mb-3">
+                        <i class="fas fa-filter me-2"></i>Shop by Category
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a asp-action="Index" class="btn btn-outline-primary btn-sm @(string.IsNullOrEmpty(categoryName) ? "active" : "")">
+                            <i class="fas fa-th-large me-1"></i>All Products
+                        </a>
+                        <a asp-action="Category" asp-route-categoryType="Notebooks"
+                           class="btn btn-outline-primary btn-sm @(categoryName == "Notebooks" ? "active" : "")">
+                            <i class="fas fa-book me-1"></i>Notebooks
+                        </a>
+                        <a asp-action="Category" asp-route-categoryType="Pens"
+                           class="btn btn-outline-primary btn-sm @(categoryName == "Pens" ? "active" : "")">
+                            <i class="fas fa-pen me-1"></i>Pens
+                        </a>
+                        <a asp-action="Category" asp-route-categoryType="Pencils"
+                           class="btn btn-outline-primary btn-sm @(categoryName == "Pencils" ? "active" : "")">
+                            <i class="fas fa-pencil-alt me-1"></i>Pencils
+                        </a>
+                        <a asp-action="Category" asp-route-categoryType="Office Supplies"
+                           class="btn btn-outline-primary btn-sm @(categoryName == "Office Supplies" ? "active" : "")">
+                            <i class="fas fa-briefcase me-1"></i>Office Supplies
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Gallery (3 Columns) -->
+    <div class="row">
+        @if (Model.Any())
+        {
+            @foreach (var product in Model)
+            {
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <div class="card h-100 shadow-sm product-card">
+                        <!-- Product Image with Lazy Loading -->
+                        <div class="card-img-top-wrapper" style="height: 250px; overflow: hidden;">
+                            <div class="image-container" data-product-id="@product.ProductID">
+                                <!-- Loading placeholder -->
+                                <div class="image-placeholder d-flex align-items-center justify-content-center h-100 bg-light">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                                <!-- Image will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-2">
+                                <span class="badge bg-primary mb-2">@product.CategoryType</span>
+                            </div>
+
+                            <h5 class="card-title text-dark">@product.ProductName</h5>
+
+                            <p class="card-text text-muted flex-grow-1">
+                                @if (product.ProductDescription.Length > 80)
+                                {
+                                    @(product.ProductDescription.Substring(0, 80) + "...")
+                                }
+                                else
+                                {
+                                    @product.ProductDescription
+                                }
+                            </p>
+
+                            <!-- Price and Stock -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="text-success mb-0">@product.ProductPrice.ToString("C")</h4>
+                                <small class="text-muted">
+                                    <i class="fas fa-box me-1"></i>@product.ProductQuantity in stock
+                                </small>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2">
+                                <a asp-action="ProductDetails" asp-route-id="@product.ProductID"
+                                   class="btn btn-outline-primary flex-fill">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                                <button class="btn btn-success flex-fill" onclick="showLoginPrompt()">
+                                    <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Product Footer -->
+                        <div class="card-footer bg-light">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>Added @product.CreatedAt.ToString("dd MMM yyyy")
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted">No Products Found</h3>
+                    @if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        <p class="text-muted">No products match your search for "@searchTerm"</p>
+                        <a asp-action="Index" class="btn btn-primary">Browse All Products</a>
+                    }
+                    else if (!string.IsNullOrEmpty(categoryName))
+                    {
+                        <p class="text-muted">No products available in @categoryName category</p>
+                        <a asp-action="Index" class="btn btn-primary">Browse All Categories</a>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No products are currently available. Please check back later!</p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Login Prompt Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Login Required</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Please log in to add items to your cart and make purchases.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="/Account/Login" class="btn btn-primary">Login</a>
+                <a href="/Account/Register" class="btn btn-success">Sign Up</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS -->
+<style>
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 12px;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .product-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+
+    .card-img-top-wrapper {
+        border-radius: 12px 12px 0 0;
+    }
+
+    .image-container {
+        height: 100%;
+        width: 100%;
+    }
+
+    .image-placeholder {
+        height: 250px;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .image-error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 250px;
+        background-color: #f8f9fa;
+        color: #6c757d;
+    }
+</style>
+
+<!-- JavaScript for Lazy Loading -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageContainers = document.querySelectorAll('.image-container');
+
+        // Create intersection observer for lazy loading
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const container = entry.target;
+                    const productId = container.getAttribute('data-product-id');
+                    loadProductImage(productId, container);
+                    observer.unobserve(container);
+                }
+            });
+        }, {
+            rootMargin: '50px' // Start loading 50px before image comes into view
+        });
+
+        // Observe all image containers
+        imageContainers.forEach(container => {
+            observer.observe(container);
+        });
+    });
+
+    function loadProductImage(productId, container) {
+        fetch(`/Home/GetProductImage?id=${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.image) {
+                    container.innerHTML = `
+                        <img src="data:image/jpeg;base64,${data.image}"
+                             alt="Product Image"
+                             class="product-image card-img-top">
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="image-error">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading image:', error);
+                container.innerHTML = `
+                    <div class="image-error">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                        <br><small>Failed to load image</small>
+                    </div>
+                `;
+            });
+    }
+
+    function showLoginPrompt() {
+        var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+    }
+</script>

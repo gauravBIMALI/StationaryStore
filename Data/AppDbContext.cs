@@ -15,7 +15,8 @@ namespace UserRoles.Data
         public DbSet<Product> Product { get; set; } = default!;
         public object Products { get; internal set; }
         public DbSet<ProductDeletionNotification> ProductDeletionNotifications { get; set; }
-
-
+        public DbSet<ClzProject.Models.AdminContact> AdminContact { get; set; } = default!;
+        public object Categories { get; internal set; }
+        //public object Categories { get;  set; }
     }
 }

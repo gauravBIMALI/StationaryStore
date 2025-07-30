@@ -1,0 +1,239 @@
+﻿<style>
+    /* CONTACT SECTION */
+     .contact__container {
+       row-gap: 3rem;
+     }
+
+     .contact__card:hover {
+       transform: translateY(-5px);
+     }
+
+     .contact__card-icon {
+       font-size: 2rem;
+       color: var(--first-color);
+       margin-bottom: 0.75rem;
+     }
+
+     .contact__card-title {
+       font-size: var(--h3-font-size);
+       margin-bottom: 0.5rem;
+     }
+
+     .contact__card-data {
+       display: block;
+       margin-bottom: 1rem;
+       color: var(--text-color-light);
+       font-size: var(--small-font-size);
+     }
+
+     .contact__button {
+       color: var(--first-color);
+       font-size: var(--small-font-size);
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       gap: 0.25rem;
+       transition: color 0.3s;
+     }
+
+     .contact__button:hover {
+       color: var(--first-color-alt);
+     }
+
+     .contact__button-icon {
+       font-size: 1rem;
+       transition: transform 0.3s;
+     }
+
+     .contact__button:hover .contact__button-icon {
+       transform: translateX(0.25rem);
+     }
+
+     /* FORM STYLES */
+     .contact__form {
+       position: relative;
+     }
+
+     .contact__form-div {
+       position: relative;
+       margin-bottom: 1.5rem;
+       height: 4rem;
+     }
+
+     .contact__form-input {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       border: 2px solid var(--first-color-light);
+       background: rgb(236, 234, 234);
+       color: var(--text-color);
+       outline: none;
+       padding: 1.5rem;
+       border-radius: 0.75rem;
+       z-index: 1;
+       transition: border-color 0.3s;
+     }
+
+     .contact__form-tag {
+       position: absolute;
+       top: -0.75rem;
+       left: 1.25rem;
+       font-size: var(--smaller-font-size);
+       padding: 0.25rem;
+       background: var(--body-color);
+       z-index: 10;
+     }
+
+     .contact__form-area {
+       height: 6rem;
+     }
+
+     .contact__form-area textarea {
+       resize: none;
+       padding-top: 1.5rem;
+     }
+
+     /* THANK YOU MESSAGE */
+     .contact__thankyou {
+       display: none;
+       text-align: center;
+       padding: 2rem;
+       background: var(--container-color);
+       border-radius: 1rem;
+       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+       max-width: 500px;
+       margin: 0 auto;
+     }
+
+     .thankyou__icon {
+       font-size: 4rem;
+       color: var(--first-color);
+       margin-bottom: 1rem;
+     }
+
+     .thankyou__title {
+       font-size: 1.5rem;
+       margin-bottom: 0.5rem;
+     }
+
+     .thankyou__text {
+       margin-bottom: 1.5rem;
+       color: var(--text-color-light);
+     }
+
+     /* FORM FOCUS EFFECTS */
+     .contact__form-input:focus {
+       border-color: var(--first-color);
+     }
+
+     
+       .contact__card {
+         width: 100%;
+       }
+     }
+</style>
+
+<section class="contact section" id="contact">
+    <h2 class="section-title">Let's Connect</h2>
+
+    <div class="contact__container bd-grid">
+        <form action="https://formsubmit.co/gauravbimali2060@gmail.com"
+              method="POST"
+              class="contact__form"
+              id="contactForm"
+              enctype="multipart/form-data">
+            <!-- FormSubmit Hidden Config -->
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_template" value="table" />
+            @* <input type="hidden" name="_next" value="https://localhost:7002/Seller/ThankYou" /> *@
+            <input type="text" name="_honey" style="display: none;" />
+
+            <!-- Name -->
+            <div class="contact__form-div">
+                <label class="contact__form-tag">Name</label>
+                <input type="text" name="name" class="contact__form-input" placeholder="Enter your name" required />
+            </div>
+
+            <!-- Email -->
+            <div class="contact__form-div">
+                <label class="contact__form-tag">Email</label>
+                <input type="email" name="email" class="contact__form-input" placeholder="Enter your email" required />
+            </div>
+
+            <!-- Age -->
+            <div class="contact__form-div">
+                <label class="contact__form-tag">Age</label>
+                <input type="number" name="age" class="contact__form-input" placeholder="Enter your age" required />
+            </div>
+
+            <!-- Location -->
+            <div class="contact__form-div">
+                <label class="contact__form-tag">Location</label>
+                <input type="text" name="location" class="contact__form-input" placeholder="Enter your location" required />
+            </div>
+
+            <!-- Business Name -->
+            <div class="contact__form-div">
+                <label class="contact__form-tag">Business Name</label>
+                <input type="text" name="business_name" class="contact__form-input" placeholder="Enter your business name" required />
+            </div>
+
+            <!-- Business Type -->
+            <div class="contact__form-div">
+                <label class="contact__form-tag">Business Type</label>
+                <input type="text" name="business_type" class="contact__form-input" placeholder="Enter your business type" required />
+            </div>
+
+            <!-- Phone Number -->
+            <div class="contact__form-div">
+                <label class="contact__form-tag">Phone Number</label>
+                <input type="tel" name="phone" class="contact__form-input" placeholder="Enter your phone number" required />
+            </div>
+
+            <!-- PAN Number -->
+            <div class="contact__form-div">
+                <label class="contact__form-tag">PAN Number</label>
+                <input type="text" name="pan" class="contact__form-input" placeholder="Enter PAN number" required />
+            </div>
+
+            <!-- Verified ID Upload -->
+            <div class="contact__form-div">
+                <label class="contact__form-tag">Upload Verified ID (Citizenship, Passport, National ID)</label>
+                <input type="file" name="verified_id" class="contact__form-input" accept=".jpg,.jpeg,.png,.pdf" required />
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="button button--flex">
+                Send Message
+                <i class="bx bx-send button__icon"></i>
+            </button>
+        </form>
+
+        <!-- Thank You Message -->
+        <div class="contact__thankyou" id="contact-thankyou">
+            <div class="thankyou__content">
+                <i class="bx bx-check-circle thankyou__icon"></i>
+                <h3 class="thankyou__title">Message Sent!</h3>
+                <p class="thankyou__text">Thank you for reaching out. We'll get back to you shortly.</p>
+                <button class="button thankyou__button" onclick="resetForm()">Send Another Message</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JS Script for Thank You Handling -->
+<script>
+    if (window.location.hash === "#contact-thankyou") {
+        document.getElementById("contactForm").style.display = "none";
+        document.getElementById("contact-thankyou").style.display = "block";
+    }
+
+    function resetForm() {
+        document.getElementById("contactForm").reset();
+        document.getElementById("contactForm").style.display = "grid";
+        document.getElementById("contact-thankyou").style.display = "none";
+        window.history.pushState("", document.title, window.location.pathname);
+    }
+</script>

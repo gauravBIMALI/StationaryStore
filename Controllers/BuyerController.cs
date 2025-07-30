@@ -1,12 +1,11 @@
 ﻿using ClzProject.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UserRoles.Models;
 
 namespace ClzProject.Controllers
 {
-    [Authorize(Roles = "Buyer")]
+    //[Authorize(Roles = "Buyer")]
     public class BuyerController : Controller
     {
         private readonly SignInManager<Users> _signInManager;

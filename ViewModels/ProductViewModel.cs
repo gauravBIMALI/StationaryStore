@@ -18,6 +18,14 @@ namespace ClzProject.ViewModels
         [Display(Name = "Description")]
         public string ProductDescription { get; set; } = null!;
 
+        [Required]
+        [Display(Name = "Price")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero.")]
+        [DataType(DataType.Currency)]
+        [Column(TypeName = "decimal(18,2)")]
+        [DisplayFormat(DataFormatString = "Rs. {0:N2}")]
+        public decimal ProductPrice { get; set; }
+
         [Display(Name = "Product Image")]
         public string? ProductImage { get; set; } // Stored as base64
 

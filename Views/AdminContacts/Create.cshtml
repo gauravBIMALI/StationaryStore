@@ -1,0 +1,69 @@
+﻿@model ClzProject.Models.AdminContact
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>AdminContact</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+       
+
+<form asp-action="Create" enctype="multipart/form-data" method="post">
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="Age"></label>
+        <input asp-for="Age" class="form-control" />
+        <span asp-validation-for="Age" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="Location"></label>
+        <input asp-for="Location" class="form-control" />
+        <span asp-validation-for="Location" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="BusinessName"></label>
+        <input asp-for="BusinessName" class="form-control" />
+        <span asp-validation-for="BusinessName" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="BusinessType"></label>
+        <input asp-for="BusinessType" class="form-control" />
+        <span asp-validation-for="BusinessType" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="Phone"></label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+    <div>
+        <label>PAN Document (Image)</label>
+        <input type="file" name="PAN" class="form-control" />
+    </div>
+    <div>
+        <label>Verified ID (Image)</label>
+        <input type="file" name="VerifiedID" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

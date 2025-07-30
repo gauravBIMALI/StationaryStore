@@ -13,14 +13,19 @@ namespace ClzProject.Models
         [Display(Name = "Product Name")]
         public string ProductName { get; set; } = string.Empty;
 
+        [Required]
         [Display(Name = "Description")]
         public string ProductDescription { get; set; } = string.Empty;
 
+
+
+        //$ is displayed when [DataType(DataType.Currency)] is written here
         [Required]
         [Display(Name = "Price")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero.")]
         [DataType(DataType.Currency)]
-        [Column(TypeName = "decimal(18,2)")] // Specify decimal precision
+        [Column(TypeName = "decimal(18,2)")]
+        [DisplayFormat(DataFormatString = "Rs. {0:N2}")]
         public decimal ProductPrice { get; set; }
         [Required]
         [Display(Name = "Quantity")]

@@ -48,7 +48,7 @@ namespace UserRoles.Controllers
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(user, "Seller");
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Dashboard", "Seller");
                 }
 
                 foreach (var error in result.Errors)
@@ -72,7 +72,7 @@ namespace UserRoles.Controllers
 
             if (result.Succeeded)
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Dashboard", "Seller");
             }
 
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
@@ -97,7 +97,16 @@ namespace UserRoles.Controllers
 
             if (result.Succeeded)
             {
-                return RedirectToAction("Index", "Home");
+                var user = await userManager.FindByEmailAsync(model.Email);
+                var roles = await userManager.GetRolesAsync(user);
+
+                // Redirect to appropriate dashboard based on role
+                if (roles.Contains("Admin"))
+                    return RedirectToAction("Dashboard", "Admins");
+                else if (roles.Contains("Seller"))
+                    return RedirectToAction("Dashboard", "Seller");
+                else
+                    return RedirectToAction("Index", "Home"); // Buyers go to shopping page
             }
 
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");

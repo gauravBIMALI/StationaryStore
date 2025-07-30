@@ -21,8 +21,11 @@ namespace ClzProject.ViewModels
         public string ProductDescription { get; set; } = null!;
 
         [Required(ErrorMessage = "Product price is required.")]
-        [Display(Name = "Product Price")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Product price must be greater than 0.")]
+        [Display(Name = "Price")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero.")]
+        [DataType(DataType.Currency)]
+        [Column(TypeName = "decimal(18,2)")]
+        [DisplayFormat(DataFormatString = "Rs. {0:N2}")]
         public decimal ProductPrice { get; set; }
 
         [Display(Name = "Product Image (Base64)")]

@@ -212,12 +212,26 @@ namespace ClzProject.Controllers
         {
             return View();
         }
-
         //FOR DISPLAYING SELLER PRODUCTS
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ListProducts()
         {
-            var products = await _context.Product.ToListAsync();
+            // Load products WITHOUT images for faster initial load
+            var products = await _context.Product
+                .Select(p => new Product
+                {
+                    ProductID = p.ProductID,
+                    ProductName = p.ProductName,
+                    ProductDescription = p.ProductDescription,
+                    ProductPrice = p.ProductPrice,
+                    ProductQuantity = p.ProductQuantity,
+                    CategoryType = p.CategoryType,
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt,
+                    SellerId = p.SellerId
+                    // Deliberately NOT selecting Image field
+                })
+                .ToListAsync();
 
             // Create a list to hold product with seller info
             var productList = new List<ProductWithSellerViewModel>();
@@ -226,7 +240,6 @@ namespace ClzProject.Controllers
             {
                 // Get seller information using your Users model
                 var seller = await _userManager.FindByIdAsync(product.SellerId);
-
                 productList.Add(new ProductWithSellerViewModel
                 {
                     ProductID = product.ProductID,
@@ -235,19 +248,35 @@ namespace ClzProject.Controllers
                     ProductPrice = product.ProductPrice,
                     ProductQuantity = product.ProductQuantity,
                     CategoryType = product.CategoryType,
-                    Image = product.Image,
+                    // Image will be loaded separately via AJAX
                     CreatedAt = product.CreatedAt,
                     UpdatedAt = product.UpdatedAt,
                     SellerId = product.SellerId,
-                    SellerName = seller?.FullName ?? "Unknown Seller", // Using FullName from your Users model
+                    SellerName = seller?.FullName ?? "Unknown Seller",
                     SellerEmail = seller?.Email ?? "No Email",
-                    SellerBusinessName = seller?.BusinessName ?? "No Business Name" // Extra seller info
+                    SellerBusinessName = seller?.BusinessName ?? "No Business Name"
                 });
             }
 
             return View(productList);
         }
 
+        // Add this new method for loading images separately (for admin view)
+        // Add this method to your AdminsController
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetProductImageAdmin(int id)
+        {
+            var image = await _context.Product
+                .Where(p => p.ProductID == id)
+                .Select(p => p.Image)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrEmpty(image))
+                return NotFound();
+
+            return Json(new { imageBase64 = image });
+        }
         //dlt and details of product
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ProductDetails(int id)
@@ -358,6 +387,46 @@ namespace ClzProject.Controllers
 
             return RedirectToAction(nameof(ListProducts));
         }
+
+        //for admin dashboard
+        // GET: Admin/Dashboard
+        public async Task<IActionResult> Dashboard()
+        {
+            // Get user counts
+            var sellers = await _userManager.GetUsersInRoleAsync("Seller");
+            var users = await _userManager.GetUsersInRoleAsync("User");
+
+            var dashboardData = new AdminDashboardViewModel
+            {
+                // Total number of sellers
+                TotalSellers = sellers.Count,
+
+                // Total number of listed products
+                TotalProducts = await _context.Product.CountAsync(),
+
+                // Total categories (adjust table name if different)
+                TotalCategories = await _context.Category.CountAsync(),
+
+                // Total FAQs
+                TotalFAQs = await _context.FAQs.CountAsync(),
+
+                // Additional useful metrics
+                TotalUsers = users.Count,
+
+                // Recent activities (optional)
+                RecentProducts = await _context.Product
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Take(5)
+                    .Select(p => new { p.ProductName, p.CreatedAt, p.CategoryType })
+                    .ToListAsync(),
+
+                // Recent sellers
+                RecentSellers = sellers.OrderByDescending(s => s.Id).Take(5).ToList()
+            };
+
+            return View(dashboardData);
+        }
+
 
     }
 }

@@ -25,7 +25,6 @@
                     <img src="~/Images/StationaryLogo.png" alt="Logo" style="height: 50px;" class="rounded-circle" />
                 </a>
 
-
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
                         aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -33,11 +32,33 @@
 
                 <div class="collapse navbar-collapse" id="navbarContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="fas fa-home me-1"></i>Home
-                            </a>
-                        </li>
+
+                        @* Show Dashboard for Admin and Seller, Home for others *@
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Admins" asp-action="Dashboard">
+                                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                                </a>
+                            </li>
+                        }
+                        else if (User.IsInRole("Seller"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Seller" asp-action="Dashboard">
+                                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                    <i class="fas fa-home me-1"></i>Home
+                                </a>
+                            </li>
+                        }
+
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
                                 <i class="fas fa-shield-alt me-1"></i>Privacy
@@ -46,7 +67,7 @@
 
                         @* Add every Admin accessible nav here *@
                         @if (User.IsInRole("Admin"))
-                        {   
+                        {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
                                    data-bs-toggle="dropdown" aria-expanded="false">
@@ -55,7 +76,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                                     <li>
                                         <a class="dropdown-item" asp-controller="Admins" asp-action="Index">
-                                            <i class="fas fa-tachometer-alt me-1"></i>Manage Seller
+                                            <i class="fas fa-users me-1"></i>Manage Seller
                                         </a>
                                     </li>
                                     <li>
@@ -65,20 +86,19 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item" asp-controller="FAQs" asp-action="Index">
-                                            <i class="fas fa-user-plus me-1"></i>FAQs
+                                            <i class="fas fa-question-circle me-1"></i>FAQs
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" asp-controller="Categories" asp-action="Index">
-                                            <i class="fas fa-user me-1"></i>Add-Category
+                                            <i class="fas fa-tags me-1"></i>Add-Category
                                         </a>
                                     </li>
-                                    
                                 </ul>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" style="color: black;" asp-controller="Admins" asp-action="ListProducts">
-                                    <i class="fas fa-user me-1"></i>ListProducts
+                                    <i class="fas fa-list me-1"></i>ListProducts
                                 </a>
                             </li>
 
@@ -87,17 +107,14 @@
                                     <i class="fas fa-user me-1"></i>Profile
                                 </a>
                             </li>
-                            
                         }
 
                         @* Add every user accessible nav here *@
-
                         @if (User.IsInRole("User"))
                         {
-
                             <li class="nav-item">
                                 <a class="nav-link" style="color: black;" asp-controller="FAQs" asp-action="BuyerFAQ">
-                                    <i class="fas fa-user me-1"></i>FAQs
+                                    <i class="fas fa-question-circle me-1"></i>FAQs
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -105,11 +122,9 @@
                                     <i class="fas fa-user me-1"></i>Profile
                                 </a>
                             </li>
-
                         }
 
                         @* Add every Seller accessible nav here *@
-
                         @if (User.IsInRole("Seller"))
                         {
                             <li class="nav-item">
@@ -119,13 +134,13 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" style="color: black;" asp-controller="FAQs" asp-action="SellerFAQ">
-                                    <i class="fas fa-user me-1"></i>FAQs
+                                    <i class="fas fa-question-circle me-1"></i>FAQs
                                 </a>
                             </li>
-                            
+
                             <li class="nav-item">
                                 <a class="nav-link" style="color: black;" asp-controller="AddProduct" asp-action="Index">
-                                    <i class="fas fa-user me-1"></i>Sell Product
+                                    <i class="fas fa-plus-circle me-1"></i>Sell Product
                                 </a>
                             </li>
 
@@ -149,7 +164,6 @@
             @RenderBody()
         </div>
     </main>
-
 
     <!-- Footer -->
     <footer class="mt-auto bg-dark text-light py-4 border-top shadow-sm">
@@ -183,6 +197,5 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
-
 
 </html>

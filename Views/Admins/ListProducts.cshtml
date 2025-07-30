@@ -49,20 +49,11 @@
                                     {
                                         <tr>
                                             <td>
-                                                @if (!string.IsNullOrEmpty(item.Image))
-                                                {
-                                                    <img src="data:image/jpeg;base64,@item.Image"
-                                                         alt="Product Image"
-                                                         class="img-thumbnail"
-                                                         style="width: 60px; height: 60px; object-fit: cover;" />
-                                                }
-                                                else
-                                                {
-                                                    <div class="bg-light d-flex align-items-center justify-content-center"
-                                                         style="width: 60px; height: 60px;">
-                                                        <i class="fas fa-image text-muted"></i>
+                                                <div class="admin-image-container" data-product-id="@item.ProductID">
+                                                    <div class="loading-spinner">
+                                                        <i class="fas fa-spinner fa-spin"></i>
                                                     </div>
-                                                }
+                                                </div>
                                             </td>
                                             <td>
                                                 <strong>@Html.DisplayFor(modelItem => item.ProductName)</strong>
@@ -123,3 +114,80 @@
         </div>
     </div>
 </div>
+
+<style>
+    .admin-image-container {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+    }
+
+    .loading-spinner {
+        font-size: 10px;
+        color: #666;
+        text-align: center;
+    }
+
+    .admin-product-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .no-image-admin {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const imageContainers = document.querySelectorAll('.admin-image-container');
+
+        // Load images one by one to avoid overwhelming the server
+        for (let container of imageContainers) {
+            const productId = container.dataset.productId;
+
+            try {
+                const response = await fetch(`/Admins/GetProductImageAdmin/${productId}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.imageBase64) {
+                        container.innerHTML = `<img src="data:image/jpeg;base64,${data.imageBase64}"
+                                              class="admin-product-image"
+                                              alt="Product Image" />`;
+                    } else {
+                        container.innerHTML = `<div class="no-image-admin">
+                                              <i class="fas fa-image text-muted"></i>
+                                              </div>`;
+                    }
+                } else {
+                    container.innerHTML = `<div class="no-image-admin">
+                                          <i class="fas fa-image text-muted"></i>
+                                          </div>`;
+                }
+            } catch (error) {
+                console.error('Failed to load image for product', productId, error);
+                container.innerHTML = `<div class="no-image-admin">
+                                      <i class="fas fa-exclamation-triangle text-danger"></i>
+                                      </div>`;
+            }
+
+            // Small delay between requests to prevent server overload
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    });
+</script>

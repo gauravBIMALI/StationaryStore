@@ -15,11 +15,11 @@
                     </a>
                 </div>
                 <div class="card-body">
-                   
+
                     <form asp-action="Edit" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
 
-                      
+
                         <input type="hidden" asp-for="ProductID" />
                         <input type="hidden" asp-for="SellerId" />
                         <input type="hidden" asp-for="CreatedAt" />
@@ -39,7 +39,10 @@
 
                         <div class="mb-3">
                             <label asp-for="ProductPrice" class="form-label fw-semibold"></label>
-                            <input asp-for="ProductPrice" class="form-control" type="number" step="0.01" />
+                            <div class="input-group">
+                                <span class="input-group-text">Rs.</span>
+                                <input asp-for="ProductPrice" class="form-control" type="number" step="0.01" />
+                            </div>
                             <span asp-validation-for="ProductPrice" class="text-danger small"></span>
                         </div>
 
@@ -56,7 +59,7 @@
                             </select>
                         </div>
 
-                      
+
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
                                 <i class="fas fa-image me-1"></i> Upload New Image (Optional)
@@ -65,17 +68,15 @@
                             <small class="form-text text-muted">Leave empty to keep current image</small>
                         </div>
 
-                        <!-- Display current image if exists -->
-                        @if (!string.IsNullOrEmpty(Model.Image))
-                        {
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Current Image:</label>
-                                <div>
-                                    <img src="data:image/jpeg;base64,@Model.Image" alt="Current Product Image"
-                                         class="img-thumbnail" style="max-width: 200px; max-height: 200px;" />
+                        <!-- Display current image with async loading -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Current Image:</label>
+                            <div class="current-image-container" data-product-id="@Model.ProductID">
+                                <div class="image-loading-placeholder">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Loading current image...
                                 </div>
                             </div>
-                        }
+                        </div>
 
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn btn-success">
@@ -91,3 +92,87 @@
         </div>
     </div>
 </div>
+
+<style>
+    .current-image-container {
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        max-width: 300px;
+    }
+
+    .image-loading-placeholder {
+        text-align: center;
+        color: #6c757d;
+        padding: 20px;
+    }
+
+    .current-product-image {
+        max-width: 300px;
+        max-height: 300px;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .no-current-image {
+        text-align: center;
+        color: #6c757d;
+        padding: 40px 20px;
+    }
+
+    .input-group-text {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+        font-weight: 600;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const imageContainer = document.querySelector('.current-image-container');
+        const productId = imageContainer.dataset.productId;
+
+        try {
+            // Use the same endpoint as your Index page
+            const response = await fetch(`/AddProduct/GetProductImage/${productId}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.imageBase64) {
+                    imageContainer.innerHTML = `
+                        <img src="data:image/jpeg;base64,${data.imageBase64}"
+                             alt="Current Product Image"
+                             class="current-product-image" />
+                    `;
+                } else {
+                    imageContainer.innerHTML = `
+                        <div class="no-current-image">
+                            <i class="fas fa-image fa-3x mb-3 text-muted"></i>
+                            <div>No current image</div>
+                        </div>
+                    `;
+                }
+            } else {
+                imageContainer.innerHTML = `
+                    <div class="no-current-image">
+                        <i class="fas fa-image fa-3x mb-3 text-muted"></i>
+                        <div>No current image</div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Failed to load current image:', error);
+            imageContainer.innerHTML = `
+                <div class="no-current-image">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2 text-warning"></i>
+                    <div>Failed to load image</div>
+                </div>
+            `;
+        }
+    });
+</script>

@@ -1,0 +1,248 @@
+﻿@model ClzProject.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2 text-primary">
+            <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+        </h1>
+        @* <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-download me-1"></i>Export
+                </button>
+            </div>
+        </div> *@
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="row mb-4">
+        <!-- Total Sellers -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Sellers
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalSellers</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-controller="Admins" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>View All
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Products -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Products
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalProducts</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-boxes fa-2x text-success"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-controller="Admins" asp-action="ListProducts" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-eye me-1"></i>View All
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Categories -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Categories
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalCategories</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tags fa-2x text-info"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-controller="Categories" asp-action="Index" class="btn btn-sm btn-outline-info">
+                            <i class="fas fa-eye me-1"></i>Manage
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total FAQs -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Total FAQs
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalFAQs</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-question-circle fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-controller="FAQs" asp-action="Index" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-eye me-1"></i>Manage
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Statistics Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-chart-bar me-2"></i>Quick Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center border-right">
+                            <div class="h4 font-weight-bold text-primary">@Model.TotalUsers</div>
+                            <div class="text-xs text-muted">Total Buyers</div>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="h4 font-weight-bold text-success">@(Model.TotalSellers + Model.TotalUsers)</div>
+                            <div class="text-xs text-muted">Total Users</div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <a asp-controller="Account" asp-action="CreateSeller" class="btn btn-primary btn-sm">
+                            <i class="fas fa-user-plus me-1"></i>Add New Seller
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-tasks me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a asp-controller="Admin" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users me-2 text-primary"></i>Manage Sellers
+                        </a>
+                        <a asp-controller="Categories" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tags me-2 text-info"></i>Manage Categories
+                        </a>
+                        <a asp-controller="FAQs" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-question-circle me-2 text-warning"></i>Manage FAQs
+                        </a>
+                        <a asp-controller="Admin" asp-action="ListProducts" class="list-group-item list-group-item-action">
+                            <i class="fas fa-boxes me-2 text-success"></i>View All Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    @if (Model.RecentProducts?.Any() == true)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="m-0 font-weight-bold">
+                            <i class="fas fa-clock me-2"></i>Recent Products Added
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <th>Category</th>
+                                        <th>Date Added</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var product in Model.RecentProducts.Take(5))
+                                    {
+                                        <tr>
+                                            <td>@product.ProductName</td>
+                                            <td>
+                                                <span class="badge bg-primary">@product.CategoryType</span>
+                                            </td>
+                                            <td>@product.CreatedAt.ToString("dd MMM yyyy")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Custom CSS for Dashboard -->
+<style>
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
+
+    .border-left-info {
+        border-left: 0.25rem solid #36b9cc !important;
+    }
+
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
+
+    .card {
+        border-radius: 0.35rem;
+    }
+
+    .text-xs {
+        font-size: 0.7rem;
+    }
+
+    .border-right {
+        border-right: 1px solid #e3e6f0;
+    }
+</style>

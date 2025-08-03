@@ -5,6 +5,68 @@
     var searchTerm = ViewBag.SearchTerm as string;
 }
 
+<style>
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 12px;
+    }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+
+            .product-card:hover .card-img-top {
+                transform: scale(1.05);
+            }
+
+    .card-img-top-wrapper {
+        border-radius: 12px 12px 0 0;
+    }
+
+    .image-container {
+        height: 100%;
+        width: 100%;
+    }
+
+    .image-placeholder {
+        height: 250px;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .image-error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 250px;
+        background-color: #f8f9fa;
+        color: #6c757d;
+    }
+    /* Category Filter Enhancements */
+    .btn-outline-light:hover {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+
+    .overflow-auto::-webkit-scrollbar {
+        display: none;
+    }
+
+    .overflow-auto {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+</style>
+
 <!-- Hero Section -->
 <div class="bg-primary text-white py-5">
     <div class="container text-center">
@@ -59,33 +121,33 @@
     <!-- Category Filter -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body py-3">
-                    <h6 class="card-title mb-3">
-                        <i class="fas fa-filter me-2"></i>Shop by Category
-                    </h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a asp-action="Index" class="btn btn-outline-primary btn-sm @(string.IsNullOrEmpty(categoryName) ? "active" : "")">
-                            <i class="fas fa-th-large me-1"></i>All Products
-                        </a>
-                        <a asp-action="Category" asp-route-categoryType="Notebooks"
-                           class="btn btn-outline-primary btn-sm @(categoryName == "Notebooks" ? "active" : "")">
-                            <i class="fas fa-book me-1"></i>Notebooks
-                        </a>
-                        <a asp-action="Category" asp-route-categoryType="Pens"
-                           class="btn btn-outline-primary btn-sm @(categoryName == "Pens" ? "active" : "")">
-                            <i class="fas fa-pen me-1"></i>Pens
-                        </a>
-                        <a asp-action="Category" asp-route-categoryType="Pencils"
-                           class="btn btn-outline-primary btn-sm @(categoryName == "Pencils" ? "active" : "")">
-                            <i class="fas fa-pencil-alt me-1"></i>Pencils
-                        </a>
-                        <a asp-action="Category" asp-route-categoryType="Office Supplies"
-                           class="btn btn-outline-primary btn-sm @(categoryName == "Office Supplies" ? "active" : "")">
-                            <i class="fas fa-briefcase me-1"></i>Office Supplies
-                        </a>
-                    </div>
+            <div class="bg-primary bg-gradient rounded-3 p-4 shadow-sm">
+                <h5 class="text-white text-center mb-3">
+                    <i class="fas fa-filter me-2"></i>Filter by Category
+                </h5>
+
+                <!-- Desktop Version: Horizontal Pills -->
+                <div class="d-none d-md-flex justify-content-center flex-wrap gap-2">
+                    <!-- All Categories -->
+                    <a href="@Url.Action("Index", "Home")"
+                       class="btn @(string.IsNullOrEmpty(ViewBag.SelectedCategoryType) ? "btn-light fw-semibold" : "btn-outline-light") btn-sm rounded-pill px-4 py-2">
+                        <i class="fas fa-th-large me-2"></i>All Categories
+                    </a>
+
+                    <!-- Category Pills -->
+                    @if (ViewBag.Categories != null)
+                    {
+                        @foreach (var category in ViewBag.Categories)
+                        {
+                            <a href="@Url.Action("Index", "Home", new { categoryType = category.CategoryType })"
+                               class="btn @(ViewBag.SelectedCategoryType == category.CategoryType ? "btn-light fw-semibold" : "btn-outline-light") btn-sm rounded-pill px-4 py-2">
+                                <i class="fas fa-tag me-2"></i>@category.CategoryType
+                            </a>
+                        }
+                    }
                 </div>
+
+              
             </div>
         </div>
     </div>
@@ -132,7 +194,7 @@
 
                             <!-- Price and Stock -->
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h4 class="text-success mb-0">@product.ProductPrice.ToString("C")</h4>
+                                <h4 class="text-success mb-0">Rs. @product.ProductPrice.ToString("N2")</h4>
                                 <small class="text-muted">
                                     <i class="fas fa-box me-1"></i>@product.ProductQuantity in stock
                                 </small>
@@ -206,52 +268,7 @@
     </div>
 </div>
 
-<!-- Custom CSS -->
-<style>
-    .product-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border: none;
-        border-radius: 12px;
-    }
 
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-    }
-
-    .product-card:hover .card-img-top {
-        transform: scale(1.05);
-    }
-
-    .card-img-top-wrapper {
-        border-radius: 12px 12px 0 0;
-    }
-
-    .image-container {
-        height: 100%;
-        width: 100%;
-    }
-
-    .image-placeholder {
-        height: 250px;
-    }
-
-    .product-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .image-error {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 250px;
-        background-color: #f8f9fa;
-        color: #6c757d;
-    }
-</style>
 
 <!-- JavaScript for Lazy Loading -->
 <script>
@@ -311,4 +328,5 @@
         var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
         loginModal.show();
     }
+      
 </script>

@@ -21,10 +21,22 @@ namespace UserRoles.Controllers
         }
 
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string categoryType)
         {
-            var products = await _context.Product
-                .Where(p => p.ProductQuantity > 0)
+
+            // Get all active categories for dropdown
+            var categories = await _context.Category.ToListAsync();
+
+            // Filter products by category type if selected
+            var productsQuery = _context.Product
+                .Where(p => p.ProductQuantity > 0);
+
+            if (!string.IsNullOrEmpty(categoryType))
+            {
+                productsQuery = productsQuery.Where(p => p.CategoryType == categoryType);
+            }
+
+            var products = await productsQuery
                 .OrderByDescending(p => p.CreatedAt)
                 .Select(p => new Product
                 {
@@ -35,10 +47,11 @@ namespace UserRoles.Controllers
                     ProductQuantity = p.ProductQuantity,
                     CategoryType = p.CategoryType,
                     CreatedAt = p.CreatedAt
-                    // Image is intentionally excluded to speed up initial load
                 })
                 .ToListAsync();
 
+            ViewBag.Categories = categories;
+            ViewBag.SelectedCategoryType = categoryType;
             return View(products);
         }
 

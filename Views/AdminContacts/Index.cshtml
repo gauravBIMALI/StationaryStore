@@ -1,85 +1,125 @@
 ﻿@model IEnumerable<ClzProject.Models.AdminContact>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Admin Contacts";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>List of Messages</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Age)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Location)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BusinessName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BusinessType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Phone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PANBase64)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VerifiedIDBase64)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Age)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Location)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BusinessName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BusinessType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Phone)
-            </td>
-                <td>
-                    <img src="data:image/png;base64,@item.PANBase64" alt="PAN" width="100" />
-                </td>
-                <td>
-                    <img src="data:image/png;base64,@item.VerifiedIDBase64" alt="Verified ID" width="100" />
-                </td>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Name)</th>
+                <th>@Html.DisplayNameFor(model => model.Email)</th>
+                <th>@Html.DisplayNameFor(model => model.Age)</th>
+                <th>@Html.DisplayNameFor(model => model.Location)</th>
+                <th>@Html.DisplayNameFor(model => model.BusinessName)</th>
+                <th>@Html.DisplayNameFor(model => model.BusinessType)</th>
+                <th>@Html.DisplayNameFor(model => model.Phone)</th>
+                <th>Message</th>
+                <th>PAN Document</th>
+                <th>Verified ID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Age)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Location)</td>
+                    <td>@Html.DisplayFor(modelItem => item.BusinessName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.BusinessType)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Phone)</td>
+                    <td>
+                        @if (item.Message.Length > 50)
+                        {
+                            <span title="@item.Message">@item.Message.Substring(0, 50)...</span>
+                        }
+                        else
+                        {
+                            @item.Message
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.PANBase64))
+                        {
+                            <button type="button" class="btn btn-sm btn-info" onclick="showImageModal('@item.PANBase64', 'PAN Document')">
+                                View PAN
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No file</span>
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.VerifiedIDBase64))
+                        {
+                            <button type="button" class="btn btn-sm btn-info" onclick="showImageModal('@item.VerifiedIDBase64', 'Verified ID')">
+                                View ID
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No file</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.ContactId" class="btn btn-sm btn-outline-primary">Details</a>
+                        <a asp-action="Edit" asp-route-id="@item.ContactId" class="btn btn-sm btn-outline-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.ContactId" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ContactId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ContactId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ContactId">Delete</a>
-            </td>
-        </tr>
+<!-- Modal for displaying images -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Document View</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" alt="Document" class="img-fluid" style="max-height: 500px;" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a id="downloadLink" href="" download="" class="btn btn-primary">Download</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showImageModal(base64Data, title) {
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('imageModalLabel');
+            const downloadLink = document.getElementById('downloadLink');
+
+            // Set image source
+            const imageSrc = 'data:image/jpeg;base64,' + base64Data;
+            modalImage.src = imageSrc;
+
+            // Set modal title
+            modalTitle.textContent = title;
+
+            // Set download link
+            downloadLink.href = imageSrc;
+            downloadLink.download = title.replace(' ', '_') + '.jpg';
+
+            // Show modal
+            modal.show();
+        }
+    </script>
 }
-    </tbody>
-</table>

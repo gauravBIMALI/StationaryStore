@@ -107,6 +107,13 @@
                                     <i class="fas fa-user me-1"></i>Profile
                                 </a>
                             </li>
+
+                            //admin contact request
+                            <li class="nav-item">
+                                <a class="nav-link" style="color: black;" asp-controller="AdminContacts" asp-action="Index">
+                                    <i class="fas fa-user me-1"></i>Messages
+                                </a>
+                            </li>
                         }
 
                         @* Add every user accessible nav here *@
@@ -120,6 +127,14 @@
                             <li class="nav-item">
                                 <a class="nav-link" style="color: black;" asp-controller="Buyer" asp-action="Profile">
                                     <i class="fas fa-user me-1"></i>Profile
+                                </a>
+                            </li>
+
+
+                            //for contacting seller
+                            <li class="nav-item">
+                                <a class="nav-link" style="color: black;" asp-controller="AdminContacts" asp-action="Create">
+                                    <i class="fas fa-user me-1"></i>Contaact
                                 </a>
                             </li>
                         }

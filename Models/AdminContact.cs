@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClzProject.Models
 {
@@ -21,11 +22,11 @@ namespace ClzProject.Models
         [Required(ErrorMessage = "Location is required.")]
         public string Location { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Business Name is required.")]
+        //[Required(ErrorMessage = "Business Name is required.")]
         [Display(Name = "Business Name")]
         public string BusinessName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Business Type is required.")]
+        //[Required(ErrorMessage = "Business Type is required.")]
         [Display(Name = "Business Type")]
         public string BusinessType { get; set; } = string.Empty;
 
@@ -33,12 +34,23 @@ namespace ClzProject.Models
         [Phone(ErrorMessage = "Invalid phone number.")]
         public string Phone { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "PAN document is required.")]
+        [Required(ErrorMessage = "Message is required.")]
+        [StringLength(500, ErrorMessage = "Message cannot exceed 500 characters.")]
+        public string Message { get; set; } = string.Empty;
+
         [Display(Name = "PAN (Base64)")]
         public string PANBase64 { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Verified ID is required.")]
         [Display(Name = "Verified ID (Base64)")]
         public string VerifiedIDBase64 { get; set; } = string.Empty;
+
+        // These properties are not mapped to database - used for file uploads
+        [NotMapped]
+        [Display(Name = "PAN Document")]
+        public IFormFile? PANFile { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Verified ID Document")]
+        public IFormFile? VerifiedIDFile { get; set; }
     }
 }

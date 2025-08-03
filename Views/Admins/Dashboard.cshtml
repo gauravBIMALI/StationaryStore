@@ -9,13 +9,13 @@
         <h1 class="h2 text-primary">
             <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
         </h1>
-        @* <div class="btn-toolbar mb-2 mb-md-0">
+         <div class="btn-toolbar mb-2 mb-md-0">
             <div class="btn-group me-2">
                 <button type="button" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-download me-1"></i>Export
                 </button>
             </div>
-        </div> *@
+        </div> 
     </div>
 
     <!-- Key Metrics Cards -->
@@ -156,7 +156,7 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
-                        <a asp-controller="Admin" asp-action="Index" class="list-group-item list-group-item-action">
+                        <a asp-controller="Admins" asp-action="Index" class="list-group-item list-group-item-action">
                             <i class="fas fa-users me-2 text-primary"></i>Manage Sellers
                         </a>
                         <a asp-controller="Categories" asp-action="Index" class="list-group-item list-group-item-action">
@@ -165,7 +165,7 @@
                         <a asp-controller="FAQs" asp-action="Index" class="list-group-item list-group-item-action">
                             <i class="fas fa-question-circle me-2 text-warning"></i>Manage FAQs
                         </a>
-                        <a asp-controller="Admin" asp-action="ListProducts" class="list-group-item list-group-item-action">
+                        <a asp-controller="Admins" asp-action="ListProducts" class="list-group-item list-group-item-action">
                             <i class="fas fa-boxes me-2 text-success"></i>View All Products
                         </a>
                     </div>

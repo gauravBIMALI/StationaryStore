@@ -20,11 +20,6 @@ namespace UserRoles.Controllers
             _context = context;
         }
 
-        public IActionResult Try()
-        {
-            return View();
-        }
-
 
         public async Task<IActionResult> Index()
         {

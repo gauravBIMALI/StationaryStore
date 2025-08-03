@@ -43,17 +43,72 @@ namespace ClzProject.Controllers
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ContactId,Name,Email,Age,Location,BusinessName,BusinessType,Phone,PANBase64,VerifiedIDBase64")] AdminContact adminContact)
+        public async Task<IActionResult> Create(AdminContact adminContact)
         {
-            if (ModelState.IsValid)
+            try
             {
+                // Debug: Log received data
+                Console.WriteLine($"Received: Name={adminContact.Name}, Email={adminContact.Email}");
+                Console.WriteLine($"PAN File: {adminContact.PANFile?.FileName ?? "null"}");
+                Console.WriteLine($"Verified ID File: {adminContact.VerifiedIDFile?.FileName ?? "null"}");
+
+                // Handle file uploads
+                if (adminContact.PANFile != null && adminContact.PANFile.Length > 0)
+                {
+                    adminContact.PANBase64 = await ConvertToBase64(adminContact.PANFile);
+                    Console.WriteLine($"PAN Base64 length: {adminContact.PANBase64.Length}");
+                }
+                else
+                {
+                    // Set empty string if no file uploaded
+                    adminContact.PANBase64 = string.Empty;
+                }
+
+                if (adminContact.VerifiedIDFile != null && adminContact.VerifiedIDFile.Length > 0)
+                {
+                    adminContact.VerifiedIDBase64 = await ConvertToBase64(adminContact.VerifiedIDFile);
+                    Console.WriteLine($"Verified ID Base64 length: {adminContact.VerifiedIDBase64.Length}");
+                }
+                else
+                {
+                    // Set empty string if no file uploaded
+                    adminContact.VerifiedIDBase64 = string.Empty;
+                }
+
+                // Remove file validation errors since we're using Base64
+                ModelState.Remove("PANFile");
+                ModelState.Remove("VerifiedIDFile");
+
+                // Debug: Check ModelState
+                if (!ModelState.IsValid)
+                {
+                    foreach (var modelError in ModelState)
+                    {
+                        Console.WriteLine($"ModelState Error - Key: {modelError.Key}");
+                        foreach (var error in modelError.Value.Errors)
+                        {
+                            Console.WriteLine($"Error: {error.ErrorMessage}");
+                        }
+                    }
+                    return View(adminContact);
+                }
+
+                Console.WriteLine("ModelState is valid, saving to database...");
                 _context.Add(adminContact);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                Console.WriteLine("Successfully saved to database");
+                return RedirectToAction("Index", "Home");
             }
-            return View(adminContact);
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception in Create: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                ModelState.AddModelError("", "An error occurred while saving the data.");
+                return View(adminContact);
+            }
         }
 
         // GET: AdminContacts/Edit/5
@@ -72,17 +127,29 @@ namespace ClzProject.Controllers
             return View(adminContact);
         }
 
-        // POST: AdminContacts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ContactId,Name,Email,Age,Location,BusinessName,BusinessType,Phone,PANBase64,VerifiedIDBase64")] AdminContact adminContact)
+        public async Task<IActionResult> Edit(int id, AdminContact adminContact)
         {
             if (id != adminContact.ContactId)
             {
                 return NotFound();
             }
+
+            // Handle file uploads for edit
+            if (adminContact.PANFile != null)
+            {
+                adminContact.PANBase64 = await ConvertToBase64(adminContact.PANFile);
+            }
+
+            if (adminContact.VerifiedIDFile != null)
+            {
+                adminContact.VerifiedIDBase64 = await ConvertToBase64(adminContact.VerifiedIDFile);
+            }
+
+            // Remove file validation errors
+            ModelState.Remove("PANFile");
+            ModelState.Remove("VerifiedIDFile");
 
             if (ModelState.IsValid)
             {
@@ -145,7 +212,16 @@ namespace ClzProject.Controllers
             return _context.AdminContact.Any(e => e.ContactId == id);
         }
 
+        // Helper method to convert file to Base64
+        private async Task<string> ConvertToBase64(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return string.Empty;
 
-
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            var fileBytes = memoryStream.ToArray();
+            return Convert.ToBase64String(fileBytes);
+        }
     }
 }

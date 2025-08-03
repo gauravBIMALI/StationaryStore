@@ -277,7 +277,6 @@ namespace ClzProject.Controllers
 
             return Json(new { imageBase64 = image });
         }
-        //dlt and details of product
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ProductDetails(int id)
         {

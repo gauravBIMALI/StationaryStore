@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Title"] = "Product Return Policy";
+}
+
+<div class="container my-5">
+    <h1 class="mb-4 text-primary">Product Return Policy</h1>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="mb-3">1. Return Rules</h4>
+            <ul>
+                <li>Products can be returned within <strong>15 days</strong> from the date of purchase.</li>
+                <li>Only products with <strong>external damages</strong> are considered defective and eligible for return.</li>
+                <li>Returns for reasons other than external damage will <strong>not</strong> be accepted.</li>
+            </ul>
+
+            <h4 class="mt-4 mb-3">2. Return Process</h4>
+            <ul>
+                <li>All return requests are <strong>manually reviewed</strong> by our quality assurance team.</li>
+                <li>We reserve the right to <strong>accept or reject</strong> the return based on the review.</li>
+                <li>Once approved, the product should be physically <strong>dropped at our store location.</strong></li>
+            </ul>
+
+            <h4 class="mt-4 mb-3">3. Product Condition</h4>
+            <ul>
+                <li>The product must be returned in its original packaging with all accessories and manuals.</li>
+                <li>Products showing signs of misuse, alterations, or internal damage will be <strong>rejected.</strong></li>
+            </ul>
+
+            <h4 class="mt-4 mb-3">4. Refund & Exchange</h4>
+            <ul>
+                <li>Upon acceptance of return, refunds or exchanges will be processed within <strong>7-10 business days.</strong></li>
+                <li>Refunds will be credited through the original payment method.</li>
+                <li>Shipping charges for returns are <strong>not refundable.</strong></li>
+            </ul>
+
+            <h4 class="mt-4 mb-3">5. Important Notes</h4>
+            <ul>
+                <li>Keep your purchase receipt/invoice as proof of purchase for processing returns.</li>
+                <li>We encourage customers to inspect products immediately upon delivery.</li>
+                <li>
+                    If you have any questions regarding the return policy, please
+                    <a class="nav-link" style="color: green; font-weight: bold;" asp-controller="AdminContacts" asp-action="Create">
+                        <i class="fas fa-user me-1"></i>Contact us
+                    </a> or go to <a class="nav-link" style="color: green; font-weight: bold;" asp-area="" asp-controller="Home" asp-action="Privacy"><i class="fas fa-shield-alt me-1"></i>Privacy Policy</a>.
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

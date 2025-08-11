@@ -142,6 +142,11 @@ namespace UserRoles.Controllers
             return View();
         }
 
+        public IActionResult ProductReturn()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
@@ -166,10 +171,41 @@ namespace UserRoles.Controllers
         {
             return View();
         }
-        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        //public IActionResult Error()
-        //{
-        //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        //}
+        // Update the GetRelatedProducts method in your HomeController
+        [HttpGet]
+        public async Task<IActionResult> GetRelatedProducts(string categoryType, int excludeId, int count = 6)
+        {
+            try
+            {
+                var relatedProducts = await _context.Product
+                    .Where(p => p.CategoryType == categoryType &&
+                               p.ProductID != excludeId &&
+                               p.ProductQuantity > 0)
+                    .OrderBy(x => Guid.NewGuid()) // Random order
+                    .Take(count)
+                    .Select(p => new
+                    {
+                        ProductID = p.ProductID,
+                        ProductName = p.ProductName,
+                        ProductPrice = p.ProductPrice,
+                        CategoryType = p.CategoryType,
+                        HasImage = !string.IsNullOrEmpty(p.Image)
+                    })
+                    .ToListAsync();
+
+                return Json(new { success = true, products = relatedProducts });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        public IActionResult Confirm()
+        {
+            // This action can be used to confirm actions like product deletion, etc.
+            return View();
+        }
+
     }
 }

@@ -5,6 +5,7 @@ using UserRoles.Data;
 
 namespace ClzProject.Controllers
 {
+
     public class AdminContactsController : Controller
     {
         private readonly AppDbContext _context;
@@ -14,11 +15,13 @@ namespace ClzProject.Controllers
             _context = context;
         }
 
+
         // GET: AdminContacts
         public async Task<IActionResult> Index()
         {
             return View(await _context.AdminContact.ToListAsync());
         }
+
 
         // GET: AdminContacts/Details/5
         public async Task<IActionResult> Details(int? id)

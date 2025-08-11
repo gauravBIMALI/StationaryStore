@@ -9,6 +9,12 @@
 <div class="account-container">
     <div class="account-box">
         <h2 class="text-center mb-4">Login</h2>
+        <p class="small px-2 py-1 rounded border-start border-3 border-info bg-light text-muted mb-3">
+            <strong class="text-dark">Note:</strong> If you're a <strong>seller</strong> logging in for the first time, please
+            <a asp-controller="Account" asp-action="VerifyEmail" class="text-decoration-none fw-semibold text-primary">
+                change your password
+            </a> for security reasons.
+        </p>
         <form asp-action="Login" method="post">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>

@@ -84,6 +84,7 @@ namespace UserRoles.Controllers
             return View();
         }
 
+        //registration for Buyers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)

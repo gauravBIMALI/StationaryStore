@@ -26,7 +26,7 @@ namespace UserRoles.Services
                 await AddRoleAsync(roleManager, "User", logger);
                 await AddRoleAsync(roleManager, "Seller", logger);
 
-                // Add admin user
+                //  admin user seed data
                 logger.LogInformation("Seeding admin user.");
                 var adminEmail = "Admin@gmail.com";
                 if (await userManager.FindByEmailAsync(adminEmail) == null)

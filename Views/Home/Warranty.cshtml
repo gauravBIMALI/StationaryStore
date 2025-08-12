@@ -1,0 +1,110 @@
+﻿@{
+    ViewData["Title"] = "Warranty Information";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h2><i class="fas fa-shield-alt text-primary me-2"></i>Product Warranty</h2>
+                <p class="text-muted">Simple warranty information for your purchase</p>
+            </div>
+
+            <!-- Warranty Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Warranty Coverage</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Electronics & Gadgets</h6>
+                            <ul>
+                                <li>1 Year warranty</li>
+                                <li>Manufacturing defects only</li>
+                                <li>Free repair or replacement</li>
+                                <li>Original receipt required</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Other Products</h6>
+                            <ul>
+                                <li>6 Months warranty</li>
+                                <li>Quality defects only</li>
+                                <li>Replacement available</li>
+                                <li>Purchase proof needed</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- What's NOT Covered -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Not Covered</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <li>Physical damage or drops</li>
+                        <li>Water damage</li>
+                        <li>Normal wear and tear</li>
+                        <li>Misuse or abuse</li>
+                        <li>Unauthorized repairs</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- How to Claim -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">How to Claim Warranty</h5>
+                </div>
+                <div class="card-body">
+                    <ol>
+                        <li><strong>Contact Us:</strong> Email support@yourstore.com or call +977-1-XXXXXXX</li>
+                        <li><strong>Provide:</strong> Order number, product details, and photos of issue</li>
+                        <li><strong>Wait:</strong> We'll respond within 2-3 business days</li>
+                        <li><strong>Send Product:</strong> Ship to our address (if approved)</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Important Notes -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Important Notes</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <li>Warranty starts from delivery date</li>
+                        <li>Keep original packaging and receipt</li>
+                        <li>Customer pays shipping for warranty claims</li>
+                        <li>Processing takes 7-14 business days</li>
+                        <li>Warranty cannot be transferred</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <h5>Need Help?</h5>
+                    <p>
+                        <i class="fas fa-envelope me-2"></i>Email: support@yourstore.com<br>
+                        <i class="fas fa-phone me-2"></i>Phone: +977-1-XXXXXXX<br>
+                        <i class="fas fa-clock me-2"></i>Hours: Mon-Fri 9AM-6PM
+                    </p>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="text-center">
+                <a asp-action="ProductDetails" asp-controller="Home" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Go Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

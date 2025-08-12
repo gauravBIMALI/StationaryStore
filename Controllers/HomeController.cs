@@ -203,7 +203,11 @@ namespace UserRoles.Controllers
 
         public IActionResult Confirm()
         {
-            // This action can be used to confirm actions like product deletion, etc.
+
+            return View();
+        }
+        public IActionResult Warranty()
+        {
             return View();
         }
 

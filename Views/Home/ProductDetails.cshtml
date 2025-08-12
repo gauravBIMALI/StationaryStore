@@ -117,26 +117,54 @@
                         }
 
                         <!-- Action Buttons -->
+                        <!-- Replace your action buttons section with this -->
                         @if (Model.ProductQuantity > 0)
                         {
                             <div class="action-buttons mb-4">
                                 <div class="row g-2">
                                     <div class="col-6">
-                                        <button class="btn btn-outline-primary btn-lg w-100" onclick="showLoginPrompt()">
-                                            <i class="fas fa-shopping-cart me-2"></i>Add to Cart
-                                        </button>
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <button class="btn btn-outline-primary btn-lg w-100" onclick="addToCart()">
+                                                <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-outline-primary btn-lg w-100" onclick="showLoginPrompt()">
+                                                <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                                            </button>
+                                        }
                                     </div>
                                     <div class="col-6">
-                                        <button class="btn btn-danger btn-lg w-100" onclick="showLoginPrompt()">
-                                            <i class="fas fa-bolt me-2"></i>Buy Now
-                                        </button>
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <button class="btn btn-danger btn-lg w-100" onclick="buyNow()">
+                                                <i class="fas fa-bolt me-2"></i>Buy Now
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-danger btn-lg w-100" onclick="showLoginPrompt()">
+                                                <i class="fas fa-bolt me-2"></i>Buy Now
+                                            </button>
+                                        }
                                     </div>
                                 </div>
                                 <div class="row g-2 mt-2">
                                     <div class="col-12">
-                                        <button class="btn btn-outline-secondary w-100" onclick="showLoginPrompt()">
-                                            <i class="fas fa-heart me-2"></i>Add to Wishlist
-                                        </button>
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <button class="btn btn-outline-secondary w-100" onclick="addToWishlist()">
+                                                <i class="fas fa-heart me-2"></i>Add to Wishlist
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-outline-secondary w-100" onclick="showLoginPrompt()">
+                                                <i class="fas fa-heart me-2"></i>Add to Wishlist
+                                            </button>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -147,7 +175,6 @@
                                 <i class="fas fa-times me-2"></i>Out of Stock
                             </button>
                         }
-
                         <!-- Delivery Info -->
                         <div class="delivery-info mb-4">
                             <div class="card bg-light">
@@ -184,8 +211,10 @@
                                         </small>
                                 </div>
                                 <div class="col-3">
-                                    <i class="fas fa-shield-alt text-primary fs-4"></i>
-                                    <small class="d-block text-muted mt-1">Warranty</small>
+                                    <a  asp-controller="Home" asp-action="Warranty" class="text-decoration-none">
+                                        <i class="fas fa-shield-alt text-primary fs-4"></i>
+                                        <small class="d-block text-muted mt-1">Warranty</small>
+                                    </a>
                                 </div>
                                 <div class="col-3">
                                     <i class="fas fa-credit-card text-warning fs-4"></i>

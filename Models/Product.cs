@@ -17,8 +17,6 @@ namespace ClzProject.Models
         [Display(Name = "Description")]
         public string ProductDescription { get; set; } = string.Empty;
 
-
-
         //$ is displayed when [DataType(DataType.Currency)] is written here
         [Required]
         [Display(Name = "Price")]

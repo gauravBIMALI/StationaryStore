@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Stationary Store</title>
     <script type="importmap"></script>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-   
+
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Profile.css" asp-append-version="true" />
@@ -112,10 +112,13 @@
                                 </a>
                             </li>
 
-                            //admin contact request
+                            @* Admin contact requests (existing) *@
+                            
+
+                            @* NEW: Buyer contact messages *@
                             <li class="nav-item">
-                                <a class="nav-link" style="color: black;" asp-controller="AdminContacts" asp-action="Index">
-                                    <i class="fas fa-user me-1"></i>Messages
+                                <a class="nav-link" style="color: black;" asp-controller="AdminMessage" asp-action="Index">
+                                    <i class="fas fa-business-time me-1"></i>Buyer Applications
                                 </a>
                             </li>
                         }
@@ -134,24 +137,26 @@
                                 </a>
                             </li>
 
+                            @* For contacting seller (existing) *@
+                            
 
-                            //for contacting seller
+                            @* NEW: Contact admin with business application *@
                             <li class="nav-item">
-                                <a class="nav-link" style="color: black;" asp-controller="AdminContacts" asp-action="Create">
-                                    <i class="fas fa-user me-1"></i>Contact
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" style="color: black;" asp-controller="Home" asp-action="ProductReturn">
-                                    <i class="fas fa-user me-1"></i>Return
+                                <a class="nav-link" style="color: black;" asp-controller="BuyerContact" asp-action="Create">
+                                    <i class="fas fa-business-time me-1"></i>Business Application
                                 </a>
                             </li>
 
+                            @* NEW: View submitted applications *@
                             <li class="nav-item">
-                                <a class="nav-link" style="color: black;" asp-controller="Comments" asp-action="Index">
-                                    <i class="fas fa-user me-1"></i>Profile
+                                <a class="nav-link" style="color: black;" asp-controller="BuyerContact" asp-action="MySubmissions">
+                                    <i class="fas fa-file-alt me-1"></i>My Applications
                                 </a>
                             </li>
+
+                            
+
+                            
 
                         }
 

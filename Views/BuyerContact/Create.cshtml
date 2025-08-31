@@ -1,0 +1,155 @@
+﻿@model ClzProject.Models.BuyerContactMessage
+
+@{
+    ViewData["Title"] = "Contact Admin";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-envelope me-2"></i>Contact Admin</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control" placeholder="Enter your full name" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <input asp-for="Email" class="form-control" placeholder="Enter your email address" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Age" class="form-label">Age <span class="text-danger">*</span></label>
+                                <input asp-for="Age" class="form-control" type="number" min="18" max="120" placeholder="Enter your age" />
+                                <span asp-validation-for="Age" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PhoneNumber" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="Enter your phone number" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Location" class="form-label">Location <span class="text-danger">*</span></label>
+                            <input asp-for="Location" class="form-control" placeholder="Enter your location/address" />
+                            <span asp-validation-for="Location" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BusinessName" class="form-label">Business Name <span class="text-danger">*</span></label>
+                                <input asp-for="BusinessName" class="form-control" placeholder="Enter your business name" />
+                                <span asp-validation-for="BusinessName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BusinessType" class="form-label">Business Type <span class="text-danger">*</span></label>
+                                <select asp-for="BusinessType" class="form-select">
+                                    <option value="">Select Business Type</option>
+                                    <option value="Stationery Retail">Stationery Retail</option>
+                                    <option value="Office Supplies">Office Supplies</option>
+                                    <option value="Art & Craft Store">Art & Craft Store</option>
+                                    <option value="Bookstore with Stationery">Bookstore with Stationery</option>
+                                    <option value="School Supplies">School Supplies</option>
+                                    <option value="Wholesale Stationery">Wholesale Stationery</option>
+                                    <option value="Online Stationery Shop">Online Stationery Shop</option>
+                                    <option value="Custom Printing Services">Custom Printing Services</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span asp-validation-for="BusinessType" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="citizenshipDocument" class="form-label">Citizenship Document <span class="text-danger">*</span></label>
+                                <input type="file" name="citizenshipDocument" id="citizenshipDocument" class="form-control" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" />
+                                <div class="form-text">Accepted formats: JPG, PNG, GIF, PDF, DOC, DOCX (Max: 5MB)</div>
+                                @if (ViewData.ModelState["CitizenshipDocument"]?.Errors.Count > 0)
+                                {
+                                    <span class="text-danger">@ViewData.ModelState["CitizenshipDocument"].Errors[0].ErrorMessage</span>
+                                }
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="panDocument" class="form-label">PAN Document <span class="text-danger">*</span></label>
+                                <input type="file" name="panDocument" id="panDocument" class="form-control" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" />
+                                <div class="form-text">Accepted formats: JPG, PNG, GIF, PDF, DOC, DOCX (Max: 5MB)</div>
+                                @if (ViewData.ModelState["PANDocument"]?.Errors.Count > 0)
+                                {
+                                    <span class="text-danger">@ViewData.ModelState["PANDocument"].Errors[0].ErrorMessage</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="MySubmissions" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-list me-1"></i>My Submissions
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>Submit Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // File validation
+        document.getElementById('citizenshipDocument').addEventListener('change', function(e) {
+            validateFile(e.target, 'citizenship');
+        });
+
+        document.getElementById('panDocument').addEventListener('change', function(e) {
+            validateFile(e.target, 'pan');
+        });
+
+        function validateFile(input, docType) {
+            const file = input.files[0];
+            if (file) {
+                // Check file size (5MB = 5 * 1024 * 1024 bytes)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`${docType} document size should not exceed 5MB`);
+                    input.value = '';
+                    return;
+                }
+
+                // Check file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf',
+                                    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
+                if (!allowedTypes.includes(file.type)) {
+                    alert(`${docType} document must be a valid image, PDF, or Word document`);
+                    input.value = '';
+                    return;
+                }
+            }
+        }
+    </script>
+}

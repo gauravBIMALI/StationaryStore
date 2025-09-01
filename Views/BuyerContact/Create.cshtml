@@ -29,11 +29,14 @@
                                 <input asp-for="Name" class="form-control" placeholder="Enter your full name" />
                                 <span asp-validation-for="Name" class="text-danger"></span>
                             </div>
+
                             <div class="col-md-6 mb-3">
-                                <label asp-for="Email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                                <input asp-for="Email" class="form-control" placeholder="Enter your email address" />
+                                <label asp-for="Email" class="form-label">Email Address</label>
+                                <input asp-for="Email" class="form-control" value="@User.Identity.Name" readonly />
                                 <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
+
+
                         </div>
 
                         <div class="row">

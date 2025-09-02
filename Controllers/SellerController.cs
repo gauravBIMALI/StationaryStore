@@ -1,4 +1,5 @@
-﻿using ClzProject.ViewModels;
+﻿using ClzProject.Models;
+using ClzProject.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -207,9 +208,229 @@ namespace ClzProject.Controllers
             return RedirectToAction(nameof(Notifications));
         }
 
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
-            return View();
+            var sellerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Get seller's products count
+            var productsCount = await _context.Product
+                .Where(p => p.SellerId == sellerId)
+                .CountAsync();
+
+            // Get pending comments count (comments without replies on seller's products)
+            var pendingCommentsCount = await _context.ProductComments
+                .Where(c => c.Product.SellerId == sellerId && c.Reply == null)
+                .CountAsync();
+
+            // Get total comments on seller's products
+            var totalCommentsCount = await _context.ProductComments
+                .Where(c => c.Product.SellerId == sellerId)
+                .CountAsync();
+
+            // Get recent comments
+            var recentComments = await _context.ProductComments
+                .Where(c => c.Product.SellerId == sellerId)
+                .Include(c => c.User)
+                .Include(c => c.Product)
+                .Include(c => c.Reply)
+                .OrderByDescending(c => c.CreatedAt)
+                .Take(5)
+                .Select(c => new SellerCommentViewModel
+                {
+                    CommentId = c.CommentId,
+                    CommentText = c.CommentText,
+                    UserName = c.User.FullName ?? "Anonymous User",
+                    ProductId = c.ProductId,
+                    ProductName = c.Product.ProductName,
+                    CreatedAt = c.CreatedAt,
+                    HasReply = c.Reply != null
+                })
+                .ToListAsync();
+
+            var dashboardData = new SellerDashboardViewModel
+            {
+                TotalProducts = productsCount,
+                PendingComments = pendingCommentsCount,
+                TotalComments = totalCommentsCount,
+                RecentComments = recentComments
+            };
+
+            return View(dashboardData);
+        }
+
+        // View Comments on Seller's Products
+        public async Task<IActionResult> Comments(int page = 1, int pageSize = 10, string filter = "all")
+        {
+            var sellerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var commentsQuery = _context.ProductComments
+                .Where(c => c.Product.SellerId == sellerId)
+                .Include(c => c.User)
+                .Include(c => c.Product)
+                .Include(c => c.Reply);
+
+            // Apply filter
+            switch (filter.ToLower())
+            {
+                case "pending":
+                    commentsQuery = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<ProductComment, ProductCommentReply?>)commentsQuery.Where(c => c.Reply == null);
+                    break;
+                case "replied":
+                    commentsQuery = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<ProductComment, ProductCommentReply?>)commentsQuery.Where(c => c.Reply != null);
+                    break;
+                    // "all" shows everything - no additional filter needed
+            }
+
+            commentsQuery = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<ProductComment, ProductCommentReply?>)commentsQuery.OrderByDescending(c => c.CreatedAt);
+
+            var totalComments = await commentsQuery.CountAsync();
+            var comments = await commentsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(c => new SellerCommentViewModel
+                {
+                    CommentId = c.CommentId,
+                    CommentText = c.CommentText,
+                    UserName = c.User.FullName ?? "Anonymous User",
+                    ProductId = c.ProductId,
+                    ProductName = c.Product.ProductName,
+                    CreatedAt = c.CreatedAt,
+                    HasReply = c.Reply != null,
+                    ReplyText = c.Reply != null ? c.Reply.ReplyText : null,
+                    ReplyDate = c.Reply != null ? c.Reply.CreatedAt : null
+                })
+                .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalComments / pageSize);
+            ViewBag.TotalComments = totalComments;
+            ViewBag.CurrentFilter = filter;
+
+            return View(comments);
+        }
+
+        // Get comments for specific product (AJAX)
+        [HttpGet]
+        public async Task<IActionResult> GetProductComments(int productId)
+        {
+            var sellerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Verify the product belongs to the current seller
+            var product = await _context.Product
+                .FirstOrDefaultAsync(p => p.ProductID == productId && p.SellerId == sellerId);
+
+            if (product == null)
+            {
+                return Json(new { success = false, message = "Product not found or access denied" });
+            }
+
+            var comments = await _context.ProductComments
+                .Where(c => c.ProductId == productId)
+                .Include(c => c.User)
+                .Include(c => c.Reply)
+                .OrderByDescending(c => c.CreatedAt)
+                .Select(c => new
+                {
+                    CommentId = c.CommentId,
+                    CommentText = c.CommentText,
+                    UserName = c.User.FullName ?? "Anonymous User",
+                    CreatedAt = c.CreatedAt,
+                    HasReply = c.Reply != null,
+                    ReplyText = c.Reply != null ? c.Reply.ReplyText : null,
+                    //ReplyDate = c.Reply != null ? c.Reply.CreatedAt : null
+                })
+                .ToListAsync();
+
+            return Json(new { success = true, comments = comments, productName = product.ProductName });
+        }
+
+        // Reply to comment (AJAX) - Only product owner can reply
+        [HttpPost]
+        public async Task<IActionResult> ReplyToComment([FromBody] SellerReplyViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Invalid reply data" });
+            }
+
+            try
+            {
+                var sellerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var seller = await userManager.FindByIdAsync(sellerId);
+
+                // Verify the comment belongs to seller's product
+                var comment = await _context.ProductComments
+                    .Include(c => c.Product)
+                    .Include(c => c.Reply)
+                    .FirstOrDefaultAsync(c => c.CommentId == model.CommentId);
+
+                if (comment == null)
+                {
+                    return Json(new { success = false, message = "Comment not found" });
+                }
+
+                // IMPORTANT: Only the product owner can reply
+                if (comment.Product.SellerId != sellerId)
+                {
+                    return Json(new { success = false, message = "You can only reply to comments on your own products" });
+                }
+
+                if (comment.Reply != null)
+                {
+                    return Json(new { success = false, message = "This comment already has a reply" });
+                }
+
+                var reply = new ProductCommentReply
+                {
+                    CommentId = model.CommentId,
+                    SellerId = sellerId,
+                    ReplyText = model.ReplyText,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.ProductCommentReplies.Add(reply);
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Reply added successfully",
+                    reply = new
+                    {
+                        ReplyText = reply.ReplyText,
+                        CreatedAt = reply.CreatedAt,
+                        SellerName = seller.BusinessName ?? seller.FullName ?? "Seller"
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Failed to add reply" });
+            }
+        }
+
+        // View Seller's Products with Comment Statistics
+        public async Task<IActionResult> Products()
+        {
+            var sellerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var products = await _context.Product
+                .Where(p => p.SellerId == sellerId)
+                .Select(p => new SellerProductViewModel
+                {
+                    ProductID = p.ProductID,
+                    ProductName = p.ProductName,
+                    ProductPrice = p.ProductPrice,
+                    ProductQuantity = p.ProductQuantity,
+                    CategoryType = p.CategoryType,
+                    CreatedAt = p.CreatedAt,
+                    CommentsCount = _context.ProductComments.Count(c => c.ProductId == p.ProductID),
+                    UnrepliedCommentsCount = _context.ProductComments.Count(c => c.ProductId == p.ProductID && c.Reply == null)
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            return View(products);
         }
 
     }

@@ -9,7 +9,6 @@ using UserRoles.Data;
 namespace ClzProject.Controllers
 {
     [Authorize(Roles = "Seller")]
-
     public class AddProductController : Controller
     {
         private readonly AppDbContext _context;
@@ -30,9 +29,9 @@ namespace ClzProject.Controllers
                 {
                     ProductID = p.ProductID,
                     ProductName = p.ProductName,
-                    ProductPrice = p.ProductPrice,           // Fixed: was Price
-                    ProductDescription = p.ProductDescription, // Fixed: was Description
-                    ProductQuantity = p.ProductQuantity,     // Added missing field
+                    ProductPrice = p.ProductPrice,
+                    ProductDescription = p.ProductDescription,
+                    ProductQuantity = p.ProductQuantity,
                     CategoryType = p.CategoryType,
                     CreatedAt = p.CreatedAt,
                     UpdatedAt = p.UpdatedAt,
@@ -69,23 +68,57 @@ namespace ClzProject.Controllers
             return View();
         }
 
-        // POST: AddProduct/Create
+        // POST: AddProduct/Create - FIXED VERSION
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product, IFormFile imageFile)
         {
+            // Remove SellerId from ModelState validation since we set it manually
+            ModelState.Remove("SellerId");
+            ModelState.Remove("Seller");
+
+            product.SellerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+            // Debug: Check what's in ModelState
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { Field = x.Key, Errors = x.Value.Errors.Select(e => e.ErrorMessage) });
+                foreach (var error in errors)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Field: {error.Field}, Errors: {string.Join(", ", error.Errors)}");
+                }
+            }
+
             if (ModelState.IsValid)
             {
-                // ADD THIS LINE - Get current seller's ID
-                product.SellerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
                 // Set timestamps
                 product.CreatedAt = DateTime.Now;
                 product.UpdatedAt = DateTime.Now;
 
-                // Handle image (your existing code)
+                // Handle image
                 if (imageFile != null && imageFile.Length > 0)
                 {
+                    // Validate file type
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                    var fileExtension = Path.GetExtension(imageFile.FileName).ToLower();
+
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        ModelState.AddModelError("imageFile", "Please upload a valid image file (JPG, JPEG, PNG, GIF)");
+                        ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType");
+                        return View(product);
+                    }
+
+                    // Validate file size (e.g., max 5MB)
+                    if (imageFile.Length > 5 * 1024 * 1024)
+                    {
+                        ModelState.AddModelError("imageFile", "File size must be less than 5MB");
+                        ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType");
+                        return View(product);
+                    }
+
                     using (var ms = new MemoryStream())
                     {
                         await imageFile.CopyToAsync(ms);
@@ -94,12 +127,21 @@ namespace ClzProject.Controllers
                     }
                 }
 
-                _context.Product.Add(product);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Product.Add(product);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Product created successfully!";
+                    return RedirectToAction(nameof(Create));
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception
+                    System.Diagnostics.Debug.WriteLine($"Error creating product: {ex.Message}");
+                    ModelState.AddModelError("", "An error occurred while saving the product. Please try again.");
+                }
             }
-
-            ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType");
+            ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType", product.CategoryType);
             return View(product);
         }
 
@@ -108,7 +150,10 @@ namespace ClzProject.Controllers
         {
             if (id == null) return NotFound();
 
-            var product = await _context.Product.FirstOrDefaultAsync(m => m.ProductID == id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var product = await _context.Product
+                .FirstOrDefaultAsync(m => m.ProductID == id && m.SellerId == userId);
+
             if (product == null) return NotFound();
 
             return View(product);
@@ -119,15 +164,11 @@ namespace ClzProject.Controllers
         {
             if (id == null) return NotFound();
 
-            var product = await _context.Product.FindAsync(id);
-            if (product == null) return NotFound();
-
-            //seller can only edit their own products
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (product.SellerId != userId)
-            {
-                return Forbid(); // or return NotFound()
-            }
+            var product = await _context.Product
+                .FirstOrDefaultAsync(p => p.ProductID == id && p.SellerId == userId);
+
+            if (product == null) return NotFound();
 
             ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType", product.CategoryType);
             return View(product);
@@ -140,26 +181,24 @@ namespace ClzProject.Controllers
         {
             if (id != product.ProductID) return NotFound();
 
+            // Remove navigation properties from ModelState validation
+            ModelState.Remove("Seller");
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var existingProduct = await _context.Product.AsNoTracking().FirstOrDefaultAsync(p => p.ProductID == id);
+                    var existingProduct = await _context.Product
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(p => p.ProductID == id && p.SellerId == userId);
 
                     if (existingProduct == null) return NotFound();
 
-                    //seller can only edit their own products
-                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                    if (existingProduct.SellerId != userId)
-                    {
-                        return Forbid();
-                    }
-
-                    //Preserve the SellerId
+                    // Preserve the SellerId and CreatedAt
                     product.SellerId = existingProduct.SellerId;
-
-                    // Update timestamps
-                    product.CreatedAt = existingProduct.CreatedAt; // Preserve original creation date
+                    product.CreatedAt = existingProduct.CreatedAt;
                     product.UpdatedAt = DateTime.Now;
 
                     // Handle image update
@@ -178,6 +217,7 @@ namespace ClzProject.Controllers
 
                     _context.Update(product);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Product updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -191,12 +231,16 @@ namespace ClzProject.Controllers
             ViewBag.Categories = new SelectList(_context.Category, "CategoryType", "CategoryType", product.CategoryType);
             return View(product);
         }
+
         // GET: AddProduct/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
 
-            var product = await _context.Product.FirstOrDefaultAsync(m => m.ProductID == id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var product = await _context.Product
+                .FirstOrDefaultAsync(m => m.ProductID == id && m.SellerId == userId);
+
             if (product == null) return NotFound();
 
             return View(product);
@@ -207,15 +251,18 @@ namespace ClzProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Product.FindAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var product = await _context.Product
+                .FirstOrDefaultAsync(p => p.ProductID == id && p.SellerId == userId);
+
             if (product != null)
             {
                 _context.Product.Remove(product);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Product deleted successfully!";
             }
 
             return RedirectToAction(nameof(Index));
         }
-
     }
 }

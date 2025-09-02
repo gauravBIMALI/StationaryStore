@@ -1,1 +1,249 @@
-﻿<h1>seller dashboard</h1>
+﻿@model ClzProject.ViewModels.SellerDashboardViewModel
+@{
+    ViewData["Title"] = "Seller Dashboard";
+}
+
+<div class="container-fluid mt-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-tachometer-alt text-primary me-2"></i>Seller Dashboard</h2>
+            <p class="text-muted">Welcome back! Here's an overview of your store activity.</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">@Model.TotalProducts</h3>
+                            <p class="mb-0">Total Products</p>
+                        </div>
+                        <i class="fas fa-box fa-2x opacity-75"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-primary border-0">
+                    <a href="@Url.Action("Products")" class="text-white text-decoration-none">
+                        <small><i class="fas fa-eye me-1"></i>View Products</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">@Model.TotalComments</h3>
+                            <p class="mb-0">Total Questions</p>
+                        </div>
+                        <i class="fas fa-comments fa-2x opacity-75"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-info border-0">
+                    <a href="@Url.Action("Comments")" class="text-white text-decoration-none">
+                        <small><i class="fas fa-eye me-1"></i>View All</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">@Model.PendingComments</h3>
+                            <p class="mb-0">Pending Replies</p>
+                        </div>
+                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-warning border-0">
+                    <a href="@Url.Action("Comments", new { filter = "pending" })" class="text-white text-decoration-none">
+                        <small><i class="fas fa-reply me-1"></i>Reply Now</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">@(Model.TotalComments - Model.PendingComments)</h3>
+                            <p class="mb-0">Replied Questions</p>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-success border-0">
+                    <a href="@Url.Action("Comments", new { filter = "replied" })" class="text-white text-decoration-none">
+                        <small><i class="fas fa-eye me-1"></i>View Replied</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <!-- Recent Comments -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comment-dots text-info me-2"></i>Recent Customer Questions
+                    </h5>
+                    <a href="@Url.Action("Comments")" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye me-1"></i>View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentComments.Any())
+                    {
+                        @foreach (var comment in Model.RecentComments)
+                        {
+                            <div class="d-flex align-items-start mb-3 pb-3 border-bottom">
+                                <div class="flex-shrink-0">
+                                    <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 50%;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <div>
+                                            <strong>@comment.UserName</strong>
+                                            <small class="text-muted ms-2">asked about</small>
+                                            <span class="badge bg-info">@comment.ProductName</span>
+                                        </div>
+                                        <small class="text-muted">@comment.CreatedAt.ToString("MMM dd, hh:mm tt")</small>
+                                    </div>
+                                    <p class="mb-2 text-muted">@comment.CommentText</p>
+                                    @if (!comment.HasReply)
+                                    {
+                                        <a href="@Url.Action("Comments", new { filter = "pending" })" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-reply me-1"></i>Reply
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>Replied
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No customer questions yet.</p>
+                            <p class="small text-muted">When customers ask questions about your products, they'll appear here.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        @if (Model.PendingComments > 0)
+                        {
+                            <a href="@Url.Action("Comments", new { filter = "pending" })" class="btn btn-warning">
+                                <i class="fas fa-reply me-2"></i>Reply to Questions (@Model.PendingComments)
+                            </a>
+                        }
+
+                        <a href="@Url.Action("Comments")" class="btn btn-outline-info">
+                            <i class="fas fa-comments me-2"></i>Manage All Comments
+                        </a>
+
+                        <a href="@Url.Action("Products")" class="btn btn-outline-primary">
+                            <i class="fas fa-box me-2"></i>View My Products
+                        </a>
+
+                        <a href="@Url.Action("Profile")" class="btn btn-outline-secondary">
+                            <i class="fas fa-user-cog me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>Tips for Success
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <small>Reply to customer questions quickly to build trust</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <small>Be detailed and helpful in your responses</small>
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <small>Professional replies improve your reputation</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        font-size: 0.9rem;
+    }
+
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+    .bg-primary .card-footer {
+        background-color: rgba(255,255,255,0.1) !important;
+    }
+
+    .bg-info .card-footer {
+        background-color: rgba(255,255,255,0.1) !important;
+    }
+
+    .bg-warning .card-footer {
+        background-color: rgba(255,255,255,0.1) !important;
+    }
+
+    .bg-success .card-footer {
+        background-color: rgba(255,255,255,0.1) !important;
+    }
+
+    .opacity-75 {
+        opacity: 0.75;
+    }
+</style>

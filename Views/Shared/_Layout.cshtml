@@ -111,8 +111,6 @@
                                     <i class="fas fa-user me-1"></i>Profile
                                 </a>
                             </li>
-
-                            @* Admin contact requests (existing) *@
                             
 
                             @* NEW: Buyer contact messages *@
@@ -153,11 +151,6 @@
                                     <i class="fas fa-file-alt me-1"></i>My Applications
                                 </a>
                             </li>
-
-                            
-
-                            
-
                         }
 
                         @* Add every Seller accessible nav here *@
@@ -174,17 +167,54 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link" style="color: black;" asp-controller="AddProduct" asp-action="Index">
-                                    <i class="fas fa-plus-circle me-1"></i>Sell Product
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="productDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: black;">
+                                    <i class="fas fa-box me-2"></i>Products
                                 </a>
+                                <ul class="dropdown-menu" aria-labelledby="productDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="AddProduct" asp-action="Create">
+                                            <i class="fas fa-plus-circle me-1"></i> Sell Product
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="AddProduct" asp-action="Index">
+                                            <i class="fas fa-box me-1"></i> My Product
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
 
                             <li class="nav-item">
                                 <a class="nav-link" style="color: black;" asp-controller="Seller" asp-action="Notifications">
-                                    <i class="fas fa-bell me-2"></i>notification
+                                    <i class="fas fa-bell me-2"></i> Notification
                                 </a>
                             </li>
+
+                            
+
+                            @* <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Comments", "Seller")">
+                                    <i class="fas fa-comments me-2"></i>
+                                    Customer Questions
+                                    <!-- Optional: Show pending count -->
+                                    <span class="badge bg-warning ms-1" id="pendingCommentsCount">0</span>
+                                </a>
+                            </li> *@
+                            <script>
+                                // Update pending comments count (call this on page load)
+                                fetch('@Url.Action("GetPendingCommentsCount", "Seller")')
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success && data.count > 0) {
+                                            document.getElementById('pendingCommentsCount').textContent = data.count;
+                                            document.getElementById('pendingCommentsCount').style.display = 'inline';
+                                        } else {
+                                            document.getElementById('pendingCommentsCount').style.display = 'none';
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching pending comments count:', error));
+                            </script>
                         }
 
                     </ul>

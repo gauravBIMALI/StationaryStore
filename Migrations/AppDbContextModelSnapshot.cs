@@ -8,7 +8,7 @@ using UserRoles.Data;
 
 #nullable disable
 
-namespace UserRoles.Migrations
+namespace ClzProject.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -228,7 +228,7 @@ namespace UserRoles.Migrations
 
                     b.Property<string>("SellerId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -236,6 +236,8 @@ namespace UserRoles.Migrations
                     b.HasKey("ProductID");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("SellerId");
 
                     b.ToTable("Product");
                 });
@@ -567,7 +569,15 @@ namespace UserRoles.Migrations
                         .WithMany()
                         .HasForeignKey("CategoryId");
 
+                    b.HasOne("UserRoles.Models.Users", "Seller")
+                        .WithMany()
+                        .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Category");
+
+                    b.Navigation("Seller");
                 });
 
             modelBuilder.Entity("ClzProject.Models.ProductComment", b =>

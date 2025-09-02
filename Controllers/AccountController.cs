@@ -48,7 +48,7 @@ namespace UserRoles.Controllers
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(user, "Seller");
-                    return RedirectToAction("Dashboard", "Seller");
+                    return RedirectToAction("Dashboard", "Admins");
                 }
 
                 foreach (var error in result.Errors)

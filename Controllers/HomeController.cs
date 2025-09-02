@@ -77,7 +77,10 @@ namespace UserRoles.Controllers
         // GET: Home/ProductDetails/5
         public async Task<IActionResult> ProductDetails(int id)
         {
-            var product = await _context.Product.FirstOrDefaultAsync(p => p.ProductID == id);
+            var product = await _context.Product
+                .Include(p => p.Seller) // Include seller information
+                .FirstOrDefaultAsync(p => p.ProductID == id);
+
             if (product == null)
             {
                 return NotFound();
@@ -323,7 +326,6 @@ namespace UserRoles.Controllers
 
             try
             {
-                // Fix: Use User.FindFirst(ClaimTypes.NameIdentifier)?.Value instead of _userManager.GetUserId(User)
                 var sellerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(sellerId))
                 {
@@ -336,7 +338,7 @@ namespace UserRoles.Controllers
                     return Json(new { success = false, message = "Seller not found" });
                 }
 
-                // Check if comment exists and doesn't already have a reply
+                // Check if comment exists and verify it belongs to seller's product
                 var comment = await _context.ProductComments
                     .Include(c => c.Reply)
                     .Include(c => c.Product)
@@ -347,14 +349,16 @@ namespace UserRoles.Controllers
                     return Json(new { success = false, message = "Comment not found" });
                 }
 
+                // CRITICAL CHECK: Only the product owner can reply
+                if (comment.Product.SellerId != sellerId)
+                {
+                    return Json(new { success = false, message = "You can only reply to comments on your own products" });
+                }
+
                 if (comment.Reply != null)
                 {
                     return Json(new { success = false, message = "This comment already has a reply" });
                 }
-
-                // Additional check: Only the product owner (seller) should be able to reply
-                // You might need to add a SellerId field to your Product model for this check
-                // For now, any seller can reply
 
                 var reply = new ProductCommentReply
                 {

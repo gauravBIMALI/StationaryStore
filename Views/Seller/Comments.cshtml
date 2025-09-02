@@ -1,0 +1,358 @@
+﻿@model List<ClzProject.ViewModels.SellerCommentViewModel>
+@{
+    ViewData["Title"] = "Product Comments & Questions";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-comments text-primary me-2"></i>Comments & Questions</h2>
+                <div class="btn-group" role="group">
+                    <a href="@Url.Action("Comments", new { filter = "all" })"
+                       class="btn @(ViewBag.CurrentFilter == "all" ? "btn-primary" : "btn-outline-primary")">
+                        <i class="fas fa-list me-1"></i>All (@ViewBag.TotalComments)
+                    </a>
+                    <a href="@Url.Action("Comments", new { filter = "pending" })"
+                       class="btn @(ViewBag.CurrentFilter == "pending" ? "btn-warning" : "btn-outline-warning")">
+                        <i class="fas fa-clock me-1"></i>Pending
+                    </a>
+                    <a href="@Url.Action("Comments", new { filter = "replied" })"
+                       class="btn @(ViewBag.CurrentFilter == "replied" ? "btn-success" : "btn-outline-success")">
+                        <i class="fas fa-check me-1"></i>Replied
+                    </a>
+                </div>
+            </div>
+
+            @if (Model.Any())
+            {
+                <div class="row">
+                    @foreach (var comment in Model)
+                    {
+                        <div class="col-12 mb-3">
+                            <div class="card comment-card @(comment.HasReply ? "replied" : "pending")">
+                                <div class="card-header d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <i class="fas fa-user-circle text-primary me-2"></i>
+                                            @comment.UserName
+                                        </h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>@comment.CreatedAt.ToString("MMM dd, yyyy 'at' hh:mm tt")
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="badge bg-info mb-1">@comment.ProductName</div>
+                                        <br>
+                                        @if (comment.HasReply)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Replied
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>Pending
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="question-section">
+                                        <h6><i class="fas fa-question-circle text-info me-1"></i>Customer Question:</h6>
+                                        <p class="comment-text">@comment.CommentText</p>
+                                    </div>
+
+                                    @if (comment.HasReply)
+                                    {
+                                        <div class="reply-section mt-3">
+                                            <h6><i class="fas fa-reply text-success me-1"></i>Your Answer:</h6>
+                                            <div class="bg-light p-3 rounded">
+                                                <p class="mb-2">@comment.ReplyText</p>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar me-1"></i>Replied on @comment.ReplyDate?.ToString("MMM dd, yyyy 'at' hh:mm tt")
+                                                </small>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="reply-actions mt-3">
+                                            <button class="btn btn-primary btn-sm" onclick="openReplyModal(@comment.CommentId, '@comment.CommentText.Replace("'", "\\'").Replace("\n", "\\n")', '@comment.ProductName')">
+                                                <i class="fas fa-reply me-1"></i>Reply to Customer
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (ViewBag.TotalPages > 1)
+                {
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav>
+                            <ul class="pagination">
+                                @if (ViewBag.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Comments", new { page = ViewBag.CurrentPage - 1, filter = ViewBag.CurrentFilter })">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                }
+
+                                @for (int i = Math.Max(1, ViewBag.CurrentPage - 2); i <= Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2); i++)
+                                {
+                                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("Comments", new { page = i, filter = ViewBag.CurrentFilter })">@i</a>
+                                    </li>
+                                }
+
+                                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Comments", new { page = ViewBag.CurrentPage + 1, filter = ViewBag.CurrentFilter })">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-comment-slash fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Comments Yet</h4>
+                    <p class="text-muted">When customers ask questions about your products, they'll appear here.</p>
+                    <a href="@Url.Action("Products")" class="btn btn-primary">
+                        <i class="fas fa-box me-1"></i>View Your Products
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Reply Modal -->
+<div class="modal fade" id="replyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-reply me-2"></i>Reply to Customer Question
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Product:</label>
+                    <div id="modalProductName" class="badge bg-info fs-6"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Customer Question:</label>
+                    <div id="modalOriginalComment" class="bg-light p-3 rounded border-start border-primary border-3"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="replyText" class="form-label fw-bold">Your Answer:</label>
+                    <textarea id="replyText" class="form-control" rows="5"
+                              placeholder="Type your helpful answer here..."
+                              maxlength="1000"></textarea>
+                    <div class="d-flex justify-content-between mt-2">
+                        <small class="text-muted">
+                            <span id="replyCharCount">0</span>/1000 characters
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-lightbulb me-1"></i>Be helpful and professional in your response
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitReply()" id="submitReplyBtn">
+                    <i class="fas fa-paper-plane me-1"></i>Send Reply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .comment-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid #dee2e6;
+    }
+
+        .comment-card.pending {
+            border-left-color: #ffc107;
+        }
+
+        .comment-card.replied {
+            border-left-color: #28a745;
+        }
+
+        .comment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+    .comment-text {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 3px solid #007bff;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .question-section h6 {
+        color: #0066cc;
+        font-weight: 600;
+    }
+
+    .reply-section h6 {
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .reply-actions {
+        border-top: 1px solid #dee2e6;
+        padding-top: 15px;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+    }
+
+    #replyCharCount.text-danger {
+        color: #dc3545 !important;
+        font-weight: 600;
+    }
+</style>
+
+<script>
+    let currentCommentId = 0;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Character counter for reply
+        const replyTextArea = document.getElementById('replyText');
+        if (replyTextArea) {
+            replyTextArea.addEventListener('input', function() {
+                const count = this.value.length;
+                const counter = document.getElementById('replyCharCount');
+                counter.textContent = count;
+
+                if (count > 800) {
+                    counter.classList.add('text-danger');
+                } else {
+                    counter.classList.remove('text-danger');
+                }
+            });
+        }
+    });
+
+    function openReplyModal(commentId, commentText, productName) {
+        currentCommentId = commentId;
+        document.getElementById('modalProductName').textContent = productName;
+        document.getElementById('modalOriginalComment').textContent = commentText;
+        document.getElementById('replyText').value = '';
+        document.getElementById('replyCharCount').textContent = '0';
+
+        const replyModal = new bootstrap.Modal(document.getElementById('replyModal'));
+        replyModal.show();
+    }
+
+    function submitReply() {
+        const replyText = document.getElementById('replyText').value.trim();
+        const submitBtn = document.getElementById('submitReplyBtn');
+
+        if (!replyText) {
+            showMessage('Please enter your reply', 'error');
+            return;
+        }
+
+        if (replyText.length > 1000) {
+            showMessage('Reply is too long (maximum 1000 characters)', 'error');
+            return;
+        }
+
+        // Disable button and show loading
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Sending...';
+
+        const data = {
+            replyText: replyText,
+            commentId: currentCommentId
+        };
+
+        fetch('@Url.Action("ReplyToComment", "Seller")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const replyModal = bootstrap.Modal.getInstance(document.getElementById('replyModal'));
+                replyModal.hide();
+                showMessage('Reply sent successfully!', 'success');
+
+                // Reload the page to show updated status
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showMessage(data.message || 'Failed to send reply', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Error sending reply:', error);
+            showMessage('Failed to send reply. Please try again.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        });
+    }
+
+    function showMessage(message, type) {
+        // Remove any existing messages
+        const existingToasts = document.querySelectorAll('.toast-message');
+        existingToasts.forEach(toast => toast.remove());
+
+        // Create new toast message
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show toast-message`;
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.maxWidth = '300px';
+        alertDiv.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.parentNode.removeChild(alertDiv);
+            }
+        }, 5000);
+    }
+</script>

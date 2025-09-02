@@ -7,7 +7,6 @@ namespace UserRoles.Models
     {
         [Required, MaxLength(100)]
         public string? FullName { get; set; }
-
         public bool EmailConfirmed { get; set; } = true;
 
         // Seller-specific fields (nullable)

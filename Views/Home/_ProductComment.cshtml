@@ -1,0 +1,640 @@
+﻿@model ClzProject.Models.Product
+
+<!-- Comment Section Partial View -->
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-comments me-2"></i>Questions & Answers
+        </h5>
+    </div>
+    <div class="card-body">
+        <!-- Add Comment Form (Only for authenticated users) -->
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="mb-4">
+                <h6 class="fw-bold mb-3">Ask a Question</h6>
+                <div class="row">
+                    <div class="col-12">
+                        <textarea id="commentText" class="form-control" rows="3"
+                              placeholder="Ask your question about this product..."
+                              maxlength="1000"></textarea>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="text-muted">
+                                <span id="charCount">0</span>/1000 characters
+                            </small>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="submitComment()">
+                                <i class="fas fa-paper-plane me-1"></i>Post Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+        }
+        else
+        {
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                <a href="/Account/Login" class="text-decoration-none">Login</a> to ask questions about this product.
+            </div>
+        }
+
+        <!-- Comments Display Section -->
+        <div id="commentsSection">
+            <div class="text-center p-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading comments...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reply Modal (For Sellers) -->
+<div class="modal fade" id="replyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reply to Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="originalComment" class="bg-light p-3 rounded mb-3"></div>
+                <textarea id="replyText" class="form-control" rows="4"
+                          placeholder="Type your answer here..."
+                          maxlength="1000"></textarea>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <span id="replyCharCount">0</span>/1000 characters
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitReply()">
+                    <i class="fas fa-reply me-1"></i>Submit Answer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comment Styles -->
+<style>
+    .comment-item {
+        border-left: 3px solid #007bff;
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: #f8f9fa;
+        border-radius: 0 8px 8px 0;
+        transition: all 0.3s ease;
+    }
+
+        .comment-item:hover {
+            background-color: #f1f3f4;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+        }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+
+    .comment-author {
+        font-weight: 600;
+        color: #007bff;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+    }
+
+    .comment-date {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .comment-text {
+        color: #333;
+        line-height: 1.5;
+        margin-bottom: 10px;
+        word-wrap: break-word;
+    }
+
+    .reply-section {
+        margin-left: 20px;
+        margin-top: 15px;
+        padding: 12px;
+        background-color: #e3f2fd;
+        border-left: 3px solid #2196f3;
+        border-radius: 0 6px 6px 0;
+        position: relative;
+    }
+
+        .reply-section::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 15px;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-right: 6px solid #e3f2fd;
+        }
+
+    .reply-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+    }
+
+    .seller-badge {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 1px 3px rgba(40, 167, 69, 0.3);
+    }
+
+    .reply-author {
+        font-weight: 600;
+        color: #28a745;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+    }
+
+    .reply-text {
+        color: #333;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+
+    .no-comments {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6c757d;
+    }
+
+        .no-comments i {
+            opacity: 0.5;
+        }
+
+    .reply-btn {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+        .reply-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+        }
+
+    .comment-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .question-icon {
+        color: #007bff;
+        margin-right: 8px;
+        font-size: 1.1em;
+    }
+
+    .answer-icon {
+        color: #28a745;
+        margin-right: 8px;
+        font-size: 1.1em;
+    }
+
+    /* Loading animation */
+    .loading-comments {
+        text-align: center;
+        padding: 30px;
+    }
+
+    /* Success/Error messages */
+    .toast-message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 350px;
+        animation: slideInRight 0.3s ease-out;
+    }
+
+    
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    }
+
+    /* Responsive adjustments */
+    
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .comment-actions {
+        margin-top: 8px;
+    }
+
+    .reply-section {
+        margin-left: 10px;
+    }
+
+    .reply-btn {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+
+    }
+
+    /* Character counter styling */
+    #charCount, #replyCharCount {
+        font-weight: 500;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    /* Modal customization */
+    #replyModal .modal-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-bottom: none;
+    }
+
+        #replyModal .modal-header .btn-close {
+            filter: invert(1);
+        }
+
+    #originalComment {
+        border-left: 3px solid #007bff;
+        font-style: italic;
+    }
+</style>
+
+<!-- Comment JavaScript -->
+<script>
+    let currentCommentId = 0;
+    let canReply = false;
+    const productId = @Model.ProductID;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadComments();
+        checkReplyPermissions();
+        initializeCharacterCounters();
+    });
+
+    function initializeCharacterCounters() {
+        // Character count for comment
+        const commentTextArea = document.getElementById('commentText');
+        if (commentTextArea) {
+            commentTextArea.addEventListener('input', function() {
+                const count = this.value.length;
+                const counter = document.getElementById('charCount');
+                counter.textContent = count;
+
+                // Change color based on limit
+                if (count > 800) {
+                    counter.classList.add('text-danger');
+                } else {
+                    counter.classList.remove('text-danger');
+                }
+            });
+        }
+
+        // Character count for reply
+        const replyTextArea = document.getElementById('replyText');
+        if (replyTextArea) {
+            replyTextArea.addEventListener('input', function() {
+                const count = this.value.length;
+                const counter = document.getElementById('replyCharCount');
+                counter.textContent = count;
+
+                // Change color based on limit
+                if (count > 800) {
+                    counter.classList.add('text-danger');
+                } else {
+                    counter.classList.remove('text-danger');
+                }
+            });
+        }
+    }
+
+    function checkReplyPermissions() {
+        fetch('/Home/CanUserReply')
+            .then(response => response.json())
+            .then(data => {
+                canReply = data.canReply;
+            })
+            .catch(error => {
+                console.error('Error checking reply permissions:', error);
+            });
+    }
+
+    function loadComments() {
+        const commentsSection = document.getElementById('commentsSection');
+        commentsSection.innerHTML = `
+            <div class="loading-comments">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading comments...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading questions and answers...</p>
+            </div>
+        `;
+
+        fetch(`/Home/GetProductComments?productId=${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.comments && data.comments.length > 0) {
+                    let html = '';
+                    data.comments.forEach(comment => {
+                        html += generateCommentHtml(comment);
+                    });
+                    commentsSection.innerHTML = html;
+                } else {
+                    commentsSection.innerHTML = `
+                        <div class="no-comments">
+                            <i class="fas fa-comment-slash fa-3x mb-3"></i>
+                            <h5 class="text-muted">No questions yet</h5>
+                            <p class="mb-3">Be the first to ask a question about this product!</p>
+                            <small class="text-muted">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                Ask about features, compatibility, usage, or anything else!
+                            </small>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading comments:', error);
+                commentsSection.innerHTML = `
+                    <div class="text-center p-4">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                        <h6 class="text-warning">Failed to load comments</h6>
+                        <p class="text-muted">Please check your connection and try again.</p>
+                        <button class="btn btn-sm btn-outline-primary" onclick="loadComments()">
+                            <i class="fas fa-redo me-1"></i>Try Again
+                        </button>
+                    </div>
+                `;
+            });
+    }
+
+    function generateCommentHtml(comment) {
+        const formattedDate = formatDate(comment.createdAt);
+        const sanitizedComment = escapeHtml(comment.commentText);
+        const sanitizedUserName = escapeHtml(comment.userName);
+
+        let html = `
+            <div class="comment-item">
+                <div class="comment-header">
+                    <div>
+                        <div class="comment-author">
+                            <i class="fas fa-user-circle question-icon"></i>
+                            ${sanitizedUserName}
+                        </div>
+                        <div class="comment-date">
+                            <i class="fas fa-clock me-1"></i>${formattedDate}
+                        </div>
+                    </div>
+                    <div class="comment-actions">
+                        ${canReply && !comment.reply ?
+                            `<button class="btn btn-outline-success reply-btn" onclick="openReplyModal(${comment.commentId}, \`${sanitizedComment.replace(/`/g, '\\`')}\`)">
+                                <i class="fas fa-reply me-1"></i>Answer
+                            </button>`
+                            : ''
+                        }
+                    </div>
+                </div>
+                <div class="comment-text">${sanitizedComment}</div>
+
+                ${comment.reply ? generateReplyHtml(comment.reply) : ''}
+            </div>
+        `;
+
+        return html;
+    }
+
+    function generateReplyHtml(reply) {
+        const formattedDate = formatDate(reply.createdAt);
+        const sanitizedReply = escapeHtml(reply.replyText);
+        const sanitizedSellerName = escapeHtml(reply.sellerName);
+
+        return `
+            <div class="reply-section">
+                <div class="reply-header">
+                    <div>
+                        <div class="reply-author">
+                            <i class="fas fa-store answer-icon"></i>
+                            ${sanitizedSellerName}
+                            <span class="seller-badge">Seller</span>
+                        </div>
+                        <div class="comment-date">
+                            <i class="fas fa-clock me-1"></i>${formattedDate}
+                        </div>
+                    </div>
+                </div>
+                <div class="reply-text">${sanitizedReply}</div>
+            </div>
+        `;
+    }
+
+    function submitComment() {
+        const commentText = document.getElementById('commentText').value.trim();
+
+        if (!commentText) {
+            showMessage('Please enter your question', 'error');
+            return;
+        }
+
+        if (commentText.length > 1000) {
+            showMessage('Question is too long (maximum 1000 characters)', 'error');
+            return;
+        }
+
+        // Disable button to prevent double submission
+        const submitBtn = event.target;
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Posting...';
+
+        const data = {
+            commentText: commentText,
+            productId: productId
+        };
+
+        fetch('/Home/AddComment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('commentText').value = '';
+                document.getElementById('charCount').textContent = '0';
+                loadComments();
+                showMessage('Question posted successfully! 🎉', 'success');
+            } else {
+                showMessage(data.message || 'Failed to post question', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding comment:', error);
+            showMessage('Failed to post question. Please try again.', 'error');
+        })
+        .finally(() => {
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        });
+    }
+
+    function openReplyModal(commentId, commentText) {
+        currentCommentId = commentId;
+        document.getElementById('originalComment').innerHTML = `
+            <strong><i class="fas fa-question-circle me-1"></i>Original Question:</strong><br>
+            ${commentText}
+        `;
+        document.getElementById('replyText').value = '';
+        document.getElementById('replyCharCount').textContent = '0';
+
+        const replyModal = new bootstrap.Modal(document.getElementById('replyModal'));
+        replyModal.show();
+    }
+
+    function submitReply() {
+        const replyText = document.getElementById('replyText').value.trim();
+
+        if (!replyText) {
+            showMessage('Please enter your answer', 'error');
+            return;
+        }
+
+        if (replyText.length > 1000) {
+            showMessage('Answer is too long (maximum 1000 characters)', 'error');
+            return;
+        }
+
+        // Disable button to prevent double submission
+        const submitBtn = event.target;
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
+
+        const data = {
+            replyText: replyText,
+            commentId: currentCommentId
+        };
+
+        fetch('/Home/AddReply', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const replyModal = bootstrap.Modal.getInstance(document.getElementById('replyModal'));
+                replyModal.hide();
+                loadComments();
+                showMessage('Answer posted successfully! 💬', 'success');
+            } else {
+                showMessage(data.message || 'Failed to post answer', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding reply:', error);
+            showMessage('Failed to post answer. Please try again.', 'error');
+        })
+        .finally(() => {
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        });
+    }
+
+    // Utility functions
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffHours < 1) {
+            return 'Just now';
+        } else if (diffHours < 24) {
+            return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        } else if (diffDays < 7) {
+            return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+        } else {
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+
+    function showMessage(message, type) {
+        // Remove any existing toast messages
+        const existingToasts = document.querySelectorAll('.toast-message');
+        existingToasts.forEach(toast => toast.remove());
+
+        // Create new toast message
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show toast-message`;
+        alertDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                <div class="flex-grow-1">${message}</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+</script>

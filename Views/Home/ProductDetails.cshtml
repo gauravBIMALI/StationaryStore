@@ -247,8 +247,14 @@
 
    
     @* comment section  *@
+    <!-- Comment Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            @await Html.PartialAsync("_ProductComment", Model)
+        </div>
+    </div>
 
-    @* <partial name="Comments"> *@
+    
 
     <!-- You May Also Like Section - Bottom -->
     <div class="row mt-5">
@@ -371,7 +377,7 @@
         padding: 10px 15px;
     }
 
-    }
+    
 </style>
 
 <script>

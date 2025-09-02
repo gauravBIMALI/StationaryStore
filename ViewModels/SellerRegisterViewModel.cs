@@ -25,28 +25,28 @@ namespace UserRoles.ViewModels
         [Required(ErrorMessage = "Business name is required")]
         [StringLength(100, ErrorMessage = "Business name cannot exceed 100 characters")]
         [Display(Name = "Business Name")]
-        public string BusinessName { get; set; }
+        public string BusinessName { get; set; } = null!;
 
         [Required(ErrorMessage = "Business type is required")]
         [Display(Name = "Business Type")]
-        public string BusinessType { get; set; } // Changed to string to match dropdown values
+        public string BusinessType { get; set; } = null!; // Changed to string to match dropdown values
 
         [Required(ErrorMessage = "Phone number is required")]
         [Phone(ErrorMessage = "Invalid phone number")]
         [Display(Name = "Phone Number")]
-        public string Phone { get; set; }
+        public string Phone { get; set; } = null!;
 
         [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
         [StringLength(100, MinimumLength = 4, ErrorMessage = "Password must be atleast 4 characters")]
         //[RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$",
         //    ErrorMessage = "Password must contain uppercase, lowercase and number")]
-        public string Password { get; set; }
+        public string Password { get; set; } = null!;
 
         [Required(ErrorMessage = "Please confirm your password")]
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords don't match")]
         [Display(Name = "Confirm Password")]
-        public string ConfirmPassword { get; set; }
+        public string ConfirmPassword { get; set; } = null!;
     }
 }

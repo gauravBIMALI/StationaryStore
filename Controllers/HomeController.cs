@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Security.Claims;
 using UserRoles.Data;
 using UserRoles.Models;
+using UserRoles.ViewModels;
+
 namespace UserRoles.Controllers
 {
     public class HomeController : Controller
@@ -13,6 +16,7 @@ namespace UserRoles.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<Users> _userManager;
         private readonly AppDbContext _context;
+
         public HomeController(ILogger<HomeController> logger, AppDbContext context, UserManager<Users> userManager)
         {
             _userManager = userManager;
@@ -20,10 +24,8 @@ namespace UserRoles.Controllers
             _context = context;
         }
 
-
         public async Task<IActionResult> Index(string categoryType)
         {
-
             // Get all active categories for dropdown
             var categories = await _context.Category.ToListAsync();
 
@@ -153,24 +155,24 @@ namespace UserRoles.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-
-
-
         [Authorize(Roles = "Admin")]
         public IActionResult Admin()
         {
             return View();
         }
+
         [Authorize(Roles = "Admin")]
         public IActionResult CreateSeller()
         {
             return View();
         }
+
         [Authorize(Roles = "User")]
-        public IActionResult User()
+        public IActionResult UserDashboard()
         {
             return View();
         }
+
         // Update the GetRelatedProducts method in your HomeController
         [HttpGet]
         public async Task<IActionResult> GetRelatedProducts(string categoryType, int excludeId, int count = 6)
@@ -203,17 +205,196 @@ namespace UserRoles.Controllers
 
         public IActionResult Confirm()
         {
-
             return View();
         }
+
         public IActionResult Warranty()
         {
             return View();
         }
 
-
         //for comment
+        // GET: Load comments for a product
+        [HttpGet]
+        public async Task<IActionResult> GetProductComments(int productId)
+        {
+            try
+            {
+                var comments = await _context.ProductComments
+                    .Where(c => c.ProductId == productId)
+                    .Include(c => c.User)
+                    .Include(c => c.Reply)
+                        .ThenInclude(r => r.Seller)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Select(c => new CommentDisplayViewModel
+                    {
+                        CommentId = c.CommentId,
+                        CommentText = c.CommentText,
+                        UserName = c.User.FullName ?? "Anonymous User",
+                        CreatedAt = c.CreatedAt,
+                        Reply = c.Reply != null ? new ReplyDisplayViewModel
+                        {
+                            ReplyId = c.Reply.ReplyId,
+                            ReplyText = c.Reply.ReplyText,
+                            SellerName = c.Reply.Seller.BusinessName ?? c.Reply.Seller.FullName ?? "Seller",
+                            CreatedAt = c.Reply.CreatedAt
+                        } : null
+                    })
+                    .ToListAsync();
 
+                return Json(new { success = true, comments = comments });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Failed to load comments" });
+            }
+        }
 
+        // POST: Add a new comment
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddComment([FromBody] AddCommentViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Invalid comment data" });
+            }
+
+            try
+            {
+                // Fix: Use User.FindFirst(ClaimTypes.NameIdentifier)?.Value instead of _userManager.GetUserId(User)
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Json(new { success = false, message = "User not authenticated" });
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+
+                // Check if product exists
+                var productExists = await _context.Product.AnyAsync(p => p.ProductID == model.ProductId);
+                if (!productExists)
+                {
+                    return Json(new { success = false, message = "Product not found" });
+                }
+
+                var comment = new ProductComment
+                {
+                    ProductId = model.ProductId,
+                    UserId = userId,
+                    CommentText = model.CommentText,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.ProductComments.Add(comment);
+                await _context.SaveChangesAsync();
+
+                // Return the new comment data
+                var commentDisplay = new CommentDisplayViewModel
+                {
+                    CommentId = comment.CommentId,
+                    CommentText = comment.CommentText,
+                    UserName = user.FullName ?? "Anonymous User",
+                    CreatedAt = comment.CreatedAt,
+                    Reply = null
+                };
+
+                return Json(new { success = true, comment = commentDisplay, message = "Comment added successfully" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Failed to add comment" });
+            }
+        }
+
+        // POST: Add reply to comment (Only sellers can reply)
+        [HttpPost]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> AddReply([FromBody] AddReplyViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Invalid reply data" });
+            }
+
+            try
+            {
+                // Fix: Use User.FindFirst(ClaimTypes.NameIdentifier)?.Value instead of _userManager.GetUserId(User)
+                var sellerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(sellerId))
+                {
+                    return Json(new { success = false, message = "Seller not authenticated" });
+                }
+
+                var seller = await _userManager.FindByIdAsync(sellerId);
+                if (seller == null)
+                {
+                    return Json(new { success = false, message = "Seller not found" });
+                }
+
+                // Check if comment exists and doesn't already have a reply
+                var comment = await _context.ProductComments
+                    .Include(c => c.Reply)
+                    .Include(c => c.Product)
+                    .FirstOrDefaultAsync(c => c.CommentId == model.CommentId);
+
+                if (comment == null)
+                {
+                    return Json(new { success = false, message = "Comment not found" });
+                }
+
+                if (comment.Reply != null)
+                {
+                    return Json(new { success = false, message = "This comment already has a reply" });
+                }
+
+                // Additional check: Only the product owner (seller) should be able to reply
+                // You might need to add a SellerId field to your Product model for this check
+                // For now, any seller can reply
+
+                var reply = new ProductCommentReply
+                {
+                    CommentId = model.CommentId,
+                    SellerId = sellerId,
+                    ReplyText = model.ReplyText,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.ProductCommentReplies.Add(reply);
+                await _context.SaveChangesAsync();
+
+                // Return the new reply data
+                var replyDisplay = new ReplyDisplayViewModel
+                {
+                    ReplyId = reply.ReplyId,
+                    ReplyText = reply.ReplyText,
+                    SellerName = seller.BusinessName ?? seller.FullName ?? "Seller",
+                    CreatedAt = reply.CreatedAt
+                };
+
+                return Json(new { success = true, reply = replyDisplay, message = "Reply added successfully" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Failed to add reply" });
+            }
+        }
+
+        // GET: Check if current user can reply to comments (is seller)
+        [HttpGet]
+        public async Task<IActionResult> CanUserReply()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Json(new { canReply = false, reason = "Not authenticated" });
+            }
+
+            var canReply = User.IsInRole("Seller");
+            return Json(new { canReply = canReply });
+        }
     }
 }

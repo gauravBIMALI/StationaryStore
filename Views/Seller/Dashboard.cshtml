@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <div class="card-footer bg-primary border-0">
-                    <a href="@Url.Action("Products")" class="text-white text-decoration-none">
+                    <a asp-controller="AddProduct" asp-action="Index" class="text-white text-decoration-none">
                         <small><i class="fas fa-eye me-1"></i>View Products</small>
                     </a>
                 </div>
@@ -34,7 +34,7 @@
         </div>
 
         <div class="col-md-3 mb-3">
-            <div class="card bg-info text-white h-100">
+            <div class="card bg-primary text-white h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -45,7 +45,7 @@
                     </div>
                 </div>
                 <div class="card-footer bg-info border-0">
-                    <a href="@Url.Action("Comments")" class="text-white text-decoration-none">
+                    <a  class="text-white text-decoration-none">
                         <small><i class="fas fa-eye me-1"></i>View All</small>
                     </a>
                 </div>
@@ -53,7 +53,7 @@
         </div>
 
         <div class="col-md-3 mb-3">
-            <div class="card bg-warning text-white h-100">
+            <div class="card bg-primary text-white h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -64,7 +64,7 @@
                     </div>
                 </div>
                 <div class="card-footer bg-warning border-0">
-                    <a href="@Url.Action("Comments", new { filter = "pending" })" class="text-white text-decoration-none">
+                    <a  class="text-white text-decoration-none">
                         <small><i class="fas fa-reply me-1"></i>Reply Now</small>
                     </a>
                 </div>
@@ -72,7 +72,7 @@
         </div>
 
         <div class="col-md-3 mb-3">
-            <div class="card bg-success text-white h-100">
+            <div class="card bg-primary text-white h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -83,7 +83,7 @@
                     </div>
                 </div>
                 <div class="card-footer bg-success border-0">
-                    <a href="@Url.Action("Comments", new { filter = "replied" })" class="text-white text-decoration-none">
+                    <a class="text-white text-decoration-none">
                         <small><i class="fas fa-eye me-1"></i>View Replied</small>
                     </a>
                 </div>
@@ -100,7 +100,7 @@
                     <h5 class="mb-0">
                         <i class="fas fa-comment-dots text-info me-2"></i>Recent Customer Questions
                     </h5>
-                    <a href="@Url.Action("Comments")" class="btn btn-sm btn-outline-primary">
+                    <a  class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-eye me-1"></i>View All
                     </a>
                 </div>
@@ -111,7 +111,7 @@
                         {
                             <div class="d-flex align-items-start mb-3 pb-3 border-bottom">
                                 <div class="flex-shrink-0">
-                                    <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 50%;">
+                                    <div  text-white d-flex align-items-center justify-content-center" >
                                         <i class="fas fa-user"></i>
                                     </div>
                                 </div>
@@ -120,14 +120,14 @@
                                         <div>
                                             <strong>@comment.UserName</strong>
                                             <small class="text-muted ms-2">asked about</small>
-                                            <span class="badge bg-info">@comment.ProductName</span>
+                                            <span class="badge  text-black">@comment.ProductName</span>
                                         </div>
                                         <small class="text-muted">@comment.CreatedAt.ToString("MMM dd, hh:mm tt")</small>
                                     </div>
                                     <p class="mb-2 text-muted">@comment.CommentText</p>
                                     @if (!comment.HasReply)
                                     {
-                                        <a href="@Url.Action("Comments", new { filter = "pending" })" class="btn btn-sm btn-warning">
+                                        <a href="@Url.Action("Comments", new { filter = "pending" })" class="btn btn-outline-primary ">
                                             <i class="fas fa-reply me-1"></i>Reply
                                         </a>
                                     }
@@ -165,20 +165,20 @@
                     <div class="d-grid gap-2">
                         @if (Model.PendingComments > 0)
                         {
-                            <a href="@Url.Action("Comments", new { filter = "pending" })" class="btn btn-warning">
+                            <a href="@Url.Action("Comments", new { filter = "pending" })" class="btn btn-outline-primary">
                                 <i class="fas fa-reply me-2"></i>Reply to Questions (@Model.PendingComments)
                             </a>
                         }
 
-                        <a href="@Url.Action("Comments")" class="btn btn-outline-info">
+                        <a href="@Url.Action("Comments")" class="btn btn-outline-primary">
                             <i class="fas fa-comments me-2"></i>Manage All Comments
                         </a>
 
-                        <a href="@Url.Action("Products")" class="btn btn-outline-primary">
+                        <a asp-controller="AddProduct" asp-action="Index" class="btn btn-outline-primary">
                             <i class="fas fa-box me-2"></i>View My Products
                         </a>
 
-                        <a href="@Url.Action("Profile")" class="btn btn-outline-secondary">
+                        <a asp-controller="Seller" asp-action="Profile" class="btn btn-outline-primary">
                             <i class="fas fa-user-cog me-2"></i>Edit Profile
                         </a>
                     </div>

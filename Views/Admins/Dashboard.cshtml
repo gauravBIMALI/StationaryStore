@@ -26,13 +26,13 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
                                 Total Sellers
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalSellers</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-primary"></i>
+                            <i class="fas fa-users fa-2x text-dark"></i>
                         </div>
                     </div>
                     <div class="mt-2">
@@ -46,21 +46,21 @@
 
         <!-- Total Products -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
+            <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
                                 Total Products
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalProducts</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-boxes fa-2x text-success"></i>
+                            <i class="fas fa-boxes fa-2x text-dark"></i>
                         </div>
                     </div>
                     <div class="mt-2">
-                        <a asp-controller="Admins" asp-action="ListProducts" class="btn btn-sm btn-outline-success">
+                        <a asp-controller="Admins" asp-action="ListProducts" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-eye me-1"></i>View All
                         </a>
                     </div>
@@ -70,21 +70,21 @@
 
         <!-- Total Categories -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
+            <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
                                 Total Categories
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalCategories</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-tags fa-2x text-info"></i>
+                            <i class="fas fa-tags fa-2x text-bg-dark"></i>
                         </div>
                     </div>
                     <div class="mt-2">
-                        <a asp-controller="Categories" asp-action="Index" class="btn btn-sm btn-outline-info">
+                        <a asp-controller="Categories" asp-action="Index" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-eye me-1"></i>Manage
                         </a>
                     </div>
@@ -94,21 +94,21 @@
 
         <!-- Total FAQs -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
                                 Total FAQs
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalFAQs</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-question-circle fa-2x text-warning"></i>
+                            <i class="fas fa-question-circle fa-2x text-dark"></i>
                         </div>
                     </div>
                     <div class="mt-2">
-                        <a asp-controller="FAQs" asp-action="Index" class="btn btn-sm btn-outline-warning">
+                        <a asp-controller="FAQs" asp-action="Index" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-eye me-1"></i>Manage
                         </a>
                     </div>
@@ -129,17 +129,17 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-6 text-center border-right">
-                            <div class="h4 font-weight-bold text-primary">@Model.TotalUsers</div>
-                            <div class="text-xs text-muted">Total Buyers</div>
+                            <div class="h4 font-weight-bold text-dark">@Model.TotalUsers</div>
+                            <div class="text-xs text-dark">Total Buyers</div>
                         </div>
                         <div class="col-6 text-center">
-                            <div class="h4 font-weight-bold text-success">@(Model.TotalSellers + Model.TotalUsers)</div>
-                            <div class="text-xs text-muted">Total Users</div>
+                            <div class="h4 font-weight-bold text-dark">@(Model.TotalSellers + Model.TotalUsers)</div>
+                            <div class="text-xs text-dark">Total Users</div>
                         </div>
                     </div>
                     <hr>
                     <div class="text-center">
-                        <a asp-controller="Account" asp-action="CreateSeller" class="btn btn-primary btn-sm">
+                        <a asp-controller="Account" asp-action="CreateSeller" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-user-plus me-1"></i>Add New Seller
                         </a>
                     </div>
@@ -149,7 +149,7 @@
 
         <div class="col-md-6">
             <div class="card shadow">
-                <div class="card-header bg-success text-white">
+                <div class="card-header bg-primary text-white">
                     <h6 class="m-0 font-weight-bold">
                         <i class="fas fa-tasks me-2"></i>Quick Actions
                     </h6>
@@ -157,16 +157,16 @@
                 <div class="card-body">
                     <div class="list-group list-group-flush">
                         <a asp-controller="Admins" asp-action="Index" class="list-group-item list-group-item-action">
-                            <i class="fas fa-users me-2 text-primary"></i>Manage Sellers
+                            <i class="fas fa-users me-2 text-dark"></i>Manage Sellers
                         </a>
                         <a asp-controller="Categories" asp-action="Index" class="list-group-item list-group-item-action">
-                            <i class="fas fa-tags me-2 text-info"></i>Manage Categories
+                            <i class="fas fa-tags me-2 text-dark"></i>Manage Categories
                         </a>
                         <a asp-controller="FAQs" asp-action="Index" class="list-group-item list-group-item-action">
-                            <i class="fas fa-question-circle me-2 text-warning"></i>Manage FAQs
+                            <i class="fas fa-question-circle me-2 text-dark"></i>Manage FAQs
                         </a>
                         <a asp-controller="Admins" asp-action="ListProducts" class="list-group-item list-group-item-action">
-                            <i class="fas fa-boxes me-2 text-success"></i>View All Products
+                            <i class="fas fa-boxes me-2 text-dark"></i>View All Products
                         </a>
                     </div>
                 </div>

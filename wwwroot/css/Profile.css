@@ -1,4 +1,6 @@
-﻿
+﻿body {
+    padding-top: 70px;
+}
 :root {
     --primary-color: #3498db;
     --danger-color: #e74c3c;

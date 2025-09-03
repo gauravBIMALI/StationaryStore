@@ -259,32 +259,34 @@ namespace ClzProject.Controllers
             return View(dashboardData);
         }
 
-        // View Comments on Seller's Products
+        // View Comments on Seller's Products - CORRECTED VERSION
         public async Task<IActionResult> Comments(int page = 1, int pageSize = 10, string filter = "all")
         {
             var sellerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var commentsQuery = _context.ProductComments
+            // Start with base query
+            IQueryable<ProductComment> commentsQuery = _context.ProductComments
                 .Where(c => c.Product.SellerId == sellerId)
                 .Include(c => c.User)
                 .Include(c => c.Product)
                 .Include(c => c.Reply);
 
-            // Apply filter
-            switch (filter.ToLower())
+            // Apply filter without casting issues
+            if (filter.ToLower() == "pending")
             {
-                case "pending":
-                    commentsQuery = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<ProductComment, ProductCommentReply?>)commentsQuery.Where(c => c.Reply == null);
-                    break;
-                case "replied":
-                    commentsQuery = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<ProductComment, ProductCommentReply?>)commentsQuery.Where(c => c.Reply != null);
-                    break;
-                    // "all" shows everything - no additional filter needed
+                commentsQuery = commentsQuery.Where(c => c.Reply == null);
             }
+            else if (filter.ToLower() == "replied")
+            {
+                commentsQuery = commentsQuery.Where(c => c.Reply != null);
+            }
+            // "all" - no additional filter needed
 
-            commentsQuery = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<ProductComment, ProductCommentReply?>)commentsQuery.OrderByDescending(c => c.CreatedAt);
+            // Order the results
+            commentsQuery = commentsQuery.OrderByDescending(c => c.CreatedAt);
 
             var totalComments = await commentsQuery.CountAsync();
+
             var comments = await commentsQuery
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

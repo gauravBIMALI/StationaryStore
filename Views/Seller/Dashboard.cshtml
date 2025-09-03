@@ -217,6 +217,54 @@
     </div>
 </div>
 
+<!-- Floating Chatbot Button -->
+<div id="chatbot-icon" style="position:fixed; bottom:20px; right:20px; cursor:pointer; background:#007bff; color:white; padding:15px; border-radius:50%; z-index:9999;">
+    💬
+</div>
+
+<!-- Chatbot Window -->
+<div id="chatbot-window" style="display:none; position:fixed; bottom:80px; right:20px; width:320px; height:420px; border:1px solid #ccc; border-radius:10px; background:white; box-shadow:0px 0px 10px gray; overflow:hidden; z-index:9999;">
+    <div style="background:#007bff; color:white; padding:10px; font-weight:bold;">FAQ Chatbot</div>
+    <div id="chatbot-messages" style="padding:10px; height:320px; overflow-y:auto; font-size:14px;"></div>
+    <div style="padding:10px; display:flex;">
+        <input id="chatbot-input" type="text" class="form-control" placeholder="Ask a question...">
+        <button id="chatbot-send" class="btn btn-primary ms-1">Send</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle chatbot
+        document.getElementById("chatbot-icon").onclick = function () {
+            let chatWindow = document.getElementById("chatbot-window");
+            chatWindow.style.display = chatWindow.style.display === "none" ? "block" : "none";
+        };
+
+        // Send question
+        document.getElementById("chatbot-send").onclick = async function () {
+            let input = document.getElementById("chatbot-input").value.trim();
+            let messages = document.getElementById("chatbot-messages");
+
+            if (!input) return;
+
+            messages.innerHTML += `<div><b>You:</b> ${input}</div>`;
+
+            let response = await fetch(`/api/ChatBot/search?query=${encodeURIComponent(input)}`);
+            if (response.ok) {
+                let data = await response.json();
+                messages.innerHTML += `<div style='color:green;'><b>Bot:</b> ${data.answer}</div>`;
+            } else {
+                let err = await response.json();
+                messages.innerHTML += `<div style='color:red;'><b>Bot:</b> ${err.message}</div>`;
+            }
+
+            document.getElementById("chatbot-input").value = "";
+            messages.scrollTop = messages.scrollHeight; // auto-scroll
+        };
+    </script>
+}
+
+
 <style>
     .avatar-circle {
         font-size: 0.9rem;

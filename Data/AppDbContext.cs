@@ -11,7 +11,11 @@ namespace UserRoles.Data
         {
         }
 
-        // Your existing DbSets
+        //DbSets
+        public DbSet<ChatBotFAQ> ChatBotFAQs { get; set; }
+        //public DbSet<ClzProject.Models.ChatBotFAQ> ChatBotFAQs { get; set; }
+
+
         public DbSet<FAQ> FAQs { get; set; }
         public DbSet<Category> Category { get; set; } = default!;
         public DbSet<Product> Product { get; set; } = default!;

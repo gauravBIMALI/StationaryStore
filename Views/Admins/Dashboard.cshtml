@@ -2,7 +2,9 @@
 @{
     ViewData["Title"] = "Admin Dashboard";
 }
-
+@section Styles {
+    <link rel="stylesheet" href="~/css/AdminDashboard.css" asp-append-version="true" />
+}
 <div class="container-fluid">
     <!-- Dashboard Header -->
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -217,32 +219,3 @@
 </div>
 
 <!-- Custom CSS for Dashboard -->
-<style>
-    .border-left-primary {
-        border-left: 0.25rem solid #4e73df !important;
-    }
-
-    .border-left-success {
-        border-left: 0.25rem solid #1cc88a !important;
-    }
-
-    .border-left-info {
-        border-left: 0.25rem solid #36b9cc !important;
-    }
-
-    .border-left-warning {
-        border-left: 0.25rem solid #f6c23e !important;
-    }
-
-    .card {
-        border-radius: 0.35rem;
-    }
-
-    .text-xs {
-        font-size: 0.7rem;
-    }
-
-    .border-right {
-        border-right: 1px solid #e3e6f0;
-    }
-</style>

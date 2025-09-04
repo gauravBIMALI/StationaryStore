@@ -14,10 +14,15 @@
 
     
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/Profile.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/FAQs.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/css/Profile.css" asp-append-version="true" /> *@
+    @* <link rel="stylesheet" href="~/css/FAQs.css" asp-append-version="true" /> *@
     <link rel="stylesheet" href="~/UserRoles.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/darkmode.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/css/HomeIndex.css" asp-append-version="true" /> *@
+
+    @* if we add below code we can commentout other file css and only keep global css file *@
+    @* this is good method to avoid css conflict(same css class vako ma conflict hudaina) *@
+    @RenderSection("Styles", required: false)
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Navigation -->

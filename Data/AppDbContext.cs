@@ -13,9 +13,6 @@ namespace UserRoles.Data
 
         //DbSets
         public DbSet<ChatBotFAQ> ChatBotFAQs { get; set; }
-        //public DbSet<ClzProject.Models.ChatBotFAQ> ChatBotFAQs { get; set; }
-
-
         public DbSet<FAQ> FAQs { get; set; }
         public DbSet<Category> Category { get; set; } = default!;
         public DbSet<Product> Product { get; set; } = default!;
@@ -25,9 +22,12 @@ namespace UserRoles.Data
         public DbSet<ClzProject.Models.BuyerContactMessage> BuyerContactMessages { get; set; } = default!;
         public object Categories { get; internal set; }
 
-        // New DbSets for comment feature
+        // Comment feature
         public DbSet<ProductComment> ProductComments { get; set; } = default!;
         public DbSet<ProductCommentReply> ProductCommentReplies { get; set; } = default!;
+
+        // ADD THIS - Cart feature
+        public DbSet<Cart> Carts { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,6 +56,23 @@ namespace UserRoles.Data
                 .HasOne(r => r.Seller)
                 .WithMany()
                 .HasForeignKey(r => r.SellerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ADD THIS - Configure Cart relationships
+            modelBuilder.Entity<Cart>()
+                .HasIndex(c => new { c.BuyerId, c.ProductId })
+                .IsUnique();
+
+            modelBuilder.Entity<Cart>()
+                .HasOne(c => c.Product)
+                .WithMany()
+                .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Cart>()
+                .HasOne(c => c.Buyer)
+                .WithMany()
+                .HasForeignKey(c => c.BuyerId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

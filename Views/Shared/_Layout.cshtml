@@ -146,9 +146,6 @@
                                 </a>
                             </li>
 
-                            @* For contacting seller (existing) *@
-                            
-
                             @* NEW: Contact admin with business application *@
                             <li class="nav-item">
                                 <a class="nav-link" style="color: black;" asp-controller="BuyerContact" asp-action="Create">
@@ -160,6 +157,15 @@
                             <li class="nav-item">
                                 <a class="nav-link" style="color: black;" asp-controller="BuyerContact" asp-action="MySubmissions">
                                     <i class="fas fa-file-alt me-1"></i>My Applications
+                                </a>
+                            </li>
+                            <li class="nav-item position-relative me-3">
+                                <a class="nav-link" asp-controller="Home" asp-action="Cart" title="Shopping Cart">
+                                    <i class="fas fa-shopping-cart fa-lg"></i>
+                                    <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                          style="display: none; font-size: 0.7rem;">
+                                        0
+                                    </span>
                                 </a>
                             </li>
                         }
@@ -206,6 +212,9 @@
                         }
                     </ul>
                     <script>
+
+
+
                         // Update pending comments count (call this on page load)
                         fetch('@Url.Action("GetPendingCommentsCount", "Seller")')
                             .then(response => response.json())
@@ -287,7 +296,35 @@
         });
     </script>
 
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script>
+            // Load cart count on every page
+            document.addEventListener('DOMContentLoaded', function() {
+                loadCartCount();
+            });
 
+            function loadCartCount() {
+                fetch('@Url.Action("GetCartCount", "Home")')
+                    .then(response => response.json())
+                    .then(data => {
+                        const badge = document.querySelector('.cart-count-badge');
+                        if (badge) {
+                            if (data.count > 0) {
+                                badge.textContent = data.count;
+                                badge.style.display = 'inline-flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error loading cart count:', error));
+            }
+
+            // Make function globally available
+            window.updateCartCount = loadCartCount;
+        </script>
+    }
 </body>
 
 </html>

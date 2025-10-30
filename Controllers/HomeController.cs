@@ -1,4 +1,5 @@
 using ClzProject.Models;
+using ClzProject.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -388,7 +389,7 @@ namespace UserRoles.Controllers
             }
         }
 
-        // GET: Check if current user can reply to comments (is seller)
+
         [HttpGet]
         public async Task<IActionResult> CanUserReply()
         {
@@ -400,5 +401,257 @@ namespace UserRoles.Controllers
             var canReply = User.IsInRole("Seller");
             return Json(new { canReply = canReply });
         }
+
+
+        private string GetCurrentUserId()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+        }
+
+        // GET: Display Cart Page
+        [Authorize]
+        public async Task<IActionResult> Cart()
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                var cartItems = await _context.Carts
+                    .Where(c => c.BuyerId == userId)
+                    .Include(c => c.Product)
+                        .ThenInclude(p => p.Seller)
+                    .Select(c => new CartItemViewModel
+                    {
+                        ProductID = c.ProductId,
+                        ProductName = c.Product.ProductName,
+                        ProductPrice = c.Product.ProductPrice,
+                        Quantity = c.Quantity,
+                        Image = c.Product.Image,
+                        SellerId = c.Product.SellerId,
+                        SellerName = c.Product.Seller.FullName ?? "",
+                        SellerBusinessName = c.Product.Seller.BusinessName ?? "",
+                        AvailableStock = c.Product.ProductQuantity
+                    })
+                    .ToListAsync();
+
+                var cartViewModel = new CartViewModel
+                {
+                    CartItems = cartItems
+                };
+
+                return View(cartViewModel);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to load cart";
+                return View(new CartViewModel());
+            }
+        }
+
+        // POST: Add item to cart
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                // Check if product exists and has enough stock
+                var product = await _context.Product.FindAsync(productId);
+                if (product == null)
+                {
+                    TempData["ErrorMessage"] = "Product not found";
+                    return RedirectToAction("ProductDetails", new { id = productId });
+                }
+
+                if (product.ProductQuantity < quantity)
+                {
+                    TempData["ErrorMessage"] = $"Only {product.ProductQuantity} items available in stock";
+                    return RedirectToAction("ProductDetails", new { id = productId });
+                }
+
+                // Check if item already exists in cart
+                var existingCart = await _context.Carts
+                    .FirstOrDefaultAsync(c => c.BuyerId == userId && c.ProductId == productId);
+
+                if (existingCart != null)
+                {
+                    // Update quantity
+                    var newQuantity = existingCart.Quantity + quantity;
+
+                    // Check total quantity against stock
+                    if (newQuantity > product.ProductQuantity)
+                    {
+                        TempData["ErrorMessage"] = $"Cannot add more. Only {product.ProductQuantity} items available";
+                        return RedirectToAction("ProductDetails", new { id = productId });
+                    }
+
+                    existingCart.Quantity = newQuantity;
+                    existingCart.UpdatedAt = DateTime.Now;
+                }
+                else
+                {
+                    // Add new cart item
+                    var cartItem = new Cart
+                    {
+                        BuyerId = userId,
+                        ProductId = productId,
+                        Quantity = quantity,
+                        AddedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+                    _context.Carts.Add(cartItem);
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Product added to cart successfully!";
+                return RedirectToAction("Cart");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to add product to cart";
+                return RedirectToAction("ProductDetails", new { id = productId });
+            }
+        }
+
+        // POST: Update cart item quantity
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> UpdateCartQuantity(int productId, int quantity)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                var cartItem = await _context.Carts
+                    .Include(c => c.Product)
+                    .FirstOrDefaultAsync(c => c.BuyerId == userId && c.ProductId == productId);
+
+                if (cartItem == null)
+                {
+                    TempData["ErrorMessage"] = "Cart item not found";
+                    return RedirectToAction("Cart");
+                }
+
+                if (quantity <= 0)
+                {
+                    // Remove item if quantity is 0 or less
+                    _context.Carts.Remove(cartItem);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Item removed from cart";
+                    return RedirectToAction("Cart");
+                }
+
+                if (quantity > cartItem.Product.ProductQuantity)
+                {
+                    TempData["ErrorMessage"] = $"Only {cartItem.Product.ProductQuantity} items available";
+                    return RedirectToAction("Cart");
+                }
+
+                cartItem.Quantity = quantity;
+                cartItem.UpdatedAt = DateTime.Now;
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Cart updated successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to update cart";
+            }
+
+            return RedirectToAction("Cart");
+        }
+
+        // POST: Remove item from cart
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> RemoveFromCart(int productId)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                var cartItem = await _context.Carts
+                    .FirstOrDefaultAsync(c => c.BuyerId == userId && c.ProductId == productId);
+
+                if (cartItem != null)
+                {
+                    _context.Carts.Remove(cartItem);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Item removed from cart!";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to remove item from cart";
+            }
+
+            return RedirectToAction("Cart");
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ClearCart()
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                var cartItems = await _context.Carts
+                    .Where(c => c.BuyerId == userId)
+                    .ToListAsync();
+
+                _context.Carts.RemoveRange(cartItems);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Cart cleared successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to clear cart";
+            }
+
+            return RedirectToAction("Cart");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCartCount()
+        {
+            try
+            {
+                if (!User.Identity.IsAuthenticated)
+                {
+                    return Json(new { count = 0 });
+                }
+
+                var userId = GetCurrentUserId();
+                var count = await _context.Carts
+                    .Where(c => c.BuyerId == userId)
+                    .SumAsync(c => c.Quantity);
+
+                return Json(new { count = count });
+            }
+            catch
+            {
+                return Json(new { count = 0 });
+            }
+        }
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> BuyNow(int productId, int quantity = 1)
+        {
+            await AddToCart(productId, quantity);
+            return RedirectToAction("Checkout", "Home"); // or redirect to Checkout
+        }
+
+        public IActionResult Checkout()
+        {
+            return View();
+        }
+
     }
 }

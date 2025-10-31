@@ -151,78 +151,87 @@
                             }
                         </div>
 
-                        <!-- Quantity Selector -->
-                        @if (Model.ProductQuantity > 0)
-                        {
+
+                        <form asp-action="AddToCart" asp-controller="Home" method="post" class="mb-4">
+                            <input type="hidden" name="productId" value="@Model.ProductID" />
+
+                            <!-- Quantity Section -->
                             <div class="quantity-section mb-4">
                                 <label class="form-label fw-semibold">Quantity:</label>
                                 <div class="d-flex align-items-center">
                                     <div class="quantity-controls me-3">
                                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity()">-</button>
-                                        <input type="number" id="quantity" value="1" min="1" max="@Model.ProductQuantity" class="form-control text-center mx-2" style="width: 80px;" onchange="updatePrice()">
+                                        <input type="number" name="quantity" id="quantity" value="1"
+                                               min="1" max="@Model.ProductQuantity"
+                                               class="form-control text-center mx-2"
+                                               style="width: 80px;" onchange="updatePrice()">
                                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity()">+</button>
                                     </div>
                                     <span class="text-muted">@Model.ProductQuantity pieces available</span>
                                 </div>
-                                <!-- Total Price Display -->
-                                <div class="mt-2">
-                                    <strong class="text-primary">Total: <span id="totalPrice">Rs. @Model.ProductPrice.ToString("N2")</span></strong>
-                                </div>
                             </div>
-                        }
 
-                        <!-- Action Buttons -->
-                        <!-- Action Buttons -->
-                        @if (Model.ProductQuantity > 0)
-                        {
-                            <div class="action-buttons mb-4">
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        @if (User.Identity.IsAuthenticated)
-                                        {
-                                            <form asp-action="AddToCart" asp-controller="Home" method="post">
-                                                <input type="hidden" name="productId" value="@Model.ProductID" />
-                                                <input type="hidden" name="quantity" id="quantity" value="1" />
-                                                <button type="submit" class="btn btn-outline-primary btn-lg w-100">
-                                                    <i class="fas fa-shopping-cart me-2"></i>Add to Cart
-                                                </button>
-                                            </form>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-outline-primary btn-lg w-100" onclick="showLoginPrompt()">
-                                                <i class="fas fa-shopping-cart me-2"></i>Add to Cart
-                                            </button>
-                                        }
-                                    </div>
-                                    <div class="col-6">
-                                        @if (User.Identity.IsAuthenticated)
-                                        {
-                                            <form asp-action="BuyNow" asp-controller="Home" method="post">
-                                                <input type="hidden" name="productId" value="@Model.ProductID" />
-                                                <input type="hidden" name="quantity" value="1" />
-                                                <button type="submit" class="btn btn-danger btn-lg w-100">
-                                                    <i class="fas fa-bolt me-2"></i>Buy Now
-                                                </button>
-                                            </form>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-danger btn-lg w-100" onclick="showLoginPrompt()">
+                            <!-- Buttons Row -->
+                            <div class="row g-2">
+                                <!-- Add to Cart -->
+                                <div class="col-6">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                                    </button>
+                                </div>
+
+                                <!-- Buy Now -->
+                                <div class="col-6">
+                                    @if (User.Identity.IsAuthenticated)
+                                    {
+                                        <form asp-action="BuyNow" asp-controller="Home" method="post" class="d-inline w-100">
+                                            <input type="hidden" name="productId" value="@Model.ProductID" />
+                                            <input type="hidden" id="buyQuantity" name="quantity" value="1" />
+
+                                            <button type="submit" class="btn btn-danger btn-lg w-100">
                                                 <i class="fas fa-bolt me-2"></i>Buy Now
                                             </button>
-                                        }
-                                    </div>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-danger btn-lg w-100" onclick="showLoginPrompt()">
+                                            <i class="fas fa-bolt me-2"></i>Buy Now
+                                        </button>
+                                    }
                                 </div>
                             </div>
-                        }
-                        else
+                        </form>
+
+                        <!-- Out of Stock -->
+                        @if (@Model.ProductQuantity <= 0)
                         {
-                            <button class="btn btn-secondary btn-lg w-100" disabled>
+                            <button class="btn btn-secondary btn-lg w-100 mt-3" disabled>
                                 <i class="fas fa-times me-2"></i>Out of Stock
                             </button>
                         }
 
+                        <script>
+                            function syncQuantity() {
+                                document.getElementById('buyQuantity').value = document.getElementById('quantity').value;
+                            }
+
+                            function increaseQuantity() {
+                                const qty = document.getElementById('quantity');
+                                if (qty.value < qty.max) qty.value++;
+                                syncQuantity();
+                            }
+
+                            function decreaseQuantity() {
+                                const qty = document.getElementById('quantity');
+                                if (qty.value > 1) qty.value--;
+                                syncQuantity();
+                            }
+
+                            function updatePrice() {
+                                syncQuantity();
+                            }
+                        </script>
 
                         <!-- Delivery Info -->
                         <div class="delivery-info mb-4">
@@ -242,8 +251,6 @@
                                 </div>
                             </div>
                         </div>
-
-
                         <!-- Services -->
                         <div class="services-section">
                             <div class="row text-center">
@@ -307,7 +314,6 @@
                 </div>
                 <div class="card-body p-3">
                     <div id="relatedProducts">
-                        <!-- Related products will be loaded here via AJAX -->
                         <div class="text-center p-4">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Loading...</span>
@@ -430,10 +436,10 @@
             text-align: left;
         }
 
-            .seller-info-card .btn-link:hover {
+        .seller-info-card .btn-link:hover {
                 color: #0d6efd;
                 text-decoration: none;
-            }
+        }
 
     .seller-details {
         background-color: #f8f9fa;
@@ -445,138 +451,6 @@
 
 <script>
 
-        // Add to Cart function
-    function addToCart() {
-        const quantity = parseInt(document.getElementById('quantity').value);
-        const maxStock = @Model.ProductQuantity;
-
-        if (quantity < 1 || quantity > maxStock) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid Quantity',
-                text: `Please enter quantity between 1 and ${maxStock}`,
-                confirmButtonColor: '#dc3545'
-            });
-            return;
-        }
-
-        // Show loading
-        Swal.fire({
-            title: 'Adding to cart...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        // Create form data
-        const formData = new URLSearchParams();
-        formData.append('productId', '@Model.ProductID');
-        formData.append('quantity', quantity);
-
-        // Send POST request
-        fetch('@Url.Action("AddToCart", "Home")', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formData
-        })
-        .then(response => {
-            if (response.redirected) {
-                // Success - redirected to cart page
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Added to Cart!',
-                    text: 'Product added successfully',
-                    showCancelButton: true,
-                    confirmButtonText: 'View Cart',
-                    cancelButtonText: 'Continue Shopping',
-                    confirmButtonColor: '#28a745'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '@Url.Action("Cart", "Home")';
-                    } else {
-                        updateCartCount();
-                        Swal.close();
-                    }
-                });
-            } else {
-                throw new Error('Failed to add to cart');
-            }
-        })
-        .catch(error => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Failed to add product to cart. Please try again.',
-                confirmButtonColor: '#dc3545'
-            });
-        });
-    }
-
-    // Buy Now function
-    function buyNow() {
-        const quantity = parseInt(document.getElementById('quantity').value);
-        const maxStock = @Model.ProductQuantity;
-
-        if (quantity < 1 || quantity > maxStock) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid Quantity',
-                text: `Please enter quantity between 1 and ${maxStock}`,
-                confirmButtonColor: '#dc3545'
-            });
-            return;
-        }
-
-        // Create form data
-        const formData = new URLSearchParams();
-        formData.append('productId', '@Model.ProductID');
-        formData.append('quantity', quantity);
-
-        // Add to cart first, then redirect to cart
-        fetch('@Url.Action("AddToCart", "Home")', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formData
-        })
-        .then(response => {
-            if (response.ok || response.redirected) {
-                window.location.href = '@Url.Action("Cart", "Home")';
-            } else {
-                throw new Error('Failed to process');
-            }
-        })
-        .catch(error => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Failed to process your request',
-                confirmButtonColor: '#dc3545'
-            });
-        });
-    }
-
-    // Update cart count badge in navbar
-    function updateCartCount() {
-        fetch('@Url.Action("GetCartCount", "Home")')
-            .then(response => response.json())
-            .then(data => {
-                const badge = document.querySelector('.cart-count-badge');
-                if (badge) {
-                    if (data.count > 0) {
-                        badge.textContent = data.count;
-                        badge.style.display = 'inline-block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                }
-            })
-            .catch(error => console.error('Error updating cart count:', error));
-    }
 
     // Load cart count on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -681,42 +555,7 @@
         });
     }
 
-    function updatePrice() {
-        const quantity = parseInt(document.getElementById('quantity').value) || 1;
-        let discountPercent = 0;
-        let discountText = '';
-
-        // Determine discount based on quantity
-        if (quantity >= 51) {
-            discountPercent = 13;
-            discountText = '13% OFF';
-        } else if (quantity >= 31) {
-            discountPercent = 10;
-            discountText = '10% OFF';
-        } else if (quantity >= 16) {
-            discountPercent = 5;
-            discountText = '5% OFF';
-        }
-
-        const discountedPrice = basePrice * (1 - discountPercent / 100);
-        const totalPrice = discountedPrice * quantity;
-
-        // Update current price display
-        document.getElementById('currentPrice').textContent = `Rs. ${discountedPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-        // Update total price
-        document.getElementById('totalPrice').textContent = `Rs. ${totalPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-        // Show/hide discount info
-        const discountInfo = document.getElementById('discountInfo');
-        if (discountPercent > 0) {
-            document.getElementById('originalPrice').textContent = `Rs. ${basePrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            document.getElementById('discountBadge').textContent = discountText;
-            discountInfo.style.display = 'inline-block';
-        } else {
-            discountInfo.style.display = 'none';
-        }
-    }
+    
 
     function increaseQuantity() {
         const quantityInput = document.getElementById('quantity');

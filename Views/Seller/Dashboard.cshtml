@@ -12,8 +12,9 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
+    <!-- Statistics Cards - Row 1 -->
     <div class="row mb-4">
+        <!-- Products Card -->
         <div class="col-md-3 mb-3">
             <div class="card bg-primary text-white h-100">
                 <div class="card-body">
@@ -33,6 +34,69 @@
             </div>
         </div>
 
+        <!-- Total Orders Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">@Model.TotalOrders</h3>
+                            <p class="mb-0">Total Orders</p>
+                        </div>
+                        <i class="fas fa-shopping-bag fa-2x opacity-75"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-info border-0">
+                    <a asp-controller="Seller" asp-action="Orders" class="text-white text-decoration-none">
+                        <small><i class="fas fa-eye me-1"></i>View All Orders</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Orders Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">@Model.PendingOrders</h3>
+                            <p class="mb-0">Pending Orders</p>
+                        </div>
+                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-warning border-0">
+                    <a asp-controller="Seller" asp-action="Orders" asp-route-status="Pending"
+                       class="text-white text-decoration-none">
+                        <small><i class="fas fa-tasks me-1"></i>Process Orders</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Revenue Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">Rs. @Model.TotalRevenue.ToString("N0")</h3>
+                            <p class="mb-0">Total Revenue</p>
+                        </div>
+                        <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-success border-0">
+                    <small><i class="fas fa-info-circle me-1"></i>From Delivered Orders</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards - Row 2 -->
+    <div class="row mb-4">
+        <!-- Questions Card -->
         <div class="col-md-3 mb-3">
             <div class="card bg-primary text-white h-100">
                 <div class="card-body">
@@ -45,14 +109,14 @@
                     </div>
                 </div>
                 <div class="card-footer bg-primary border-0">
-                    <a href="@Url.Action("Comments")" class="text-white text-decoration-none">
+                    <a asp-controller="Seller" asp-action="Comments" class="text-white text-decoration-none">
                         <small><i class="fas fa-eye me-1"></i>View All</small>
                     </a>
                 </div>
-               
             </div>
         </div>
 
+        <!-- Pending Replies Card -->
         <div class="col-md-3 mb-3">
             <div class="card bg-primary text-white h-100">
                 <div class="card-body">
@@ -61,50 +125,165 @@
                             <h3 class="mb-1">@Model.PendingComments</h3>
                             <p class="mb-0">Pending Replies</p>
                         </div>
-                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                        <i class="fas fa-reply fa-2x opacity-75"></i>
                     </div>
                 </div>
                 <div class="card-footer bg-primary border-0">
-                    <a href="@Url.Action("Comments", new { filter = "pending" })" class="text-white text-decoration-none">
+                    <a asp-controller="Seller" asp-action="Comments" asp-route-filter="pending"
+                       class="text-white text-decoration-none">
                         <small><i class="fas fa-reply me-1"></i>Reply Now</small>
                     </a>
                 </div>
-                
             </div>
         </div>
 
+        <!-- Shipped Orders Card -->
         <div class="col-md-3 mb-3">
-            <div class="card bg-primary text-white h-100">
+            <div class="card bg-info text-white h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h3 class="mb-1">@(Model.TotalComments - Model.PendingComments)</h3>
-                            <p class="mb-0">Replied Questions</p>
+                            <h3 class="mb-1">@Model.ShippedOrders</h3>
+                            <p class="mb-0">Shipped Orders</p>
                         </div>
-                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                        <i class="fas fa-shipping-fast fa-2x opacity-75"></i>
                     </div>
                 </div>
-
-                <div class="card-footer bg-primary border-0">
-                    <a href="@Url.Action("Comments", new { filter = "replied" })" class="text-white text-decoration-none">
-                        <small><i class="fas fa-eye me-1"></i>View Replied</small>
+                <div class="card-footer bg-info border-0">
+                    <a asp-controller="Seller" asp-action="Orders" asp-route-status="Shipped"
+                       class="text-white text-decoration-none">
+                        <small><i class="fas fa-eye me-1"></i>View Shipped</small>
                     </a>
                 </div>
-               
+            </div>
+        </div>
+
+        <!-- Notifications Card -->
+        <div class="col-md-3 mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">@Model.UnreadNotifications</h3>
+                            <p class="mb-0">New Notifications</p>
+                        </div>
+                        <i class="fas fa-bell fa-2x opacity-75"></i>
+                    </div>
+                </div>
+                <div class="card-footer bg-danger border-0">
+                    <a asp-controller="Seller" asp-action="Notifications"
+                       class="text-white text-decoration-none">
+                        <small><i class="fas fa-eye me-1"></i>View All</small>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Activity -->
+    <!-- Content Sections -->
     <div class="row">
-        <!-- Recent Comments -->
+        <!-- Recent Orders Section -->
         <div class="col-lg-8 mb-4">
+            <!-- Recent Orders -->
+            <div class="card mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart text-info me-2"></i>Recent Orders
+                    </h5>
+                    <a class="btn btn-sm btn-outline-primary" asp-controller="Seller" asp-action="Orders">
+                        <i class="fas fa-eye me-1"></i>View All
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.RecentOrders.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Product</th>
+                                        <th>Customer</th>
+                                        <th>Qty</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.RecentOrders)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <small class="text-primary fw-semibold">@order.OrderNumber</small>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @if (!string.IsNullOrEmpty(order.ProductImage))
+                                                    {
+                                                        <img src="data:image/jpeg;base64,@order.ProductImage"
+                                                             class="rounded me-2"
+                                                             style="width: 40px; height: 40px; object-fit: cover;">
+                                                    }
+                                                    <small>@order.ProductName</small>
+                                                </div>
+                                            </td>
+                                            <td><small>@order.BuyerName</small></td>
+                                            <td><small>@order.Quantity</small></td>
+                                            <td><small class="text-success fw-semibold">Rs. @order.Total.ToString("N2")</small></td>
+                                            <td>
+                                                @if (order.OrderStatus == "Pending")
+                                                {
+                                                    <span class="badge bg-warning">Pending</span>
+                                                }
+                                                else if (order.OrderStatus == "Confirmed")
+                                                {
+                                                    <span class="badge bg-info">Confirmed</span>
+                                                }
+                                                else if (order.OrderStatus == "Shipped")
+                                                {
+                                                    <span class="badge bg-primary">Shipped</span>
+                                                }
+                                                else if (order.OrderStatus == "Delivered")
+                                                {
+                                                    <span class="badge bg-success">Delivered</span>
+                                                }
+                                                else if (order.OrderStatus == "Cancelled")
+                                                {
+                                                    <span class="badge bg-danger">Cancelled</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a asp-controller="Seller" asp-action="OrderDetails"
+                                                   asp-route-id="@order.OrderItemId"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-bag fa-4x text-muted mb-3"></i>
+                            <p class="text-muted">No orders yet.</p>
+                            <p class="small text-muted">Orders will appear here when customers purchase your products.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Recent Comments -->
             <div class="card">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-comment-dots text-info me-2"></i>Recent Customer Questions
                     </h5>
-                    <a  class="btn btn-sm btn-outline-primary" asp-controller="Seller" asp-action="Comments">
+                    <a class="btn btn-sm btn-outline-primary" asp-controller="Seller" asp-action="Comments">
                         <i class="fas fa-eye me-1"></i>View All
                     </a>
                 </div>
@@ -115,7 +294,8 @@
                         {
                             <div class="d-flex align-items-start mb-3 pb-3 border-bottom">
                                 <div class="flex-shrink-0">
-                                    <div  text-white d-flex align-items-center justify-content-center" >
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                         style="width: 40px; height: 40px;">
                                         <i class="fas fa-user"></i>
                                     </div>
                                 </div>
@@ -124,14 +304,15 @@
                                         <div>
                                             <strong>@comment.UserName</strong>
                                             <small class="text-muted ms-2">asked about</small>
-                                            <span class="badge  text-black">@comment.ProductName</span>
+                                            <span class="badge bg-light text-dark">@comment.ProductName</span>
                                         </div>
                                         <small class="text-muted">@comment.CreatedAt.ToString("MMM dd, hh:mm tt")</small>
                                     </div>
                                     <p class="mb-2 text-muted">@comment.CommentText</p>
                                     @if (!comment.HasReply)
                                     {
-                                        <a href="@Url.Action("Comments", new { filter = "pending" })" class="btn btn-sm btn-outline-primary ">
+                                        <a asp-controller="Seller" asp-action="Comments" asp-route-filter="pending"
+                                           class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-reply me-1"></i>Reply
                                         </a>
                                     }
@@ -157,58 +338,111 @@
             </div>
         </div>
 
-        <!-- Quick Actions -->
+        <!-- Right Sidebar -->
         <div class="col-lg-4 mb-4">
-            <div class="card">
+            <!-- Notifications -->
+            <div class="card mb-3">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bell text-danger me-2"></i>Recent Notifications
+                    </h6>
+                    @if (Model.UnreadNotifications > 0)
+                    {
+                        <span class="badge bg-danger">@Model.UnreadNotifications New</span>
+                    }
+                </div>
+                <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;">
+                    @if (Model.RecentNotifications.Any())
+                    {
+                        @foreach (var notification in Model.RecentNotifications)
+                        {
+                            <div class="p-3 border-bottom @(notification.IsRead ? "" : "bg-light")">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas @(notification.NotificationType == "NewOrder" ? "fa-shopping-cart text-success" : "fa-times-circle text-danger") me-2 mt-1"></i>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 small fw-semibold">@notification.Title</h6>
+                                        <p class="mb-1 small text-muted">@notification.Message</p>
+                                        <small class="text-muted">@notification.CreatedAt.ToString("MMM dd, hh:mm tt")</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="p-2 text-center">
+                            <a asp-controller="Seller" asp-action="Notifications" class="btn btn-sm btn-outline-primary">
+                                View All Notifications
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
+                            <p class="mb-0 small text-muted">No notifications</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mb-3">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0">
+                    <h6 class="mb-0">
                         <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
-                    </h5>
+                    </h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
+                        @if (Model.PendingOrders > 0)
+                        {
+                            <a asp-controller="Seller" asp-action="Orders" asp-route-status="Pending"
+                               class="btn btn-outline-warning">
+                                <i class="fas fa-tasks me-2"></i>Process Orders (@Model.PendingOrders)
+                            </a>
+                        }
+
                         @if (Model.PendingComments > 0)
                         {
-                            <a href="@Url.Action("Comments", new { filter = "pending" })" class="btn btn-outline-primary">
+                            <a asp-controller="Seller" asp-action="Comments" asp-route-filter="pending"
+                               class="btn btn-outline-primary">
                                 <i class="fas fa-reply me-2"></i>Reply to Questions (@Model.PendingComments)
                             </a>
                         }
 
-                        <a href="@Url.Action("Comments")" class="btn btn-outline-primary">
-                            <i class="fas fa-comments me-2"></i>Manage All Comments
+                        <a asp-controller="Seller" asp-action="Orders" class="btn btn-outline-info">
+                            <i class="fas fa-shopping-bag me-2"></i>View All Orders
                         </a>
 
                         <a asp-controller="AddProduct" asp-action="Index" class="btn btn-outline-primary">
-                            <i class="fas fa-box me-2"></i>View My Products
-                        </a>
-
-                        <a asp-controller="Seller" asp-action="Profile" class="btn btn-outline-primary">
-                            <i class="fas fa-user-cog me-2"></i>Edit Profile
+                            <i class="fas fa-box me-2"></i>Manage Products
                         </a>
                     </div>
                 </div>
             </div>
 
             <!-- Tips Card -->
-            <div class="card mt-3">
+            <div class="card">
                 <div class="card-header bg-light">
                     <h6 class="mb-0">
                         <i class="fas fa-lightbulb text-warning me-2"></i>Tips for Success
                     </h6>
                 </div>
                 <div class="card-body">
-                    <ul class="list-unstyled mb-0">
+                    <ul class="list-unstyled mb-0 small">
                         <li class="mb-2">
                             <i class="fas fa-check text-success me-2"></i>
-                            <small>Reply to customer questions quickly to build trust</small>
+                            Process pending orders quickly
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-check text-success me-2"></i>
-                            <small>Be detailed and helpful in your responses</small>
+                            Reply to customer questions within 24 hours
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Update order status promptly
                         </li>
                         <li class="mb-0">
                             <i class="fas fa-check text-success me-2"></i>
-                            <small>Professional replies improve your reputation</small>
+                            Maintain good product stock levels
                         </li>
                     </ul>
                 </div>
@@ -259,17 +493,23 @@
             }
 
             document.getElementById("chatbot-input").value = "";
-            messages.scrollTop = messages.scrollHeight; // auto-scroll
+            messages.scrollTop = messages.scrollHeight;
         };
+
+        // Auto-refresh notification count
+        setInterval(async function() {
+            try {
+                const response = await fetch('@Url.Action("GetUnreadCount", "Seller")');
+                const data = await response.json();
+                if (data.count > 0) {
+                    document.title = `(${data.count}) Seller Dashboard`;
+                }
+            } catch(e) {}
+        }, 30000); // Every 30 seconds
     </script>
 }
 
-
 <style>
-    .avatar-circle {
-        font-size: 0.9rem;
-    }
-
     .card {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
@@ -279,23 +519,11 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-    .bg-primary .card-footer {
-        background-color: rgba(255,255,255,0.1) !important;
-    }
-
-    .bg-info .card-footer {
-        background-color: rgba(255,255,255,0.1) !important;
-    }
-
-    .bg-warning .card-footer {
-        background-color: rgba(255,255,255,0.1) !important;
-    }
-
-    .bg-success .card-footer {
-        background-color: rgba(255,255,255,0.1) !important;
-    }
-
     .opacity-75 {
         opacity: 0.75;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,123,255,0.05);
     }
 </style>

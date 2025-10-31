@@ -363,18 +363,18 @@ namespace ClzProject.Controllers
             var currentAdmin = await _userManager.GetUserAsync(User);
 
             // Create notification for seller
-            var notification = new ProductDeletionNotification
-            {
-                SellerId = product.SellerId,
-                ProductName = product.ProductName,
-                DeletionReason = model.DeletionReason,
-                AdminName = currentAdmin?.FullName ?? "Admin",
-                DeletedAt = DateTime.Now,
-                IsRead = false
-            };
+            //var notification = new ProductDeletionNotification
+            //{
+            //    SellerId = product.SellerId,
+            //    ProductName = product.ProductName,
+            //    DeletionReason = model.DeletionReason,
+            //    AdminName = currentAdmin?.FullName ?? "Admin",
+            //    DeletedAt = DateTime.Now,
+            //    IsRead = false
+            //};
 
             // Save notification
-            _context.ProductDeletionNotifications.Add(notification);
+            //_context.ProductDeletionNotifications.Add(notification);
 
             // Delete the product
             _context.Product.Remove(product);

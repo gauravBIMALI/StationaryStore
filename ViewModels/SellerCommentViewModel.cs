@@ -43,5 +43,17 @@ namespace ClzProject.ViewModels
         public int TotalComments { get; set; }
         public List<SellerCommentViewModel> RecentComments { get; set; } = new List<SellerCommentViewModel>();
         public List<SellerProductViewModel> RecentProducts { get; set; } = new List<SellerProductViewModel>();
+
+        // NEW: Orders Stats
+        public int TotalOrders { get; set; }
+        public int PendingOrders { get; set; }
+        public int ShippedOrders { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public List<SellerOrderViewModel> RecentOrders { get; set; } = new List<SellerOrderViewModel>();
+
+        // NEW: Notifications
+        public int UnreadNotifications { get; set; }
+        public List<SellerNotification> RecentNotifications { get; set; } = new List<SellerNotification>();
+
     }
 }

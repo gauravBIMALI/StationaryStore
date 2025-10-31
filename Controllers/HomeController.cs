@@ -707,6 +707,124 @@ namespace UserRoles.Controllers
         }
 
         // POST: Place Order
+        //[HttpPost]
+        //[Authorize]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> PlaceOrder(CheckoutViewModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        // Reload cart items if validation fails
+        //        var userId = GetCurrentUserId();
+        //        model.CartItems = await _context.Carts
+        //            .Where(c => c.BuyerId == userId)
+        //            .Include(c => c.Product)
+        //            .Select(c => new CartItemViewModel
+        //            {
+        //                ProductID = c.ProductId,
+        //                ProductName = c.Product.ProductName,
+        //                ProductPrice = c.Product.ProductPrice,
+        //                Quantity = c.Quantity,
+        //                Image = c.Product.Image,
+        //                AvailableStock = c.Product.ProductQuantity
+        //            })
+        //            .ToListAsync();
+
+        //        model.SubTotal = model.CartItems.Sum(i => i.SubTotal);
+        //        model.TotalAmount = model.SubTotal + model.DeliveryFee;
+
+        //        return View("Checkout", model);
+        //    }
+
+        //    try
+        //    {
+        //        var userId = GetCurrentUserId();
+
+        //        // Get cart items
+        //        var cartItems = await _context.Carts
+        //            .Where(c => c.BuyerId == userId)
+        //            .Include(c => c.Product)
+        //            .ToListAsync();
+
+
+        //        if (!cartItems.Any())
+        //        {
+        //            TempData["ErrorMessage"] = "Your cart is empty";
+        //            return RedirectToAction("Cart");
+        //        }
+
+        //        // Calculate subtotal from cart
+        //        decimal subtotal = cartItems.Sum(c => c.Product.ProductPrice * c.Quantity);
+
+        //        // Verify stock availability
+        //        foreach (var cartItem in cartItems)
+        //        {
+        //            if (cartItem.Product.ProductQuantity < cartItem.Quantity)
+        //            {
+        //                TempData["ErrorMessage"] = $"Insufficient stock for {cartItem.Product.ProductName}";
+        //                return RedirectToAction("Checkout");
+        //            }
+        //        }
+
+        //        // Generate Order Number
+        //        var orderNumber = $"ORD-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+
+        //        // Create Order - FIXED: Store subtotal in TotalAmount
+        //        var order = new Order
+        //        {
+        //            OrderNumber = orderNumber,
+        //            BuyerId = userId,
+        //            TotalAmount = subtotal,
+        //            DeliveryFee = model.DeliveryFee,
+        //            PaymentMethod = model.PaymentMethod,
+        //            OrderStatus = "Pending",
+        //            PaymentStatus = model.PaymentMethod == "COD" ? "Pending" : "Pending",
+        //            DeliveryName = model.DeliveryName,
+        //            DeliveryPhone = model.DeliveryPhone,
+        //            DeliveryAddress = model.DeliveryAddress,
+        //            DeliveryCity = model.DeliveryCity,
+        //            DeliveryState = model.DeliveryState,
+        //            DeliveryNote = model.DeliveryNote,
+        //            OrderDate = DateTime.Now
+        //        };
+
+        //        _context.Orders.Add(order);
+        //        await _context.SaveChangesAsync();
+
+        //        // Create Order Items and Update Stock
+        //        foreach (var cartItem in cartItems)
+        //        {
+        //            var orderItem = new OrderItem
+        //            {
+        //                OrderId = order.OrderId,
+        //                ProductId = cartItem.ProductId,
+        //                ProductName = cartItem.Product.ProductName,
+        //                Price = cartItem.Product.ProductPrice,
+        //                Quantity = cartItem.Quantity,
+        //                SellerId = cartItem.Product.SellerId,
+        //                ProductImage = cartItem.Product.Image
+        //            };
+
+        //            _context.OrderItems.Add(orderItem);
+
+        //            // Update product stock
+        //            cartItem.Product.ProductQuantity -= cartItem.Quantity;
+        //        }
+
+        //        // Clear cart
+        //        _context.Carts.RemoveRange(cartItems);
+
+        //        await _context.SaveChangesAsync();
+
+        //        TempData["SuccessMessage"] = "Order placed successfully!";
+        //        return RedirectToAction("OrderConfirmation", new { orderNumber = orderNumber });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["ErrorMessage"] = "Failed to place order. Please try again.";
+        //        return RedirectToAction("Checkout");
+        //    }
+        //}
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -748,32 +866,32 @@ namespace UserRoles.Controllers
 
                 if (!cartItems.Any())
                 {
-                    TempData["ErrorMessage"] = "Your cart is empty";
+                    TempData["ErrorMessage"] = "Your cart is empty.";
                     return RedirectToAction("Cart");
                 }
-
-                // Calculate subtotal from cart
-                decimal subtotal = cartItems.Sum(c => c.Product.ProductPrice * c.Quantity);
 
                 // Verify stock availability
                 foreach (var cartItem in cartItems)
                 {
                     if (cartItem.Product.ProductQuantity < cartItem.Quantity)
                     {
-                        TempData["ErrorMessage"] = $"Insufficient stock for {cartItem.Product.ProductName}";
+                        TempData["ErrorMessage"] = $"Insufficient stock for {cartItem.Product.ProductName}.";
                         return RedirectToAction("Checkout");
                     }
                 }
 
+                // Calculate subtotal
+                decimal subtotal = cartItems.Sum(c => c.Product.ProductPrice * c.Quantity);
+
                 // Generate Order Number
                 var orderNumber = $"ORD-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
 
-                // Create Order - FIXED: Store subtotal in TotalAmount
+                // Create Order
                 var order = new Order
                 {
                     OrderNumber = orderNumber,
                     BuyerId = userId,
-                    TotalAmount = subtotal, // ✅ FIXED: This is now the subtotal
+                    TotalAmount = subtotal,
                     DeliveryFee = model.DeliveryFee,
                     PaymentMethod = model.PaymentMethod,
                     OrderStatus = "Pending",
@@ -806,8 +924,32 @@ namespace UserRoles.Controllers
 
                     _context.OrderItems.Add(orderItem);
 
-                    // Update product stock
+                    // Update stock
                     cartItem.Product.ProductQuantity -= cartItem.Quantity;
+                }
+
+                // ✅ Create Seller Notifications before clearing cart
+                var sellerGroups = cartItems.GroupBy(c => c.Product.SellerId);
+
+                foreach (var sellerGroup in sellerGroups)
+                {
+                    var sellerId = sellerGroup.Key;
+                    var sellerItems = sellerGroup.ToList();
+                    var itemCount = sellerItems.Sum(c => c.Quantity);
+                    var sellerTotal = sellerItems.Sum(c => c.Product.ProductPrice * c.Quantity);
+
+                    var notification = new SellerNotification
+                    {
+                        SellerId = sellerId,
+                        NotificationType = "NewOrder",
+                        Title = "New Order Received",
+                        Message = $"You have received a new order ({order.OrderNumber}) with {itemCount} item(s) worth Rs. {sellerTotal:N2}.",
+                        OrderId = order.OrderId,
+                        IsRead = false,
+                        CreatedAt = DateTime.Now
+                    };
+
+                    _context.SellerNotifications.Add(notification);
                 }
 
                 // Clear cart
@@ -816,10 +958,11 @@ namespace UserRoles.Controllers
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Order placed successfully!";
-                return RedirectToAction("OrderConfirmation", new { orderNumber = orderNumber });
+                return RedirectToAction("OrderConfirmation", new { orderNumber });
             }
             catch (Exception ex)
             {
+                // Optional: log error (ex)
                 TempData["ErrorMessage"] = "Failed to place order. Please try again.";
                 return RedirectToAction("Checkout");
             }
@@ -942,6 +1085,27 @@ namespace UserRoles.Controllers
                 }
 
                 order.OrderStatus = "Cancelled";
+
+                var orderItems = order.OrderItems.ToList();
+                var sellerGroups = orderItems.GroupBy(oi => oi.SellerId);
+
+                foreach (var sellerGroup in sellerGroups)
+                {
+                    var sellerId = sellerGroup.Key;
+
+                    var notification = new SellerNotification
+                    {
+                        SellerId = sellerId,
+                        NotificationType = "OrderCancelled",
+                        Title = "Order Cancelled",
+                        Message = $"Order {order.OrderNumber} has been cancelled by the buyer",
+                        OrderId = order.OrderId,
+                        IsRead = false,
+                        CreatedAt = DateTime.Now
+                    };
+
+                    _context.SellerNotifications.Add(notification);
+                }
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Order cancelled successfully";

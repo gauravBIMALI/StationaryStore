@@ -27,6 +27,10 @@ namespace ClzProject.Controllers
             this.signInManager = signInManager;
             this.userManager = userManager;
         }
+        private string GetSellerId()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        }
 
 
         //This is for edit profile
@@ -181,33 +185,21 @@ namespace ClzProject.Controllers
         }
 
 
-        //notification
-        [Authorize(Roles = "Seller")]
-        public async Task<IActionResult> Notifications()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var notifications = await _context.ProductDeletionNotifications
-                .Where(n => n.SellerId == userId)
-                .OrderByDescending(n => n.DeletedAt)
-                .ToListAsync();
 
-            return View(notifications);
-        }
+        //[HttpPost]
+        //[Authorize(Roles = "Seller")]
+        //public async Task<IActionResult> MarkAsRead(int id)
+        //{
+        //    var notification = await _context.ProductDeletionNotifications.FindAsync(id);
+        //    if (notification != null && notification.SellerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+        //    {
+        //        notification.IsRead = true;
+        //        await _context.SaveChangesAsync();
+        //    }
 
-        [HttpPost]
-        [Authorize(Roles = "Seller")]
-        public async Task<IActionResult> MarkAsRead(int id)
-        {
-            var notification = await _context.ProductDeletionNotifications.FindAsync(id);
-            if (notification != null && notification.SellerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-            {
-                notification.IsRead = true;
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Notifications));
-        }
+        //    return RedirectToAction(nameof(Notifications));
+        //}
 
         public async Task<IActionResult> Dashboard()
         {
@@ -248,12 +240,90 @@ namespace ClzProject.Controllers
                 })
                 .ToListAsync();
 
+            // NEW: Get Orders Stats
+            var orderItemsQuery = _context.OrderItems
+                .Where(oi => oi.SellerId == sellerId)
+                .Include(oi => oi.Order);
+
+            var totalOrders = await orderItemsQuery
+                .Select(oi => oi.OrderId)
+                .Distinct()
+                .CountAsync();
+
+            var pendingOrders = await orderItemsQuery
+                .Where(oi => oi.Order.OrderStatus == "Pending")
+                .Select(oi => oi.OrderId)
+                .Distinct()
+                .CountAsync();
+
+            var shippedOrders = await orderItemsQuery
+                .Where(oi => oi.Order.OrderStatus == "Shipped")
+                .Select(oi => oi.OrderId)
+                .Distinct()
+                .CountAsync();
+
+            var totalRevenue = await orderItemsQuery
+                .Where(oi => oi.Order.OrderStatus == "Delivered")
+                .SumAsync(oi => oi.Price * oi.Quantity);
+
+            // NEW: Get Recent Orders
+            var recentOrders = await _context.OrderItems
+                .Where(oi => oi.SellerId == sellerId)
+                .Include(oi => oi.Order)
+                .ThenInclude(o => o.Buyer)
+                .Include(oi => oi.Product)
+                .OrderByDescending(oi => oi.Order.OrderDate)
+                .Take(5)
+                .Select(oi => new SellerOrderViewModel
+                {
+                    OrderId = oi.OrderId,
+                    OrderItemId = oi.OrderItemId,
+                    OrderNumber = oi.Order.OrderNumber,
+                    ProductName = oi.ProductName,
+                    ProductId = oi.ProductId,
+                    Quantity = oi.Quantity,
+                    Price = oi.Price,
+                    Total = oi.Price * oi.Quantity,
+                    OrderDate = oi.Order.OrderDate,
+                    OrderStatus = oi.Order.OrderStatus,
+                    PaymentMethod = oi.Order.PaymentMethod,
+                    BuyerName = oi.Order.Buyer.FullName ?? "",
+                    DeliveryName = oi.Order.DeliveryName,
+                    DeliveryPhone = oi.Order.DeliveryPhone,
+                    DeliveryAddress = oi.Order.DeliveryAddress,
+                    DeliveryCity = oi.Order.DeliveryCity,
+                    ProductImage = oi.ProductImage
+                })
+                .ToListAsync();
+
+            // NEW: Get Notifications
+            var unreadNotifications = await _context.SellerNotifications
+                .Where(n => n.SellerId == sellerId && !n.IsRead)
+                .CountAsync();
+
+            var recentNotifications = await _context.SellerNotifications
+                .Where(n => n.SellerId == sellerId)
+                .OrderByDescending(n => n.CreatedAt)
+                .Take(5)
+                .ToListAsync();
+
             var dashboardData = new SellerDashboardViewModel
             {
                 TotalProducts = productsCount,
                 PendingComments = pendingCommentsCount,
                 TotalComments = totalCommentsCount,
-                RecentComments = recentComments
+                RecentComments = recentComments,
+
+                // NEW: Orders Data
+                TotalOrders = totalOrders,
+                PendingOrders = pendingOrders,
+                ShippedOrders = shippedOrders,
+                TotalRevenue = totalRevenue,
+                RecentOrders = recentOrders,
+
+                // NEW: Notifications
+                UnreadNotifications = unreadNotifications,
+                RecentNotifications = recentNotifications
             };
 
             return View(dashboardData);
@@ -347,7 +417,6 @@ namespace ClzProject.Controllers
             return Json(new { success = true, comments = comments, productName = product.ProductName });
         }
 
-        // Reply to comment (AJAX) - Only product owner can reply
         [HttpPost]
         public async Task<IActionResult> ReplyToComment([FromBody] SellerReplyViewModel model)
         {
@@ -435,6 +504,210 @@ namespace ClzProject.Controllers
 
             return View(products);
         }
+
+        // GET: Seller Orders
+        public async Task<IActionResult> Orders(string status = "All")
+        {
+            try
+            {
+                var sellerId = GetSellerId();
+
+                var ordersQuery = _context.OrderItems
+                    .Where(oi => oi.SellerId == sellerId)
+                    .Include(oi => oi.Order)
+                    .ThenInclude(o => o.Buyer)
+                    .Include(oi => oi.Product)
+                    .AsQueryable();
+
+                if (status != "All")
+                {
+                    ordersQuery = ordersQuery.Where(oi => oi.Order.OrderStatus == status);
+                }
+
+                var orders = await ordersQuery
+                    .OrderByDescending(oi => oi.Order.OrderDate)
+                    .Select(oi => new SellerOrderViewModel
+                    {
+                        OrderId = oi.OrderId,
+                        OrderItemId = oi.OrderItemId,
+                        OrderNumber = oi.Order.OrderNumber,
+                        ProductName = oi.ProductName,
+                        ProductId = oi.ProductId,
+                        Quantity = oi.Quantity,
+                        Price = oi.Price,
+                        Total = oi.Price * oi.Quantity,
+                        OrderDate = oi.Order.OrderDate,
+                        OrderStatus = oi.Order.OrderStatus,
+                        PaymentMethod = oi.Order.PaymentMethod,
+                        BuyerName = oi.Order.Buyer.FullName ?? "",
+                        BuyerPhone = oi.Order.Buyer.PhoneNumber ?? "",
+                        DeliveryName = oi.Order.DeliveryName,
+                        DeliveryPhone = oi.Order.DeliveryPhone,
+                        DeliveryAddress = oi.Order.DeliveryAddress,
+                        DeliveryCity = oi.Order.DeliveryCity,
+                        DeliveryState = oi.Order.DeliveryState,
+                        DeliveryNote = oi.Order.DeliveryNote,
+                        ProductImage = oi.ProductImage
+                    })
+                    .ToListAsync();
+
+                ViewBag.CurrentStatus = status;
+                return View(orders);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to load orders";
+                return View(new List<SellerOrderViewModel>());
+            }
+        }
+
+        // GET: Order Details
+        public async Task<IActionResult> OrderDetails(int id)
+        {
+            try
+            {
+                var sellerId = GetSellerId();
+
+                var orderItem = await _context.OrderItems
+                    .Include(oi => oi.Order)
+                    .ThenInclude(o => o.Buyer)
+                    .Include(oi => oi.Product)
+                    .FirstOrDefaultAsync(oi => oi.OrderItemId == id && oi.SellerId == sellerId);
+
+                if (orderItem == null)
+                {
+                    TempData["ErrorMessage"] = "Order not found";
+                    return RedirectToAction("Orders");
+                }
+
+                var viewModel = new SellerOrderViewModel
+                {
+                    OrderId = orderItem.OrderId,
+                    OrderItemId = orderItem.OrderItemId,
+                    OrderNumber = orderItem.Order.OrderNumber,
+                    ProductName = orderItem.ProductName,
+                    ProductId = orderItem.ProductId,
+                    Quantity = orderItem.Quantity,
+                    Price = orderItem.Price,
+                    Total = orderItem.Price * orderItem.Quantity,
+                    OrderDate = orderItem.Order.OrderDate,
+                    OrderStatus = orderItem.Order.OrderStatus,
+                    PaymentMethod = orderItem.Order.PaymentMethod,
+                    BuyerName = orderItem.Order.Buyer.FullName ?? "",
+                    BuyerPhone = orderItem.Order.Buyer.PhoneNumber ?? "",
+                    DeliveryName = orderItem.Order.DeliveryName,
+                    DeliveryPhone = orderItem.Order.DeliveryPhone,
+                    DeliveryAddress = orderItem.Order.DeliveryAddress,
+                    DeliveryCity = orderItem.Order.DeliveryCity,
+                    DeliveryState = orderItem.Order.DeliveryState,
+                    DeliveryNote = orderItem.Order.DeliveryNote,
+                    ProductImage = orderItem.ProductImage
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to load order details";
+                return RedirectToAction("Orders");
+            }
+        }
+
+        // GET: Notifications
+        public async Task<IActionResult> Notifications()
+        {
+            try
+            {
+                var sellerId = GetSellerId();
+
+                var notifications = await _context.SellerNotifications
+                    .Where(n => n.SellerId == sellerId)
+                    .OrderByDescending(n => n.CreatedAt)
+                    .ToListAsync();
+
+                return View(notifications);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to load notifications";
+                return View(new List<SellerNotification>());
+            }
+        }
+
+        // POST: Mark Notification as Read
+        [HttpPost]
+        public async Task<IActionResult> MarkAsRead(int id)
+        {
+            try
+            {
+                var sellerId = GetSellerId();
+
+                var notification = await _context.SellerNotifications
+                    .FirstOrDefaultAsync(n => n.NotificationId == id && n.SellerId == sellerId);
+
+                if (notification != null)
+                {
+                    notification.IsRead = true;
+                    await _context.SaveChangesAsync();
+                }
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return Json(new { success = false });
+            }
+        }
+
+        // POST: Mark All Notifications as Read
+        [HttpPost]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            try
+            {
+                var sellerId = GetSellerId();
+
+                var notifications = await _context.SellerNotifications
+                    .Where(n => n.SellerId == sellerId && !n.IsRead)
+                    .ToListAsync();
+
+                foreach (var notification in notifications)
+                {
+                    notification.IsRead = true;
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "All notifications marked as read";
+                return RedirectToAction("Notifications");
+            }
+            catch
+            {
+                TempData["ErrorMessage"] = "Failed to mark notifications as read";
+                return RedirectToAction("Notifications");
+            }
+        }
+
+        // GET: Get Unread Notification Count
+        [HttpGet]
+        public async Task<IActionResult> GetUnreadCount()
+        {
+            try
+            {
+                var sellerId = GetSellerId();
+
+                var count = await _context.SellerNotifications
+                    .Where(n => n.SellerId == sellerId && !n.IsRead)
+                    .CountAsync();
+
+                return Json(new { count });
+            }
+            catch
+            {
+                return Json(new { count = 0 });
+            }
+        }
+
 
     }
 }

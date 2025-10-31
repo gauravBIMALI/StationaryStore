@@ -1,4 +1,5 @@
 ﻿using ClzProject.Models;
+using ClzProject.ViewModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using UserRoles.Models;
@@ -17,7 +18,7 @@ namespace UserRoles.Data
         public DbSet<Category> Category { get; set; } = default!;
         public DbSet<Product> Product { get; set; } = default!;
         public object Products { get; internal set; }
-        public DbSet<ProductDeletionNotification> ProductDeletionNotifications { get; set; }
+
         public DbSet<ClzProject.Models.AdminContact> AdminContact { get; set; } = default!;
         public DbSet<ClzProject.Models.BuyerContactMessage> BuyerContactMessages { get; set; } = default!;
         public DbSet<Order> Orders { get; set; } = default!;
@@ -30,7 +31,7 @@ namespace UserRoles.Data
         public DbSet<ProductCommentReply> ProductCommentReplies { get; set; } = default!;
         //Cart feature
         public DbSet<Cart> Carts { get; set; } = default!;
-
+        public DbSet<SellerNotification> SellerNotifications { get; set; } = default!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -101,6 +102,20 @@ namespace UserRoles.Data
                 .WithMany()
                 .HasForeignKey(oi => oi.SellerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Notification configuration
+            modelBuilder.Entity<SellerNotification>()
+                .HasOne(n => n.Seller)
+                .WithMany()
+                .HasForeignKey(n => n.SellerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SellerNotification>()
+                .HasOne(n => n.Order)
+                .WithMany()
+                .HasForeignKey(n => n.OrderId)
+                .OnDelete(DeleteBehavior.SetNull);
+
 
         }
     }

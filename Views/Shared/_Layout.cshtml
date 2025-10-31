@@ -146,26 +146,37 @@
                                 </a>
                             </li>
 
-                            @* NEW: Contact admin with business application *@
-                            <li class="nav-item">
-                                <a class="nav-link" style="color: black;" asp-controller="BuyerContact" asp-action="Create">
-                                    <i class="fas fa-business-time me-1"></i>Business Application
+                            <!-- Business Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="businessDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: black;">
+                                    <i class="fas fa-briefcase me-1"></i>Business
                                 </a>
+                                <ul class="dropdown-menu" aria-labelledby="businessDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="BuyerContact" asp-action="Create">
+                                            <i class="fas fa-business-time me-1"></i>Apply for Business
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="BuyerContact" asp-action="MySubmissions">
+                                            <i class="fas fa-file-alt me-1"></i>My Applications
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
 
-                            @* NEW: View submitted applications *@
-                            <li class="nav-item">
-                                <a class="nav-link" style="color: black;" asp-controller="BuyerContact" asp-action="MySubmissions">
-                                    <i class="fas fa-file-alt me-1"></i>My Applications
-                                </a>
-                            </li>
                             <li class="nav-item position-relative me-3">
-                                <a class="nav-link" asp-controller="Home" asp-action="Cart" title="Shopping Cart">
-                                    <i class="fas fa-shopping-cart fa-lg"></i>
+                                <a class="nav-link" style="color: black;" asp-controller="Home" asp-action="Cart" title="Shopping Cart">
+                                    <i class="fas fa-shopping-cart fa-lg"></i>Cart
                                     <span class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                                           style="display: none; font-size: 0.7rem;">
                                         0
                                     </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" style="color: black;" asp-controller="Home" asp-action="MyOrders">
+                                    <i class="fas fa-file-alt me-1"></i>My Orders
                                 </a>
                             </li>
                         }

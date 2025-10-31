@@ -20,13 +20,15 @@ namespace UserRoles.Data
         public DbSet<ProductDeletionNotification> ProductDeletionNotifications { get; set; }
         public DbSet<ClzProject.Models.AdminContact> AdminContact { get; set; } = default!;
         public DbSet<ClzProject.Models.BuyerContactMessage> BuyerContactMessages { get; set; } = default!;
+        public DbSet<Order> Orders { get; set; } = default!;
+        public DbSet<OrderItem> OrderItems { get; set; } = default!;
+
         public object Categories { get; internal set; }
 
         // Comment feature
         public DbSet<ProductComment> ProductComments { get; set; } = default!;
         public DbSet<ProductCommentReply> ProductCommentReplies { get; set; } = default!;
-
-        // ADD THIS - Cart feature
+        //Cart feature
         public DbSet<Cart> Carts { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,7 +60,7 @@ namespace UserRoles.Data
                 .HasForeignKey(r => r.SellerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // ADD THIS - Configure Cart relationships
+            //Configure Cart relationships
             modelBuilder.Entity<Cart>()
                 .HasIndex(c => new { c.BuyerId, c.ProductId })
                 .IsUnique();
@@ -74,6 +76,32 @@ namespace UserRoles.Data
                 .WithMany()
                 .HasForeignKey(c => c.BuyerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Order configurations
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Buyer)
+                .WithMany()
+                .HasForeignKey(o => o.BuyerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Order)
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Product)
+                .WithMany()
+                .HasForeignKey(oi => oi.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Seller)
+                .WithMany()
+                .HasForeignKey(oi => oi.SellerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

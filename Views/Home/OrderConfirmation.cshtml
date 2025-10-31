@@ -1,0 +1,147 @@
+﻿@model ClzProject.Models.Order
+
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Success Message -->
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                </div>
+                <h2 class="text-success fw-bold">Order Placed Successfully!</h2>
+                <p class="text-muted">Thank you for your order. We'll send you a confirmation email shortly.</p>
+            </div>
+
+            <!-- Order Details Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-receipt me-2"></i>Order Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <p class="mb-1 text-muted">Order Number</p>
+                            <h5 class="text-primary">@Model.OrderNumber</h5>
+                        </div>
+                        <div class="col-6 text-end">
+                            <p class="mb-1 text-muted">Order Date</p>
+                            <h6>@Model.OrderDate.ToString("dd MMM yyyy, hh:mm tt")</h6>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <p class="mb-1 text-muted">Payment Method</p>
+                            <p class="mb-0 fw-semibold">
+                                <i class="fas fa-money-bill-wave me-2"></i>@Model.PaymentMethod
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="mb-1 text-muted">Order Status</p>
+                            <span class="badge bg-warning">@Model.OrderStatus</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-shipping-fast me-2"></i>Delivery Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Name:</strong> @Model.DeliveryName</p>
+                    <p class="mb-1"><strong>Phone:</strong> @Model.DeliveryPhone</p>
+                    <p class="mb-1"><strong>Address:</strong> @Model.DeliveryAddress</p>
+                    <p class="mb-1"><strong>City:</strong> @Model.DeliveryCity</p>
+                    @if (!string.IsNullOrEmpty(Model.DeliveryNote))
+                    {
+                        <p class="mb-0"><strong>Note:</strong> @Model.DeliveryNote</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-box me-2"></i>Order Items (@Model.OrderItems.Count)
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <div class="p-3 border-bottom">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 col-3">
+                                    @if (!string.IsNullOrEmpty(item.ProductImage))
+                                    {
+                                        <img src="data:image/jpeg;base64,@item.ProductImage"
+                                             alt="@item.ProductName"
+                                             class="img-fluid rounded"
+                                             style="max-height: 80px; object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                             style="height: 80px;">
+                                            <i class="fas fa-image fa-2x text-muted"></i>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-md-6 col-9">
+                                    <h6 class="mb-1">@item.ProductName</h6>
+                                    <p class="mb-0 text-muted">Quantity: @item.Quantity</p>
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <p class="mb-0 text-muted">Rs. @item.Price.ToString("N2") × @item.Quantity</p>
+                                    <h6 class="text-success">Rs. @((item.Price * item.Quantity).ToString("N2"))</h6>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="mb-1">Subtotal:</p>
+                            <p class="mb-1">Delivery Fee:</p>
+                            <h5 class="mb-0 text-success">Total:</h5>
+                        </div>
+                        <div class="col-6 text-end">
+                            <p class="mb-1"><strong>Rs. @Model.TotalAmount.ToString("N2")</strong></p>
+                            <p class="mb-1"><strong>Rs. @Model.DeliveryFee.ToString("N2")</strong></p>
+                            <h5 class="mb-0 text-success">Rs. @((Model.TotalAmount + Model.DeliveryFee).ToString("N2"))</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center">
+                <a asp-action="Index" class="btn btn-primary btn-lg me-2">
+                    <i class="fas fa-home me-2"></i>Continue Shopping
+                </a>
+                <button onclick="window.print()" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-print me-2"></i>Print Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        .btn, nav, .breadcrumb {
+            display: none !important;
+        }
+    }
+</style>

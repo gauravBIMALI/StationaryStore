@@ -1,4 +1,4 @@
-using ClzProject.Models;
+﻿using ClzProject.Models;
 using ClzProject.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -648,9 +648,310 @@ namespace UserRoles.Controllers
             return RedirectToAction("Checkout", "Home"); // or redirect to Checkout
         }
 
-        public IActionResult Checkout()
+        // GET: Checkout Page
+        [Authorize]
+        public async Task<IActionResult> Checkout()
         {
-            return View();
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                // Get cart items
+                var cartItems = await _context.Carts
+                    .Where(c => c.BuyerId == userId)
+                    .Include(c => c.Product)
+                        .ThenInclude(p => p.Seller)
+                    .Select(c => new CartItemViewModel
+                    {
+                        ProductID = c.ProductId,
+                        ProductName = c.Product.ProductName,
+                        ProductPrice = c.Product.ProductPrice,
+                        Quantity = c.Quantity,
+                        Image = c.Product.Image,
+                        SellerId = c.Product.SellerId,
+                        SellerName = c.Product.Seller.FullName ?? "",
+                        SellerBusinessName = c.Product.Seller.BusinessName ?? "",
+                        AvailableStock = c.Product.ProductQuantity
+                    })
+                    .ToListAsync();
+
+                if (!cartItems.Any())
+                {
+                    TempData["ErrorMessage"] = "Your cart is empty";
+                    return RedirectToAction("Cart");
+                }
+
+                // Get user details for pre-filling form
+                var user = await _userManager.FindByIdAsync(userId);
+
+                var checkoutModel = new CheckoutViewModel
+                {
+                    CartItems = cartItems,
+                    SubTotal = cartItems.Sum(i => i.SubTotal),
+                    DeliveryFee = 60,
+                    TotalAmount = cartItems.Sum(i => i.SubTotal) + 60,
+                    TotalItems = cartItems.Sum(i => i.Quantity),
+                    DeliveryName = user?.FullName ?? "",
+                    DeliveryPhone = user?.PhoneNumber ?? "",
+                    DeliveryAddress = user?.Location ?? "",
+                    PaymentMethod = "COD"
+                };
+
+                return View(checkoutModel);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to load checkout page";
+                return RedirectToAction("Cart");
+            }
+        }
+
+        // POST: Place Order
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PlaceOrder(CheckoutViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Reload cart items if validation fails
+                var userId = GetCurrentUserId();
+                model.CartItems = await _context.Carts
+                    .Where(c => c.BuyerId == userId)
+                    .Include(c => c.Product)
+                    .Select(c => new CartItemViewModel
+                    {
+                        ProductID = c.ProductId,
+                        ProductName = c.Product.ProductName,
+                        ProductPrice = c.Product.ProductPrice,
+                        Quantity = c.Quantity,
+                        Image = c.Product.Image,
+                        AvailableStock = c.Product.ProductQuantity
+                    })
+                    .ToListAsync();
+
+                model.SubTotal = model.CartItems.Sum(i => i.SubTotal);
+                model.TotalAmount = model.SubTotal + model.DeliveryFee;
+
+                return View("Checkout", model);
+            }
+
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                // Get cart items
+                var cartItems = await _context.Carts
+                    .Where(c => c.BuyerId == userId)
+                    .Include(c => c.Product)
+                    .ToListAsync();
+
+                if (!cartItems.Any())
+                {
+                    TempData["ErrorMessage"] = "Your cart is empty";
+                    return RedirectToAction("Cart");
+                }
+
+                // Calculate subtotal from cart
+                decimal subtotal = cartItems.Sum(c => c.Product.ProductPrice * c.Quantity);
+
+                // Verify stock availability
+                foreach (var cartItem in cartItems)
+                {
+                    if (cartItem.Product.ProductQuantity < cartItem.Quantity)
+                    {
+                        TempData["ErrorMessage"] = $"Insufficient stock for {cartItem.Product.ProductName}";
+                        return RedirectToAction("Checkout");
+                    }
+                }
+
+                // Generate Order Number
+                var orderNumber = $"ORD-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+
+                // Create Order - FIXED: Store subtotal in TotalAmount
+                var order = new Order
+                {
+                    OrderNumber = orderNumber,
+                    BuyerId = userId,
+                    TotalAmount = subtotal, // ✅ FIXED: This is now the subtotal
+                    DeliveryFee = model.DeliveryFee,
+                    PaymentMethod = model.PaymentMethod,
+                    OrderStatus = "Pending",
+                    PaymentStatus = model.PaymentMethod == "COD" ? "Pending" : "Pending",
+                    DeliveryName = model.DeliveryName,
+                    DeliveryPhone = model.DeliveryPhone,
+                    DeliveryAddress = model.DeliveryAddress,
+                    DeliveryCity = model.DeliveryCity,
+                    DeliveryState = model.DeliveryState,
+                    DeliveryNote = model.DeliveryNote,
+                    OrderDate = DateTime.Now
+                };
+
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                // Create Order Items and Update Stock
+                foreach (var cartItem in cartItems)
+                {
+                    var orderItem = new OrderItem
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = cartItem.ProductId,
+                        ProductName = cartItem.Product.ProductName,
+                        Price = cartItem.Product.ProductPrice,
+                        Quantity = cartItem.Quantity,
+                        SellerId = cartItem.Product.SellerId,
+                        ProductImage = cartItem.Product.Image
+                    };
+
+                    _context.OrderItems.Add(orderItem);
+
+                    // Update product stock
+                    cartItem.Product.ProductQuantity -= cartItem.Quantity;
+                }
+
+                // Clear cart
+                _context.Carts.RemoveRange(cartItems);
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Order placed successfully!";
+                return RedirectToAction("OrderConfirmation", new { orderNumber = orderNumber });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to place order. Please try again.";
+                return RedirectToAction("Checkout");
+            }
+        }
+
+        // GET: Order Confirmation Page
+        [Authorize]
+        public async Task<IActionResult> OrderConfirmation(string orderNumber)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                var order = await _context.Orders
+                    .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                    .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber && o.BuyerId == userId);
+
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = "Order not found";
+                    return RedirectToAction("Index");
+                }
+
+                return View(order);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to load order details";
+                return RedirectToAction("Index");
+            }
+        }
+
+
+        // GET: My Orders (Buyer View)
+        [Authorize]
+        public async Task<IActionResult> MyOrders()
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                var orders = await _context.Orders
+                    .Where(o => o.BuyerId == userId)
+                    .Include(o => o.OrderItems)
+                    .OrderByDescending(o => o.OrderDate)
+                    .ToListAsync();
+
+                return View(orders);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to load orders";
+                return View(new List<Order>());
+            }
+        }
+
+        // GET: Order Details
+        [Authorize]
+        public async Task<IActionResult> OrderDetails(int id)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                var order = await _context.Orders
+                    .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                    .FirstOrDefaultAsync(o => o.OrderId == id && o.BuyerId == userId);
+
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = "Order not found";
+                    return RedirectToAction("MyOrders");
+                }
+
+                return View(order);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to load order details";
+                return RedirectToAction("MyOrders");
+            }
+        }
+
+        // POST: Cancel Order
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+
+                var order = await _context.Orders
+                    .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                    .FirstOrDefaultAsync(o => o.OrderId == orderId && o.BuyerId == userId);
+
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = "Order not found";
+                    return RedirectToAction("MyOrders");
+                }
+
+                // Only allow cancellation if order is still pending
+                if (order.OrderStatus != "Pending")
+                {
+                    TempData["ErrorMessage"] = "Cannot cancel order. Order already processed.";
+                    return RedirectToAction("OrderDetails", new { id = orderId });
+                }
+
+                // Restore product stock
+                foreach (var item in order.OrderItems)
+                {
+                    if (item.Product != null)
+                    {
+                        item.Product.ProductQuantity += item.Quantity;
+                    }
+                }
+
+                order.OrderStatus = "Cancelled";
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Order cancelled successfully";
+                return RedirectToAction("MyOrders");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to cancel order";
+                return RedirectToAction("MyOrders");
+            }
         }
 
     }

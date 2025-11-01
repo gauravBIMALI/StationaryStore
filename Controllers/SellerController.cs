@@ -707,7 +707,79 @@ namespace ClzProject.Controllers
                 return Json(new { count = 0 });
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> UpdateOrderStatus(int orderItemId, string newStatus)
+        {
+            try
+            {
+                var sellerId = GetSellerId();
 
+                // Get the order item
+                var orderItem = await _context.OrderItems
+                    .Include(oi => oi.Order)
+                    .FirstOrDefaultAsync(oi => oi.OrderItemId == orderItemId && oi.SellerId == sellerId);
 
+                if (orderItem == null)
+                {
+                    TempData["ErrorMessage"] = "Order not found";
+                    return RedirectToAction("Orders");
+                }
+
+                // Validate status transition
+                var validStatuses = new[] { "Pending", "Confirmed", "Shipped", "Delivered" };
+                if (!validStatuses.Contains(newStatus))
+                {
+                    TempData["ErrorMessage"] = "Invalid status";
+                    return RedirectToAction("OrderDetails", new { id = orderItemId });
+                }
+
+                // Check if all items in this order belong to this seller
+                var allOrderItems = await _context.OrderItems
+                    .Where(oi => oi.OrderId == orderItem.OrderId)
+                    .ToListAsync();
+
+                var sellerItems = allOrderItems.Where(oi => oi.SellerId == sellerId).ToList();
+
+                // Update the order status
+                orderItem.Order.OrderStatus = newStatus;
+
+                // Set delivered date if status is Delivered
+                if (newStatus == "Delivered" && orderItem.Order.DeliveredDate == null)
+                {
+                    orderItem.Order.DeliveredDate = DateTime.Now;
+                    orderItem.Order.PaymentStatus = "Completed";
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Order status updated to {newStatus}";
+                return RedirectToAction("OrderDetails", new { id = orderItemId });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to update order status";
+                return RedirectToAction("Orders");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmOrder(int orderItemId)
+        {
+            return await UpdateOrderStatus(orderItemId, "Confirmed");
+        }
+
+        // POST: Ship Order (Shortcut method)
+        [HttpPost]
+        public async Task<IActionResult> ShipOrder(int orderItemId)
+        {
+            return await UpdateOrderStatus(orderItemId, "Shipped");
+        }
+
+        // POST: Mark as Delivered (Shortcut method)
+        [HttpPost]
+        public async Task<IActionResult> DeliverOrder(int orderItemId)
+        {
+            return await UpdateOrderStatus(orderItemId, "Delivered");
+        }
     }
 }

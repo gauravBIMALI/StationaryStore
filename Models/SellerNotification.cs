@@ -1,9 +1,8 @@
-﻿using ClzProject.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using UserRoles.Models;
 
-namespace ClzProject.ViewModels
+namespace ClzProject.Models
 {
     [Table("SellerNotifications")]
     public class SellerNotification

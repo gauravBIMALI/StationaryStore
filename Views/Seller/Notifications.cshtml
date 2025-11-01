@@ -1,0 +1,158 @@
+﻿@model List<ClzProject.Models.SellerNotification>
+
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-bell text-primary me-2"></i>Notifications</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a asp-action="Dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Notifications</li>
+                        </ol>
+                    </nav>
+                </div>
+                @if (Model.Any(n => !n.IsRead))
+                {
+                    <form asp-action="MarkAllAsRead" method="post">
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-check-double me-2"></i>Mark All as Read
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            <div class="col-12">
+                @foreach (var notification in Model)
+                {
+                    <div class="card mb-3 shadow-sm @(notification.IsRead ? "" : "border-primary")">
+                        <div class="card-body @(notification.IsRead ? "" : "bg-light")">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0">
+                                    @if (notification.NotificationType == "NewOrder")
+                                    {
+                                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center"
+                                             style="width: 50px; height: 50px;">
+                                            <i class="fas fa-shopping-cart fa-lg"></i>
+                                        </div>
+                                    }
+                                    else if (notification.NotificationType == "OrderCancelled")
+                                    {
+                                        <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center"
+                                             style="width: 50px; height: 50px;">
+                                            <i class="fas fa-times-circle fa-lg"></i>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center"
+                                             style="width: 50px; height: 50px;">
+                                            <i class="fas fa-info-circle fa-lg"></i>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h5 class="mb-1">
+                                                @notification.Title
+                                                @if (!notification.IsRead)
+                                                {
+                                                    <span class="badge bg-primary ms-2">New</span>
+                                                }
+                                            </h5>
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock me-1"></i>
+                                                @notification.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")
+                                            </small>
+                                        </div>
+                                        @if (!notification.IsRead)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                    onclick="markAsRead(@notification.NotificationId)">
+                                                <i class="fas fa-check"></i> Mark as Read
+                                            </button>
+                                        }
+                                    </div>
+
+                                    <p class="mb-2">@notification.Message</p>
+
+                                    @if (notification.OrderId.HasValue)
+                                    {
+                                        <a asp-action="Orders" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye me-1"></i>View Orders
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-bell-slash fa-5x text-muted mb-4"></i>
+                <h4 class="mb-3">No Notifications</h4>
+                <p class="text-muted">You don't have any notifications yet.</p>
+                <a asp-action="Dashboard" class="btn btn-primary mt-3">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        async function markAsRead(notificationId) {
+            try {
+                const response = await fetch('@Url.Action("MarkAsRead", "Seller")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${notificationId}`
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+}
+
+<style>
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);

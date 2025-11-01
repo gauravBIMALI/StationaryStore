@@ -213,7 +213,15 @@
                                 </ul>
                             </li>
 
-                            
+                            <li class="nav-item position-relative me-3">
+                                <a class="nav-link" asp-controller="Seller" asp-action="Notifications" title="Notifications">
+                                    <i class="fas fa-bell fa-lg"></i>
+                                    <span class="notification-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                          style="display: none; font-size: 0.7rem;">
+                                        0
+                                    </span>
+                                </a>
+                            </li>
 
                            
                         }
@@ -331,6 +339,47 @@
             // Make function globally available
             window.updateCartCount = loadCartCount;
         </script>
+        @if (User.IsInRole("Seller"))
+        {
+            <script>
+                // Load notification count on page load
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadNotificationCount();
+
+                    // Auto-refresh every 30 seconds
+                    setInterval(loadNotificationCount, 30000);
+                });
+
+                function loadNotificationCount() {
+                    fetch('@Url.Action("GetUnreadCount", "Seller")')
+                        .then(response => response.json())
+                        .then(data => {
+                            const badge = document.querySelector('.notification-count-badge');
+                            if (badge) {
+                                if (data.count > 0) {
+                                    badge.textContent = data.count;
+                                    badge.style.display = 'inline-flex';
+
+                                    // Update page title
+                                    if (!document.title.startsWith('(')) {
+                                        document.title = `(${data.count}) ${document.title}`;
+                                    } else {
+                                        document.title = document.title.replace(/\(\d+\)/, `(${data.count})`);
+                                    }
+                                } else {
+                                    badge.style.display = 'none';
+                                    // Remove count from title
+                                    document.title = document.title.replace(/^\(\d+\)\s*/, '');
+                                }
+                            }
+                        })
+                        .catch(error => console.error('Error loading notification count:', error));
+                }
+
+                // Make function globally available
+                window.updateNotificationCount = loadNotificationCount;
+            </script>
+        }
     }
 </body>
 

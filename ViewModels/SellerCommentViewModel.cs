@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ClzProject.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ClzProject.ViewModels
 {

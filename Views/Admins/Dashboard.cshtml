@@ -2,26 +2,122 @@
 @{
     ViewData["Title"] = "Admin Dashboard";
 }
-@section Styles {
-    <link rel="stylesheet" href="~/css/AdminDashboard.css" asp-append-version="true" />
-}
+
 <div class="container-fluid">
     <!-- Dashboard Header -->
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2 text-primary">
             <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
         </h1>
-         <div class="btn-toolbar mb-2 mb-md-0">
-            <div class="btn-group me-2">
-                <button type="button" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-download me-1"></i>Export
-                </button>
-            </div>
-        </div> 
     </div>
 
-    <!-- Key Metrics Cards -->
     <div class="row mb-4">
+        <!-- Total Revenue -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                Total Revenue
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-success">Rs. @Model.TotalRevenue.ToString("N2")</div>
+                            <small class="text-muted">From all sales</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Commission -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                Total Commission (5%)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-primary">Rs. @Model.TotalCommissionEarned.ToString("N2")</div>
+                            <small class="text-muted">Your earnings</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percentage fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completed Commission -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                Completed Commission
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-success">Rs. @Model.CompletedCommission.ToString("N2")</div>
+                            <small class="text-muted">From delivered orders</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Commission -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                Pending Commission
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-warning">Rs. @Model.PendingCommission.ToString("N2")</div>
+                            <small class="text-muted">From ongoing orders</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Total Orders -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                Total Orders
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalOrders</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-info"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-controller="Admins" asp-action="ViewAllOrders" class="btn btn-sm btn-outline-info">
+                            <i class="fas fa-eye me-1"></i>View All
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Total Sellers -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -70,85 +166,73 @@
             </div>
         </div>
 
-        <!-- Total Categories -->
+        <!-- Total Users -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
-                                Total Categories
+                                Total Buyers
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalCategories</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalUsers</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-tags fa-2x text-primary"></i>
+                            <i class="fas fa-user-friends fa-2x text-primary"></i>
                         </div>
-                    </div>
-                    <div class="mt-2">
-                        <a asp-controller="Categories" asp-action="Index" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-eye me-1"></i>Manage
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total FAQs -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-gray text-uppercase mb-1">
-                                Total FAQs
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalFAQs</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-question-circle fa-2x text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <a asp-controller="FAQs" asp-action="Index" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-eye me-1"></i>Manage
-                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Additional Statistics Row -->
     <div class="row mb-4">
+        <!-- Commission Breakdown -->
         <div class="col-md-6">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
                     <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-chart-bar me-2"></i>Quick Stats
+                        <i class="fas fa-chart-line me-2"></i>Commission Breakdown
                     </h6>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-6 text-center border-right">
-                            <div class="h4 font-weight-bold text-dark">@Model.TotalUsers</div>
-                            <div class="text-xs text-dark">Total Buyers</div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Today's Commission:</span>
+                            <strong class="text-success">Rs. @Model.TodayCommission.ToString("N2")</strong>
                         </div>
-                        <div class="col-6 text-center">
-                            <div class="h4 font-weight-bold text-dark">@(Model.TotalSellers + Model.TotalUsers)</div>
-                            <div class="text-xs text-dark">Total Users</div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: 100%"></div>
                         </div>
                     </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>This Month's Commission:</span>
+                            <strong class="text-primary">Rs. @Model.ThisMonthCommission.ToString("N2")</strong>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: 100%"></div>
+                        </div>
+                    </div>
+
                     <hr>
-                    <div class="text-center">
-                        <a asp-controller="Account" asp-action="CreateSeller" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-user-plus me-1"></i>Add New Seller
-                        </a>
+
+                    <div class="row text-center">
+                        <div class="col-6 border-right">
+                            <div class="h5 font-weight-bold text-success">@Model.CompletedOrders</div>
+                            <div class="text-xs text-muted">Completed Orders</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h5 font-weight-bold text-warning">@Model.PendingOrders</div>
+                            <div class="text-xs text-muted">Pending Orders</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Quick Actions -->
         <div class="col-md-6">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
@@ -158,14 +242,17 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
+                        <a asp-controller="Admins" asp-action="ViewAllOrders" class="list-group-item list-group-item-action">
+                            <i class="fas fa-shopping-cart me-2 text-info"></i>View All Orders
+                        </a>
+                        <a asp-controller="Admins" asp-action="CommissionReport" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-invoice-dollar me-2 text-success"></i>Commission Report
+                        </a>
                         <a asp-controller="Admins" asp-action="Index" class="list-group-item list-group-item-action">
                             <i class="fas fa-users me-2 text-primary"></i>Manage Sellers
                         </a>
                         <a asp-controller="Categories" asp-action="Index" class="list-group-item list-group-item-action">
                             <i class="fas fa-tags me-2 text-primary"></i>Manage Categories
-                        </a>
-                        <a asp-controller="FAQs" asp-action="Index" class="list-group-item list-group-item-action">
-                            <i class="fas fa-question-circle me-2 text-primary"></i>Manage FAQs
                         </a>
                         <a asp-controller="Admins" asp-action="ListProducts" class="list-group-item list-group-item-action">
                             <i class="fas fa-boxes me-2 text-primary"></i>View All Products
@@ -176,15 +263,15 @@
         </div>
     </div>
 
-    <!-- Recent Activity Section -->
-    @if (Model.RecentProducts?.Any() == true)
+    <!-- Recent Commissions Table -->
+    @if (Model.RecentCommissions?.Any() == true)
     {
         <div class="row">
             <div class="col-12">
                 <div class="card shadow">
                     <div class="card-header bg-primary text-white">
                         <h6 class="m-0 font-weight-bold">
-                            <i class="fas fa-clock me-2"></i>Recent Products Added
+                            <i class="fas fa-money-bill-wave me-2"></i>Recent Commissions
                         </h6>
                     </div>
                     <div class="card-body">
@@ -192,24 +279,68 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Product Name</th>
-                                        <th>Category</th>
-                                        <th>Date Added</th>
+                                        <th>Order #</th>
+                                        <th>Seller</th>
+                                        <th>Product Amount</th>
+                                        <th>Commission (5%)</th>
+                                        <th>Seller Earning</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var product in Model.RecentProducts.Take(5))
+                                    @foreach (var commission in Model.RecentCommissions.Take(10))
                                     {
                                         <tr>
-                                            <td>@product.ProductName</td>
                                             <td>
-                                                <span class="badge bg-primary">@product.CategoryType</span>
+                                                <strong class="text-primary">@commission.Order.OrderNumber</strong>
                                             </td>
-                                            <td>@product.CreatedAt.ToString("dd MMM yyyy")</td>
+                                            <td>
+                                                <small>@(commission.Seller?.BusinessName ?? commission.Seller?.FullName ?? "Unknown")</small>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">Rs. @commission.ProductAmount.ToString("N2")</span>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success">Rs. @commission.CommissionAmount.ToString("N2")</strong>
+                                            </td>
+                                            <td>
+                                                <span class="text-primary">Rs. @commission.SellerEarning.ToString("N2")</span>
+                                            </td>
+                                            <td>
+                                                @if (commission.OrderStatus == "Pending")
+                                                {
+                                                    <span class="badge bg-warning">Pending</span>
+                                                }
+                                                else if (commission.OrderStatus == "Confirmed")
+                                                {
+                                                    <span class="badge bg-info">Confirmed</span>
+                                                }
+                                                else if (commission.OrderStatus == "Shipped")
+                                                {
+                                                    <span class="badge bg-primary">Shipped</span>
+                                                }
+                                                else if (commission.OrderStatus == "Delivered")
+                                                {
+                                                    <span class="badge bg-success">Delivered</span>
+                                                }
+                                                else if (commission.OrderStatus == "Cancelled")
+                                                {
+                                                    <span class="badge bg-danger">Cancelled</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <small>@commission.CreatedAt.ToString("dd MMM yyyy")</small>
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a asp-controller="Admins" asp-action="CommissionReport" class="btn btn-primary">
+                                <i class="fas fa-file-invoice-dollar me-2"></i>View Full Commission Report
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -218,3 +349,33 @@
     }
 </div>
 
+<style>
+    .border-left-primary {
+        border-left: 4px solid #4e73df;
+    }
+
+    .border-left-success {
+        border-left: 4px solid #1cc88a;
+    }
+
+    .border-left-info {
+        border-left: 4px solid #36b9cc;
+    }
+
+    .border-left-warning {
+        border-left: 4px solid #f6c23e;
+    }
+
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+</style>

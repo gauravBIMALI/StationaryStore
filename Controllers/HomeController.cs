@@ -58,7 +58,6 @@ namespace UserRoles.Controllers
             return View(products);
         }
 
-        // NEW: API endpoint to get image for specific product
         [HttpGet]
         public async Task<IActionResult> GetProductImage(int id)
         {
@@ -79,7 +78,7 @@ namespace UserRoles.Controllers
         public async Task<IActionResult> ProductDetails(int id)
         {
             var product = await _context.Product
-                .Include(p => p.Seller) // Include seller information
+                .Include(p => p.Seller)
                 .FirstOrDefaultAsync(p => p.ProductID == id);
 
             if (product == null)
@@ -89,7 +88,6 @@ namespace UserRoles.Controllers
             return View(product);
         }
 
-        // GET: Home/Category (Filter by category - WITHOUT IMAGES)
         public async Task<IActionResult> Category(string categoryType)
         {
             var products = await _context.Product
@@ -104,7 +102,6 @@ namespace UserRoles.Controllers
                     ProductQuantity = p.ProductQuantity,
                     CategoryType = p.CategoryType,
                     CreatedAt = p.CreatedAt
-                    // Image excluded for faster loading
                 })
                 .ToListAsync();
 
@@ -112,7 +109,6 @@ namespace UserRoles.Controllers
             return View("Index", products);
         }
 
-        // GET: Search products (WITHOUT IMAGES)
         public async Task<IActionResult> Search(string searchTerm)
         {
             if (string.IsNullOrEmpty(searchTerm))
@@ -135,7 +131,6 @@ namespace UserRoles.Controllers
                     ProductQuantity = p.ProductQuantity,
                     CategoryType = p.CategoryType,
                     CreatedAt = p.CreatedAt
-                    // Image excluded for faster loading
                 })
                 .ToListAsync();
 
@@ -177,7 +172,6 @@ namespace UserRoles.Controllers
             return View();
         }
 
-        // Update the GetRelatedProducts method in your HomeController
         [HttpGet]
         public async Task<IActionResult> GetRelatedProducts(string categoryType, int excludeId, int count = 6)
         {
@@ -187,7 +181,7 @@ namespace UserRoles.Controllers
                     .Where(p => p.CategoryType == categoryType &&
                                p.ProductID != excludeId &&
                                p.ProductQuantity > 0)
-                    .OrderBy(x => Guid.NewGuid()) // Random order
+                    .OrderBy(x => Guid.NewGuid())
                     .Take(count)
                     .Select(p => new
                     {
@@ -218,7 +212,6 @@ namespace UserRoles.Controllers
         }
 
         //for comment
-        // GET: Load comments for a product
         [HttpGet]
         public async Task<IActionResult> GetProductComments(int productId)
         {
@@ -266,7 +259,7 @@ namespace UserRoles.Controllers
 
             try
             {
-                // Fix: Use User.FindFirst(ClaimTypes.NameIdentifier)?.Value instead of _userManager.GetUserId(User)
+
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
                 {
@@ -297,7 +290,6 @@ namespace UserRoles.Controllers
                 _context.ProductComments.Add(comment);
                 await _context.SaveChangesAsync();
 
-                // Return the new comment data
                 var commentDisplay = new CommentDisplayViewModel
                 {
                     CommentId = comment.CommentId,
@@ -315,7 +307,6 @@ namespace UserRoles.Controllers
             }
         }
 
-        // POST: Add reply to comment (Only sellers can reply)
         [HttpPost]
         [Authorize(Roles = "Seller")]
         public async Task<IActionResult> AddReply([FromBody] AddReplyViewModel model)
@@ -339,7 +330,6 @@ namespace UserRoles.Controllers
                     return Json(new { success = false, message = "Seller not found" });
                 }
 
-                // Check if comment exists and verify it belongs to seller's product
                 var comment = await _context.ProductComments
                     .Include(c => c.Reply)
                     .Include(c => c.Product)
@@ -350,7 +340,6 @@ namespace UserRoles.Controllers
                     return Json(new { success = false, message = "Comment not found" });
                 }
 
-                // CRITICAL CHECK: Only the product owner can reply
                 if (comment.Product.SellerId != sellerId)
                 {
                     return Json(new { success = false, message = "You can only reply to comments on your own products" });
@@ -372,7 +361,6 @@ namespace UserRoles.Controllers
                 _context.ProductCommentReplies.Add(reply);
                 await _context.SaveChangesAsync();
 
-                // Return the new reply data
                 var replyDisplay = new ReplyDisplayViewModel
                 {
                     ReplyId = reply.ReplyId,
@@ -457,7 +445,6 @@ namespace UserRoles.Controllers
             {
                 var userId = GetCurrentUserId();
 
-                // Check if product exists and has enough stock
                 var product = await _context.Product.FindAsync(productId);
                 if (product == null)
                 {
@@ -471,16 +458,13 @@ namespace UserRoles.Controllers
                     return RedirectToAction("ProductDetails", new { id = productId });
                 }
 
-                // Check if item already exists in cart
                 var existingCart = await _context.Carts
                     .FirstOrDefaultAsync(c => c.BuyerId == userId && c.ProductId == productId);
 
                 if (existingCart != null)
                 {
-                    // Update quantity
                     var newQuantity = existingCart.Quantity + quantity;
 
-                    // Check total quantity against stock
                     if (newQuantity > product.ProductQuantity)
                     {
                         TempData["ErrorMessage"] = $"Cannot add more. Only {product.ProductQuantity} items available";
@@ -537,7 +521,7 @@ namespace UserRoles.Controllers
 
                 if (quantity <= 0)
                 {
-                    // Remove item if quantity is 0 or less
+
                     _context.Carts.Remove(cartItem);
                     await _context.SaveChangesAsync();
 
@@ -640,15 +624,9 @@ namespace UserRoles.Controllers
                 return Json(new { count = 0 });
             }
         }
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> BuyNow(int productId, int quantity = 1)
-        {
-            await AddToCart(productId, quantity);
-            return RedirectToAction("Checkout", "Home"); // or redirect to Checkout
-        }
 
-        // GET: Checkout Page
+
+
         [Authorize]
         public async Task<IActionResult> Checkout()
         {
@@ -706,125 +684,6 @@ namespace UserRoles.Controllers
             }
         }
 
-        // POST: Place Order
-        //[HttpPost]
-        //[Authorize]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> PlaceOrder(CheckoutViewModel model)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        // Reload cart items if validation fails
-        //        var userId = GetCurrentUserId();
-        //        model.CartItems = await _context.Carts
-        //            .Where(c => c.BuyerId == userId)
-        //            .Include(c => c.Product)
-        //            .Select(c => new CartItemViewModel
-        //            {
-        //                ProductID = c.ProductId,
-        //                ProductName = c.Product.ProductName,
-        //                ProductPrice = c.Product.ProductPrice,
-        //                Quantity = c.Quantity,
-        //                Image = c.Product.Image,
-        //                AvailableStock = c.Product.ProductQuantity
-        //            })
-        //            .ToListAsync();
-
-        //        model.SubTotal = model.CartItems.Sum(i => i.SubTotal);
-        //        model.TotalAmount = model.SubTotal + model.DeliveryFee;
-
-        //        return View("Checkout", model);
-        //    }
-
-        //    try
-        //    {
-        //        var userId = GetCurrentUserId();
-
-        //        // Get cart items
-        //        var cartItems = await _context.Carts
-        //            .Where(c => c.BuyerId == userId)
-        //            .Include(c => c.Product)
-        //            .ToListAsync();
-
-
-        //        if (!cartItems.Any())
-        //        {
-        //            TempData["ErrorMessage"] = "Your cart is empty";
-        //            return RedirectToAction("Cart");
-        //        }
-
-        //        // Calculate subtotal from cart
-        //        decimal subtotal = cartItems.Sum(c => c.Product.ProductPrice * c.Quantity);
-
-        //        // Verify stock availability
-        //        foreach (var cartItem in cartItems)
-        //        {
-        //            if (cartItem.Product.ProductQuantity < cartItem.Quantity)
-        //            {
-        //                TempData["ErrorMessage"] = $"Insufficient stock for {cartItem.Product.ProductName}";
-        //                return RedirectToAction("Checkout");
-        //            }
-        //        }
-
-        //        // Generate Order Number
-        //        var orderNumber = $"ORD-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
-
-        //        // Create Order - FIXED: Store subtotal in TotalAmount
-        //        var order = new Order
-        //        {
-        //            OrderNumber = orderNumber,
-        //            BuyerId = userId,
-        //            TotalAmount = subtotal,
-        //            DeliveryFee = model.DeliveryFee,
-        //            PaymentMethod = model.PaymentMethod,
-        //            OrderStatus = "Pending",
-        //            PaymentStatus = model.PaymentMethod == "COD" ? "Pending" : "Pending",
-        //            DeliveryName = model.DeliveryName,
-        //            DeliveryPhone = model.DeliveryPhone,
-        //            DeliveryAddress = model.DeliveryAddress,
-        //            DeliveryCity = model.DeliveryCity,
-        //            DeliveryState = model.DeliveryState,
-        //            DeliveryNote = model.DeliveryNote,
-        //            OrderDate = DateTime.Now
-        //        };
-
-        //        _context.Orders.Add(order);
-        //        await _context.SaveChangesAsync();
-
-        //        // Create Order Items and Update Stock
-        //        foreach (var cartItem in cartItems)
-        //        {
-        //            var orderItem = new OrderItem
-        //            {
-        //                OrderId = order.OrderId,
-        //                ProductId = cartItem.ProductId,
-        //                ProductName = cartItem.Product.ProductName,
-        //                Price = cartItem.Product.ProductPrice,
-        //                Quantity = cartItem.Quantity,
-        //                SellerId = cartItem.Product.SellerId,
-        //                ProductImage = cartItem.Product.Image
-        //            };
-
-        //            _context.OrderItems.Add(orderItem);
-
-        //            // Update product stock
-        //            cartItem.Product.ProductQuantity -= cartItem.Quantity;
-        //        }
-
-        //        // Clear cart
-        //        _context.Carts.RemoveRange(cartItems);
-
-        //        await _context.SaveChangesAsync();
-
-        //        TempData["SuccessMessage"] = "Order placed successfully!";
-        //        return RedirectToAction("OrderConfirmation", new { orderNumber = orderNumber });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        TempData["ErrorMessage"] = "Failed to place order. Please try again.";
-        //        return RedirectToAction("Checkout");
-        //    }
-        //}
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -832,7 +691,6 @@ namespace UserRoles.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Reload cart items if validation fails
                 var userId = GetCurrentUserId();
                 model.CartItems = await _context.Carts
                     .Where(c => c.BuyerId == userId)
@@ -858,7 +716,6 @@ namespace UserRoles.Controllers
             {
                 var userId = GetCurrentUserId();
 
-                // Get cart items
                 var cartItems = await _context.Carts
                     .Where(c => c.BuyerId == userId)
                     .Include(c => c.Product)
@@ -866,27 +723,23 @@ namespace UserRoles.Controllers
 
                 if (!cartItems.Any())
                 {
-                    TempData["ErrorMessage"] = "Your cart is empty.";
+                    TempData["ErrorMessage"] = "Your cart is empty";
                     return RedirectToAction("Cart");
                 }
 
-                // Verify stock availability
+                decimal subtotal = cartItems.Sum(c => c.Product.ProductPrice * c.Quantity);
+
                 foreach (var cartItem in cartItems)
                 {
                     if (cartItem.Product.ProductQuantity < cartItem.Quantity)
                     {
-                        TempData["ErrorMessage"] = $"Insufficient stock for {cartItem.Product.ProductName}.";
+                        TempData["ErrorMessage"] = $"Insufficient stock for {cartItem.Product.ProductName}";
                         return RedirectToAction("Checkout");
                     }
                 }
 
-                // Calculate subtotal
-                decimal subtotal = cartItems.Sum(c => c.Product.ProductPrice * c.Quantity);
-
-                // Generate Order Number
                 var orderNumber = $"ORD-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
 
-                // Create Order
                 var order = new Order
                 {
                     OrderNumber = orderNumber,
@@ -908,7 +761,8 @@ namespace UserRoles.Controllers
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                // Create Order Items and Update Stock
+                // Create order items
+                var orderItemsList = new List<OrderItem>();
                 foreach (var cartItem in cartItems)
                 {
                     var orderItem = new OrderItem
@@ -923,14 +777,39 @@ namespace UserRoles.Controllers
                     };
 
                     _context.OrderItems.Add(orderItem);
-
-                    // Update stock
+                    orderItemsList.Add(orderItem);
                     cartItem.Product.ProductQuantity -= cartItem.Quantity;
                 }
 
-                // ✅ Create Seller Notifications before clearing cart
-                var sellerGroups = cartItems.GroupBy(c => c.Product.SellerId);
+                await _context.SaveChangesAsync(); // Save to get OrderItem IDs
 
+                // ✅ CREATE COMMISSION RECORDS
+                foreach (var orderItem in orderItemsList)
+                {
+                    decimal productAmount = orderItem.Price * orderItem.Quantity;
+                    decimal commissionRate = 5.0m;
+                    decimal commissionAmount = (productAmount * commissionRate) / 100;
+                    decimal sellerEarning = productAmount - commissionAmount;
+
+                    var commission = new AdminCommission
+                    {
+                        OrderId = order.OrderId,
+                        OrderItemId = orderItem.OrderItemId,
+                        SellerId = orderItem.SellerId,
+                        BuyerId = userId,
+                        ProductAmount = productAmount,
+                        CommissionRate = commissionRate,
+                        CommissionAmount = commissionAmount,
+                        SellerEarning = sellerEarning,
+                        OrderStatus = "Pending",
+                        CreatedAt = DateTime.Now
+                    };
+
+                    _context.AdminCommissions.Add(commission);
+                }
+
+                // Create notifications for sellers
+                var sellerGroups = cartItems.GroupBy(c => c.Product.SellerId);
                 foreach (var sellerGroup in sellerGroups)
                 {
                     var sellerId = sellerGroup.Key;
@@ -943,7 +822,7 @@ namespace UserRoles.Controllers
                         SellerId = sellerId,
                         NotificationType = "NewOrder",
                         Title = "New Order Received",
-                        Message = $"You have received a new order ({order.OrderNumber}) with {itemCount} item(s) worth Rs. {sellerTotal:N2}.",
+                        Message = $"You have received a new order ({order.OrderNumber}) with {itemCount} item(s) worth Rs. {sellerTotal:N2}",
                         OrderId = order.OrderId,
                         IsRead = false,
                         CreatedAt = DateTime.Now
@@ -952,17 +831,14 @@ namespace UserRoles.Controllers
                     _context.SellerNotifications.Add(notification);
                 }
 
-                // Clear cart
                 _context.Carts.RemoveRange(cartItems);
-
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Order placed successfully!";
-                return RedirectToAction("OrderConfirmation", new { orderNumber });
+                return RedirectToAction("OrderConfirmation", new { orderNumber = orderNumber });
             }
             catch (Exception ex)
             {
-                // Optional: log error (ex)
                 TempData["ErrorMessage"] = "Failed to place order. Please try again.";
                 return RedirectToAction("Checkout");
             }

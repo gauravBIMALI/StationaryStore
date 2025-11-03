@@ -32,7 +32,6 @@
         <!-- Left Column -->
         <div class="col-lg-8">
             <!-- Order Information -->
-            <!-- Order Information -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
@@ -329,7 +328,8 @@
         <!-- Right Column -->
         <div class="col-lg-4">
             <!-- Order Summary -->
-            <div class="card shadow-sm  mb-4" >
+            <!-- Order Summary -->
+            <div class="card shadow-sm sticky-top mb-4" style="top: 20px;">
                 <div class="card-header bg-success text-white">
                     <h6 class="mb-0">
                         <i class="fas fa-receipt me-2"></i>Order Summary
@@ -340,15 +340,19 @@
                         <span>Product Total:</span>
                         <strong>Rs. @Model.Total.ToString("N2")</strong>
                     </div>
+                    <div class="d-flex justify-content-between mb-2 text-danger">
+                        <span>Platform Fee (5%):</span>
+                        <strong>- Rs. @((Model.Total * 0.05m).ToString("N2"))</strong>
+                    </div>
                     <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
-                        <span>Your Earnings:</span>
-                        <h5 class="mb-0 text-success">Rs. @Model.Total.ToString("N2")</h5>
+                        <span><strong>Your Earnings (95%):</strong></span>
+                        <h5 class="mb-0 text-success">Rs. @((Model.Total * 0.95m).ToString("N2"))</h5>
                     </div>
 
-                    <div class="alert alert-info">
+                    <div class="alert alert-info mb-3">
                         <small>
                             <i class="fas fa-info-circle me-1"></i>
-                            Platform fee and delivery charges are handled separately
+                            Platform fee is deducted from completed orders only
                         </small>
                     </div>
 

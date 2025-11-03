@@ -21,14 +21,12 @@ namespace ClzProject.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        // Navigation properties
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; } = null!;
 
         [ForeignKey("UserId")]
         public virtual Users User { get; set; } = null!;
 
-        // One comment can have one reply
         public virtual ProductCommentReply? Reply { get; set; }
     }
 

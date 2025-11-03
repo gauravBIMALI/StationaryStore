@@ -171,9 +171,12 @@
 
                                     <!-- Amount -->
                                     <td>
-                                        <p class="mb-0 fw-bold text-success">Rs. @order.Total.ToString("N2")</p>
+                                        <p class="mb-0 fw-bold text-success">
+                                            Rs. @((order.Total * 0.95m).ToString("N2"))
+                                        </p>
                                         <small class="text-muted">
-                                            Rs. @order.Price.ToString("N2") × @order.Quantity
+                                            <del>Rs. @order.Total.ToString("N2")</del>
+                                            <span class="text-danger">-5%</span>
                                         </small>
                                     </td>
 

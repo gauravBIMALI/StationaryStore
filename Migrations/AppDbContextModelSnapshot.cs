@@ -22,6 +22,63 @@ namespace ClzProject.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ClzProject.Models.AdminCommission", b =>
+                {
+                    b.Property<int>("CommissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommissionId"));
+
+                    b.Property<string>("BuyerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("CommissionAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CommissionRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderItemId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OrderStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("ProductAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SellerEarning")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SellerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("CommissionId");
+
+                    b.HasIndex("BuyerId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("OrderItemId");
+
+                    b.HasIndex("SellerId");
+
+                    b.ToTable("AdminCommissions");
+                });
+
             modelBuilder.Entity("ClzProject.Models.AdminContact", b =>
                 {
                     b.Property<int>("ContactId")
@@ -479,7 +536,7 @@ namespace ClzProject.Migrations
                     b.ToTable("ProductCommentReplies");
                 });
 
-            modelBuilder.Entity("ClzProject.ViewModels.SellerNotification", b =>
+            modelBuilder.Entity("ClzProject.Models.SellerNotification", b =>
                 {
                     b.Property<int>("NotificationId")
                         .ValueGeneratedOnAdd()
@@ -745,6 +802,41 @@ namespace ClzProject.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("ClzProject.Models.AdminCommission", b =>
+                {
+                    b.HasOne("UserRoles.Models.Users", "Buyer")
+                        .WithMany()
+                        .HasForeignKey("BuyerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClzProject.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClzProject.Models.OrderItem", "OrderItem")
+                        .WithMany()
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UserRoles.Models.Users", "Seller")
+                        .WithMany()
+                        .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Buyer");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("OrderItem");
+
+                    b.Navigation("Seller");
+                });
+
             modelBuilder.Entity("ClzProject.Models.Cart", b =>
                 {
                     b.HasOne("UserRoles.Models.Users", "Buyer")
@@ -857,7 +949,7 @@ namespace ClzProject.Migrations
                     b.Navigation("Seller");
                 });
 
-            modelBuilder.Entity("ClzProject.ViewModels.SellerNotification", b =>
+            modelBuilder.Entity("ClzProject.Models.SellerNotification", b =>
                 {
                     b.HasOne("ClzProject.Models.Order", "Order")
                         .WithMany()

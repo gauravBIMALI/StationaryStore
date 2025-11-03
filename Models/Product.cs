@@ -4,7 +4,7 @@ using UserRoles.Models;
 
 namespace ClzProject.Models
 {
-    [Table("Product")] // DB Table Name
+    [Table("Product")]
     public class Product
     {
         [Key]
@@ -35,8 +35,7 @@ namespace ClzProject.Models
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         [Display(Name = "Image")]
-        public string Image { get; set; } = string.Empty; // Store base64 string
-
+        public string Image { get; set; } = string.Empty;
         [Required]
         public string CategoryType { get; set; } = string.Empty;
 
@@ -45,7 +44,6 @@ namespace ClzProject.Models
 
         public int? CategoryId { get; set; }
 
-        // Navigation properties
         [ForeignKey("CategoryId")]
         public virtual Category? Category { get; set; }
 

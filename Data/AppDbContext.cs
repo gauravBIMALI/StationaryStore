@@ -12,6 +12,7 @@ namespace UserRoles.Data
         }
 
         //DbSets
+        public DbSet<AdminCommission> AdminCommissions { get; set; } = default!;
         public DbSet<ChatBotFAQ> ChatBotFAQs { get; set; }
         public DbSet<FAQ> FAQs { get; set; }
         public DbSet<Category> Category { get; set; } = default!;
@@ -115,6 +116,29 @@ namespace UserRoles.Data
                 .HasForeignKey(n => n.OrderId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<AdminCommission>()
+        .HasOne(c => c.Order)
+        .WithMany()
+        .HasForeignKey(c => c.OrderId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AdminCommission>()
+                .HasOne(c => c.OrderItem)
+                .WithMany()
+                .HasForeignKey(c => c.OrderItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AdminCommission>()
+                .HasOne(c => c.Seller)
+                .WithMany()
+                .HasForeignKey(c => c.SellerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AdminCommission>()
+                .HasOne(c => c.Buyer)
+                .WithMany()
+                .HasForeignKey(c => c.BuyerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

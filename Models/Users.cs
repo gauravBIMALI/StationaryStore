@@ -9,7 +9,6 @@ namespace UserRoles.Models
         public string? FullName { get; set; }
         public bool EmailConfirmed { get; set; } = true;
 
-        // Seller-specific fields (nullable)
         [MaxLength(100)]
         public string? BusinessName { get; set; }
 

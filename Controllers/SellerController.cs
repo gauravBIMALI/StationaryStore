@@ -79,7 +79,6 @@ namespace ClzProject.Controllers
             // Handle image upload
             if (model.ProfileImage != null && model.ProfileImage.Length > 0)
             {
-                // Validate image
                 var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif" };
                 if (!allowedTypes.Contains(model.ProfileImage.ContentType))
                 {
@@ -87,8 +86,8 @@ namespace ClzProject.Controllers
                     return View(model);
                 }
 
-                // Limit file size to 2MB
-                if (model.ProfileImage.Length > 2 * 1024 * 1024)
+                // Limit file size to 1MB
+                if (model.ProfileImage.Length > 2 * 1024)
                 {
                     ModelState.AddModelError("ProfileImage", "Image must be smaller than 2MB.");
                     return View(model);
@@ -102,7 +101,6 @@ namespace ClzProject.Controllers
                 }
             }
 
-            // Update other profile fields
             user.FullName = model.Name;
             user.Email = model.Email;
             user.UserName = model.Email;
@@ -120,7 +118,6 @@ namespace ClzProject.Controllers
                 return RedirectToAction(nameof(Profile));
             }
 
-            // Handle errors
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
@@ -155,7 +152,6 @@ namespace ClzProject.Controllers
                 BusinessType = user.BusinessType ?? string.Empty,
                 Phone = user.PhoneNumber ?? string.Empty,
                 ProfileImageBase64 = user.ProfileImage
-                // Base64 string from database
             };
 
             return View(model);
@@ -185,22 +181,6 @@ namespace ClzProject.Controllers
         }
 
 
-
-
-        //[HttpPost]
-        //[Authorize(Roles = "Seller")]
-        //public async Task<IActionResult> MarkAsRead(int id)
-        //{
-        //    var notification = await _context.ProductDeletionNotifications.FindAsync(id);
-        //    if (notification != null && notification.SellerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-        //    {
-        //        notification.IsRead = true;
-        //        await _context.SaveChangesAsync();
-        //    }
-
-        //    return RedirectToAction(nameof(Notifications));
-        //}
-
         public async Task<IActionResult> Dashboard()
         {
             var sellerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -210,7 +190,7 @@ namespace ClzProject.Controllers
                 .Where(p => p.SellerId == sellerId)
                 .CountAsync();
 
-            // Get pending comments count (comments without replies on seller's products)
+            // Get pending comments count
             var pendingCommentsCount = await _context.ProductComments
                 .Where(c => c.Product.SellerId == sellerId && c.Reply == null)
                 .CountAsync();
@@ -240,7 +220,7 @@ namespace ClzProject.Controllers
                 })
                 .ToListAsync();
 
-            // NEW: Get Orders Stats
+            // Get Orders Stats
             var orderItemsQuery = _context.OrderItems
                 .Where(oi => oi.SellerId == sellerId)
                 .Include(oi => oi.Order);
@@ -261,12 +241,11 @@ namespace ClzProject.Controllers
                 .Select(oi => oi.OrderId)
                 .Distinct()
                 .CountAsync();
+            var totalRevenue = await _context.AdminCommissions
+                .Where(c => c.SellerId == sellerId && c.OrderStatus == "Delivered")
+                .SumAsync(c => c.SellerEarning);
 
-            var totalRevenue = await orderItemsQuery
-                .Where(oi => oi.Order.OrderStatus == "Delivered")
-                .SumAsync(oi => oi.Price * oi.Quantity);
-
-            // NEW: Get Recent Orders
+            // Get Recent Orders
             var recentOrders = await _context.OrderItems
                 .Where(oi => oi.SellerId == sellerId)
                 .Include(oi => oi.Order)
@@ -296,7 +275,7 @@ namespace ClzProject.Controllers
                 })
                 .ToListAsync();
 
-            // NEW: Get Notifications
+            // Get Notifications
             var unreadNotifications = await _context.SellerNotifications
                 .Where(n => n.SellerId == sellerId && !n.IsRead)
                 .CountAsync();
@@ -314,14 +293,14 @@ namespace ClzProject.Controllers
                 TotalComments = totalCommentsCount,
                 RecentComments = recentComments,
 
-                // NEW: Orders Data
+                // Orders Data
                 TotalOrders = totalOrders,
                 PendingOrders = pendingOrders,
                 ShippedOrders = shippedOrders,
-                TotalRevenue = totalRevenue,
+                TotalRevenue = totalRevenue, // ✅ Now shows 95% (after 5% commission)
                 RecentOrders = recentOrders,
 
-                // NEW: Notifications
+                // Notifications
                 UnreadNotifications = unreadNotifications,
                 RecentNotifications = recentNotifications
             };
@@ -707,6 +686,7 @@ namespace ClzProject.Controllers
                 return Json(new { count = 0 });
             }
         }
+        // POST: Update Order Status
         [HttpPost]
         public async Task<IActionResult> UpdateOrderStatus(int orderItemId, string newStatus)
         {
@@ -714,9 +694,10 @@ namespace ClzProject.Controllers
             {
                 var sellerId = GetSellerId();
 
-                // Get the order item
                 var orderItem = await _context.OrderItems
                     .Include(oi => oi.Order)
+                    .ThenInclude(o => o.Buyer)
+                    .Include(oi => oi.Product)
                     .FirstOrDefaultAsync(oi => oi.OrderItemId == orderItemId && oi.SellerId == sellerId);
 
                 if (orderItem == null)
@@ -725,7 +706,6 @@ namespace ClzProject.Controllers
                     return RedirectToAction("Orders");
                 }
 
-                // Validate status transition
                 var validStatuses = new[] { "Pending", "Confirmed", "Shipped", "Delivered" };
                 if (!validStatuses.Contains(newStatus))
                 {
@@ -733,26 +713,32 @@ namespace ClzProject.Controllers
                     return RedirectToAction("OrderDetails", new { id = orderItemId });
                 }
 
-                // Check if all items in this order belong to this seller
-                var allOrderItems = await _context.OrderItems
-                    .Where(oi => oi.OrderId == orderItem.OrderId)
-                    .ToListAsync();
-
-                var sellerItems = allOrderItems.Where(oi => oi.SellerId == sellerId).ToList();
-
-                // Update the order status
+                var oldStatus = orderItem.Order.OrderStatus;
                 orderItem.Order.OrderStatus = newStatus;
 
-                // Set delivered date if status is Delivered
                 if (newStatus == "Delivered" && orderItem.Order.DeliveredDate == null)
                 {
                     orderItem.Order.DeliveredDate = DateTime.Now;
                     orderItem.Order.PaymentStatus = "Completed";
                 }
 
+                // ✅ UPDATE COMMISSION STATUS
+                var commission = await _context.AdminCommissions
+                    .FirstOrDefaultAsync(c => c.OrderItemId == orderItemId);
+
+                if (commission != null)
+                {
+                    commission.OrderStatus = newStatus;
+
+                    if (newStatus == "Delivered")
+                    {
+                        commission.CompletedAt = DateTime.Now;
+                    }
+                }
+
                 await _context.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = $"Order status updated to {newStatus}";
+                TempData["SuccessMessage"] = $"Order status updated from {oldStatus} to {newStatus}";
                 return RedirectToAction("OrderDetails", new { id = orderItemId });
             }
             catch (Exception ex)

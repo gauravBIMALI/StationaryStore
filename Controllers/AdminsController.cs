@@ -391,41 +391,136 @@ namespace ClzProject.Controllers
         // GET: Admin/Dashboard
         public async Task<IActionResult> Dashboard()
         {
-            // Get user counts
             var sellers = await _userManager.GetUsersInRoleAsync("Seller");
             var users = await _userManager.GetUsersInRoleAsync("User");
 
+            // Calculate commission stats
+            var totalOrders = await _context.Orders.CountAsync();
+            var pendingOrders = await _context.Orders.Where(o => o.OrderStatus == "Pending").CountAsync();
+            var completedOrders = await _context.Orders.Where(o => o.OrderStatus == "Delivered").CountAsync();
+
+            var totalRevenue = await _context.AdminCommissions.SumAsync(c => c.ProductAmount);
+            var totalCommission = await _context.AdminCommissions.SumAsync(c => c.CommissionAmount);
+            var pendingCommission = await _context.AdminCommissions
+                .Where(c => c.OrderStatus != "Delivered" && c.OrderStatus != "Cancelled")
+                .SumAsync(c => c.CommissionAmount);
+            var completedCommission = await _context.AdminCommissions
+                .Where(c => c.OrderStatus == "Delivered")
+                .SumAsync(c => c.CommissionAmount);
+
+            var today = DateTime.Today;
+            var todayCommission = await _context.AdminCommissions
+                .Where(c => c.CreatedAt >= today && c.OrderStatus == "Delivered")
+                .SumAsync(c => c.CommissionAmount);
+
+            var firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
+            var thisMonthCommission = await _context.AdminCommissions
+                .Where(c => c.CreatedAt >= firstDayOfMonth && c.OrderStatus == "Delivered")
+                .SumAsync(c => c.CommissionAmount);
+
+            var recentCommissions = await _context.AdminCommissions
+                .Include(c => c.Order)
+                .Include(c => c.Seller)
+                .OrderByDescending(c => c.CreatedAt)
+                .Take(10)
+                .ToListAsync();
+
             var dashboardData = new AdminDashboardViewModel
             {
-                // Total number of sellers
                 TotalSellers = sellers.Count,
-
-                // Total number of listed products
                 TotalProducts = await _context.Product.CountAsync(),
-
-                // Total categories (adjust table name if different)
                 TotalCategories = await _context.Category.CountAsync(),
-
-                // Total FAQs
                 TotalFAQs = await _context.FAQs.CountAsync(),
-
-                // Additional useful metrics
                 TotalUsers = users.Count,
 
-                // Recent activities (optional)
+                // Order & Commission Stats
+                TotalOrders = totalOrders,
+                PendingOrders = pendingOrders,
+                CompletedOrders = completedOrders,
+                TotalRevenue = totalRevenue,
+                TotalCommissionEarned = totalCommission,
+                PendingCommission = pendingCommission,
+                CompletedCommission = completedCommission,
+                TodayCommission = todayCommission,
+                ThisMonthCommission = thisMonthCommission,
+                RecentCommissions = recentCommissions,
+
                 RecentProducts = await _context.Product
                     .OrderByDescending(p => p.CreatedAt)
                     .Take(5)
                     .Select(p => new { p.ProductName, p.CreatedAt, p.CategoryType })
                     .ToListAsync(),
 
-                // Recent sellers
                 RecentSellers = sellers.OrderByDescending(s => s.Id).Take(5).ToList()
             };
 
             return View(dashboardData);
         }
+        // GET: Commission Report
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CommissionReport(string status = "All", DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var query = _context.AdminCommissions
+                .Include(c => c.Order)
+                .Include(c => c.Seller)
+                .Include(c => c.OrderItem)
+                .AsQueryable();
 
+            // Filter by status
+            if (status != "All")
+            {
+                query = query.Where(c => c.OrderStatus == status);
+            }
+
+            // Filter by date range
+            if (startDate.HasValue)
+            {
+                query = query.Where(c => c.CreatedAt >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                var endDateTime = endDate.Value.AddDays(1).AddSeconds(-1);
+                query = query.Where(c => c.CreatedAt <= endDateTime);
+            }
+
+            var commissions = await query
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+
+            // Calculate totals
+            ViewBag.TotalProductAmount = commissions.Sum(c => c.ProductAmount);
+            ViewBag.TotalCommission = commissions.Sum(c => c.CommissionAmount);
+            ViewBag.TotalSellerEarning = commissions.Sum(c => c.SellerEarning);
+            ViewBag.CurrentStatus = status;
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+
+            return View(commissions);
+        }
+
+        // GET: View All Orders
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ViewAllOrders(string status = "All")
+        {
+            var query = _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .Include(o => o.Buyer)
+                .AsQueryable();
+
+            if (status != "All")
+            {
+                query = query.Where(o => o.OrderStatus == status);
+            }
+
+            var orders = await query
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+
+            ViewBag.CurrentStatus = status;
+            return View(orders);
+        }
 
     }
 }

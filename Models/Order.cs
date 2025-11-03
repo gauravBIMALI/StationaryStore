@@ -11,7 +11,7 @@ namespace ClzProject.Models
         public int OrderId { get; set; }
 
         [Required]
-        public string OrderNumber { get; set; } = string.Empty; // e.g., ORD-20250101-0001
+        public string OrderNumber { get; set; } = string.Empty;
 
         [Required]
         public string BuyerId { get; set; } = string.Empty;
@@ -28,11 +28,9 @@ namespace ClzProject.Models
         public string PaymentMethod { get; set; } = string.Empty; // COD, Esewa
 
         [Required]
-        public string OrderStatus { get; set; } = "Pending"; // Pending, Confirmed, Shipped, Delivered, Cancelled
+        public string OrderStatus { get; set; } = "Pending";
 
-        public string? PaymentStatus { get; set; } = "Pending"; // Pending, Paid, Failed
-
-        // Delivery Information
+        public string? PaymentStatus { get; set; } = "Pending";
         [Required]
         public string DeliveryName { get; set; } = string.Empty;
 

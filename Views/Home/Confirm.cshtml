@@ -320,7 +320,7 @@
             opacity: 1;
         }
 
-        }
+        
 
         .order-info-item {
             padding: 15px;
@@ -427,12 +427,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Auto-scroll to top on page load
         window.scrollTo(0, 0);
 
-        // Add some interactive effects
         document.addEventListener('DOMContentLoaded', function() {
-            // Animate the success icon
             const successIcon = document.querySelector('.success-icon i');
             setTimeout(() => {
                 successIcon.style.transform = 'scale(1.1)';
@@ -441,7 +438,6 @@
                 }, 200);
             }, 600);
 
-            // Simulate order tracking updates (demo purposes)
             setTimeout(() => {
                 console.log('Order tracking simulation - this would connect to real tracking API');
             }, 2000);

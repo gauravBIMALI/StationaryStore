@@ -14,8 +14,7 @@ namespace ClzProject.Models
         public string SellerId { get; set; } = string.Empty;
 
         [Required]
-        public string NotificationType { get; set; } = string.Empty; // NewOrder, OrderCancelled, etc.
-
+        public string NotificationType { get; set; } = string.Empty;
         [Required]
         public string Title { get; set; } = string.Empty;
 
@@ -30,7 +29,7 @@ namespace ClzProject.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        // Navigation Properties
+
         [ForeignKey("SellerId")]
         public virtual Users? Seller { get; set; }
 

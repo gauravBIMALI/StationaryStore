@@ -10,7 +10,6 @@
             <h2 class="fw-bold">
                 <i class="fas fa-shopping-bag text-primary"></i> My Orders
             </h2>
-            
         </div>
     </div>
 
@@ -49,7 +48,9 @@
                                 </div>
                                 <div class="col-md-2">
                                     <small class="text-muted">Total Amount</small>
-                                    <h6 class="mb-0 text-success">Rs. @((order.TotalAmount + order.DeliveryFee).ToString("N2"))</h6>
+                                    <h6 class="mb-0 text-success">
+                                        Rs. @((order.TotalAmount + order.DeliveryFee).ToString("N2"))
+                                    </h6>
                                 </div>
                                 <div class="col-md-2">
                                     <small class="text-muted">Status</small>
@@ -76,14 +77,28 @@
                                         }
                                     </p>
                                 </div>
+
+                                <!-- Action Buttons -->
                                 <div class="col-md-2 text-end">
                                     <a asp-action="OrderDetails" asp-route-id="@order.OrderId"
-                                       class="btn btn-sm btn-outline-primary">
+                                       class="btn btn-sm btn-outline-primary me-1">
                                         <i class="fas fa-eye me-1"></i>View Details
                                     </a>
+
+                                    @if (order.PaymentMethod == "Esewa" && order.PaymentStatus != "Paid")
+                                    {
+                                        <form asp-controller="Payment" asp-action="InitiateEsewaPayment"
+                                              method="post" class="d-inline">
+                                            <input type="hidden" name="orderId" value="@order.OrderId" />
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="fas fa-wallet me-1"></i>Pay Now
+                                            </button>
+                                        </form>
+                                    }
                                 </div>
                             </div>
                         </div>
+
                         <div class="card-body">
                             <div class="row">
                                 @foreach (var item in order.OrderItems.Take(3))
@@ -111,10 +126,13 @@
                                         </div>
                                     </div>
                                 }
+
                                 @if (order.OrderItems.Count > 3)
                                 {
                                     <div class="col-md-12">
-                                        <small class="text-muted">+@(order.OrderItems.Count - 3) more items</small>
+                                        <small class="text-muted">
+                                            +@(order.OrderItems.Count - 3) more items
+                                        </small>
                                     </div>
                                 }
                             </div>

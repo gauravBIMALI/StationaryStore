@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ClzProject.Migrations
 {
     /// <inheritdoc />
-    public partial class G999 : Migration
+    public partial class Gb1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -322,6 +322,44 @@ namespace ClzProject.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EsewaPayments",
+                columns: table => new
+                {
+                    PaymentId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    TransactionId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TaxAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ServiceCharge = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DeliveryCharge = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ProductId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BuyerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EsewaTransactionCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CompletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EsewaPayments", x => x.PaymentId);
+                    table.ForeignKey(
+                        name: "FK_EsewaPayments_AspNetUsers_BuyerId",
+                        column: x => x.BuyerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_EsewaPayments_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "OrderId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SellerNotifications",
                 columns: table => new
                 {
@@ -593,6 +631,16 @@ namespace ClzProject.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_EsewaPayments_BuyerId",
+                table: "EsewaPayments",
+                column: "BuyerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EsewaPayments_OrderId",
+                table: "EsewaPayments",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
                 table: "OrderItems",
                 column: "OrderId");
@@ -686,6 +734,9 @@ namespace ClzProject.Migrations
 
             migrationBuilder.DropTable(
                 name: "ChatBotFAQs");
+
+            migrationBuilder.DropTable(
+                name: "EsewaPayments");
 
             migrationBuilder.DropTable(
                 name: "FAQs");

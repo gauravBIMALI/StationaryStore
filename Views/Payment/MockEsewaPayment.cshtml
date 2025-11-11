@@ -1,0 +1,158 @@
+﻿@{
+    ViewData["Title"] = "eSewa Payment Gateway (Demo)";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- eSewa Mock Interface -->
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <img src="https://esewa.com.np/common/images/esewa_logo.png"
+                         style="max-width: 150px;" class="mb-2">
+                    <h5 class="mb-0">eSewa Payment Gateway (Test Mode)</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Demo Mode:</strong> This is a simulated eSewa payment for demonstration purposes.
+                    </div>
+
+                    <!-- Payment Details -->
+                    <div class="mb-4">
+                        <h6 class="mb-3">Payment Details</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td>Amount:</td>
+                                    <td class="text-end"><strong>Rs. @ViewBag.Amount</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Service Charge:</td>
+                                    <td class="text-end">Rs. @ViewBag.ServiceCharge</td>
+                                </tr>
+                                <tr>
+                                    <td>Delivery Charge:</td>
+                                    <td class="text-end">Rs. @ViewBag.DeliveryCharge</td>
+                                </tr>
+                                <tr>
+                                    <td>Tax:</td>
+                                    <td class="text-end">Rs. @ViewBag.TaxAmount</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td><strong>Total Amount:</strong></td>
+                                    <td class="text-end"><strong>Rs. @ViewBag.TotalAmount</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mock Login Form -->
+                    <div class="mb-4">
+                        <h6 class="mb-3">eSewa Login (Test Credentials)</h6>
+                        <div class="mb-3">
+                            <label class="form-label">eSewa ID</label>
+                            <input type="text" class="form-control" value="9806800001" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" value="Nepal@123" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">MPIN</label>
+                            <input type="text" class="form-control" value="1122" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-success btn-lg" onclick="simulatePayment(true)">
+                            <i class="fas fa-check-circle me-2"></i>Confirm Payment
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="simulatePayment(false)">
+                            <i class="fas fa-times-circle me-2"></i>Cancel Payment
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-lock me-1"></i>
+                            Secure Payment | eSewa Demo Mode
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden forms for redirecting -->
+<form id="successForm" action="@ViewBag.SuccessUrl" method="get" style="display:none;">
+    <input type="hidden" name="oid" value="@ViewBag.TransactionUuid">
+    <input type="hidden" name="amt" value="@ViewBag.TotalAmount">
+    <input type="hidden" name="refId" id="refId" value="">
+</form>
+
+<form id="failureForm" action="@ViewBag.FailureUrl" method="get" style="display:none;">
+    <input type="hidden" name="pid" value="@ViewBag.TransactionUuid">
+</form>
+
+@section Scripts {
+    <script>
+        function simulatePayment(success) {
+            if (success) {
+                // Show loading
+                Swal.fire({
+                    title: 'Processing Payment...',
+                    html: 'Please wait while we process your payment.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Simulate payment processing delay
+                setTimeout(function() {
+                    // Generate mock reference ID
+                    const refId = 'REF' + Math.random().toString(36).substring(2, 9).toUpperCase();
+                    document.getElementById('refId').value = refId;
+
+                    Swal.close();
+
+                    // Redirect to success
+                    document.getElementById('successForm').submit();
+                }, 2000);
+            } else {
+                // Show cancellation message
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Payment Cancelled',
+                    text: 'You have cancelled the payment',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Redirect to failure
+                    document.getElementById('failureForm').submit();
+                });
+            }
+        }
+    </script>
+}
+
+<style>
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        border-bottom: 3px solid #1a7f37;
+    }
+
+    .table td {
+        padding: 8px 12px;
+    }
+
+    .form-control:read-only {
+        background-color: #e9ecef;
+    }
+</style>

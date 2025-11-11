@@ -32,6 +32,8 @@ namespace UserRoles.Data
         //Cart feature
         public DbSet<Cart> Carts { get; set; } = default!;
         public DbSet<SellerNotification> SellerNotifications { get; set; } = default!;
+        public DbSet<EsewaPayment> EsewaPayments { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -138,6 +140,18 @@ namespace UserRoles.Data
                 .HasOne(c => c.Buyer)
                 .WithMany()
                 .HasForeignKey(c => c.BuyerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EsewaPayment>()
+       .HasOne(ep => ep.Order)
+       .WithMany()
+       .HasForeignKey(ep => ep.OrderId)
+       .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EsewaPayment>()
+                .HasOne(ep => ep.Buyer)
+                .WithMany()
+                .HasForeignKey(ep => ep.BuyerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
         }

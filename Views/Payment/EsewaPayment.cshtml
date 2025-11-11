@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Redirecting to eSewa...";
+}
+@* this is esewapayment.cshtml *@
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow text-center">
+                <div class="card-body py-5">
+                    <img src="https://esewa.com.np/common/images/esewa_logo.png"
+                         alt="eSewa"
+                         style="max-width: 200px;"
+                         class="mb-4">
+
+                    <h4 class="mb-3">Redirecting to eSewa Payment Gateway...</h4>
+                    <p class="text-muted">Please wait, do not close this window.</p>
+
+                    <div class="spinner-border text-success my-4" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <p class="mb-2"><strong>Payment Amount:</strong> Rs. @ViewBag.TotalAmount</p>
+                        <p class="mb-0"><strong>Transaction ID:</strong> @ViewBag.TransactionUuid</p>
+                    </div>
+
+                    <div class="card bg-light mt-3">
+                        <div class="card-body">
+                            <h6 class="mb-2">Test Credentials:</h6>
+                            <p class="mb-1"><strong>eSewa ID:</strong> 9806800001</p>
+                            <p class="mb-1"><strong>Password:</strong> Nepal@123</p>
+                            <p class="mb-0"><strong>MPIN:</strong> 1122</p>
+                        </div>
+                    </div>
+
+                    <p class="small text-muted mt-3">
+                        If you are not redirected automatically,
+                        <a href="#" onclick="document.getElementById('esewaForm').submit(); return false;">click here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<form action="@ViewBag.PaymentUrl" method="POST" id="esewaForm" style="display:none;">
+    <input type="hidden" name="amt" value="@ViewBag.Amount">
+    <input type="hidden" name="psc" value="@ViewBag.ServiceCharge">
+    <input type="hidden" name="pdc" value="@ViewBag.DeliveryCharge">
+    <input type="hidden" name="txAmt" value="@ViewBag.TaxAmount">
+    <input type="hidden" name="tAmt" value="@ViewBag.TotalAmount">
+    <input type="hidden" name="pid" value="@ViewBag.TransactionUuid">
+    <input type="hidden" name="scd" value="@ViewBag.ProductCode">
+    <input type="hidden" name="su" value="@ViewBag.SuccessUrl">
+    <input type="hidden" name="fu" value="@ViewBag.FailureUrl">
+</form>
+
+
+
+@section Scripts {
+    <script>
+        // Auto-submit form after 2 seconds
+        setTimeout(function() {
+            console.log('Submitting payment form...');
+            document.getElementById('esewaForm').submit();
+        }, 2000);
+    </script>
+}
+
+<style>
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+</style>

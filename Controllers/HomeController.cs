@@ -845,6 +845,7 @@ namespace UserRoles.Controllers
         }
 
         // GET: Order Confirmation Page
+        // GET: Order Confirmation Page
         [Authorize]
         public async Task<IActionResult> OrderConfirmation(string orderNumber)
         {
@@ -862,6 +863,9 @@ namespace UserRoles.Controllers
                     TempData["ErrorMessage"] = "Order not found";
                     return RedirectToAction("Index");
                 }
+
+                // DEBUG: Log the order details
+                Console.WriteLine($"OrderConfirmation - OrderId: {order.OrderId}, OrderNumber: {order.OrderNumber}");
 
                 return View(order);
             }

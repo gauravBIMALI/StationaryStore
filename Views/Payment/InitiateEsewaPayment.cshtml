@@ -1,0 +1,57 @@
+﻿@model ClzProject.Models.Order
+@* this is initiateesewapayment.cshtml *@
+@{
+    ViewData["Title"] = "eSewa Payment - " + Model.OrderNumber;
+}
+
+<div class="container my-5">
+    <h2>Payment Page Test</h2>
+
+    <div class="alert alert-info">
+        <h4>Debug Information:</h4>
+        <p><strong>Order ID:</strong> @Model.OrderId</p>
+        <p><strong>Order Number:</strong> @Model.OrderNumber</p>
+        <p><strong>Total Amount:</strong> Rs. @Model.TotalAmount.ToString("N2")</p>
+        <p><strong>Delivery Fee:</strong> Rs. @Model.DeliveryFee.ToString("N2")</p>
+        <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+        <p><strong>Payment Status:</strong> @Model.PaymentStatus</p>
+        <p><strong>Order Items Count:</strong> @(Model.OrderItems?.Count ?? 0)</p>
+    </div>
+
+    @if (Model.OrderItems != null && Model.OrderItems.Any())
+    {
+        <h4>Order Items:</h4>
+        <ul>
+            @foreach (var item in Model.OrderItems)
+            {
+                <li>@item.ProductName - Qty: @item.Quantity - Rs. @item.Price</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            No order items found!
+        </div>
+    }
+
+    <!-- Action Buttons -->
+    <div class="d-grid gap-2">
+        <form asp-action="ProcessEsewaPayment" asp-controller="Payment" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="orderId" value="@Model.OrderId" />
+            <button type="submit" class="btn btn-success btn-lg w-100 mb-2">
+                <img src="https://esewa.com.np/common/images/esewa_logo.png"
+                     style="height: 30px;" class="me-2">
+                Proceed to Pay Rs. @((Model.TotalAmount + Model.DeliveryFee).ToString("N2"))
+            </button>
+        </form>
+        <a asp-controller="Home" asp-action="MyOrders" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-arrow-left me-2"></i>Cancel & Go Back
+        </a>
+    </div>
+
+    @* <a asp-controller="Home" asp-action="MyOrders" class="btn btn-secondary mt-2">
+        Cancel
+    </a> *@
+</div>
